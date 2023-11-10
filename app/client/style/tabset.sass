@@ -1,0 +1,56 @@
+// Markup example
+// <tabset>
+//   <labels>
+//     <span>Show as</span> <input type="radio" name="tabset" id="tab1" aria-controls="investor" checked/>
+//     <label for="tab1">Investor</label>
+//     <input type="radio" name="tabset" id="tab2" aria-controls="creator"/>
+//     <label for="tab2">Creator</label>
+//   </labels>
+//   <tabs>
+//     <tab id="investor">
+//       tab1 content
+//     </tab>
+//     <tab id="creator">
+//       tab2 content
+//     </tab>
+//   </tabs>
+// </tabset>
+
+tabset
+  padding-right: -1px
+  overflow: hidden
+
+  & > input[type="radio"]
+    position: absolute
+    left: -200vw
+
+  tab
+    display: none
+
+
+  label
+    margin-right: 6px
+
+    &:last-of-type
+      margin-right: 0
+
+  & > input:first-of-type:checked ~ tabs > tab:first-child,
+  & > input:nth-of-type(2):checked ~ tabs > tab:nth-child(2),
+  & > input:nth-of-type(3):checked ~ tabs > tab:nth-child(3),
+  & > input:nth-of-type(4):checked ~ tabs > tab:nth-child(4),
+  & > input:nth-of-type(5):checked ~ tabs > tab:nth-child(5),
+  & > input:nth-of-type(6):checked ~ tabs > tab:nth-child(6)
+    display: block
+
+  // Styling
+  & > label
+    position: relative
+    display: inline-block
+    box-sizing: border-box
+    border-bottom: 1px solid transparent
+    cursor: pointer
+    font-weight: 600
+
+  & > input:checked + label
+    border-color: var(--text-color)
+    border-bottom: 1px solid

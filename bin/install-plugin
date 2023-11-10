@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# shellcheck source=./env.sh
+source "$(dirname $0)/../env.sh"
+
+if [[ -z "$1" ]]; then
+  echo -e 'Usage: install-plugin plugin1 plugin2 plugin3'
+  echo -e '- \e[35;1mPLUGIN_UPDATE\e[0;0m=1              Update or skip during install. Default: 0'
+  exit 1
+fi
+
+# internal method to call from install_plugin function
+_install_plugin() {
+  plugin=$1
+  echo -e 'Trying install \e[34;1m'$plugin'\e[0;0m'
+  echo 'Fetching using git...'
+  plugin_dir=$TMP_DIR/kisscore-plugin-$plugin
+  if [[ -d $plugin_dir ]]; then
+    pushd "$(pwd)" && cd $plugin_dir && git fetch && git pull --rebase origin master && popd
+  else
+    git clone git@github.com:kisscore/plugin-$plugin.git $plugin_dir
+  fi
+
+  if [[ "$?" != "0" ]]; then
+    echo 'Cant find plugin '$plugin
+    exit 1
+  fi
+  echo '...done'
+
+  # Get plugin namespace for proper installation
+  plugin=$(cat $plugin_dir/namespace)
+
+  # Check requirements
+  if [[ -x $plugin_dir/check ]]; then
+    check_log=$TMP_DIR/plugin-checks-$plugin
+    $plugin_dir/check > $check_log 2>&1
+    if [[ $? -ne 0 ]]; then
+      echo 'Run checks failed, skipping...'
+      /bin/cat $check_log && /bin/rm $check_log
+      return
+    fi
+    /bin/rm $check_log
+  fi
+
+  install_to=$APP_DIR/plugin/$plugin
+  if [[ -z $PLUGIN_UPDATE && -d $install_to ]]; then
+    echo 'Plugin already installed, skipping. Use PLUGIN_UPDATE=1 for update'
+    return
+  fi
+
+  if [[ -d $install_to ]]; then
+    echo 'Found old installation. Backuping...'
+    /bin/tar -czf $install_to/$(/bin/date +%Y%m%d-%H%M%S).backup.tar.gz --exclude=*.backup.tar.gz $install_to/
+    /usr/bin/find $install_to -type f -not -name '*.backup.tar.gz' | xargs /bin/rm
+  fi
+
+  /bin/mkdir -p $install_to
+  /bin/cp -fvr $plugin_dir/* $install_to
+
+  test -x $install_to/setup && PATH=$PATH:./bin $_
+  echo '...done'
+
+  if [[ -f $install_to/require ]]; then
+    for dep in `cat $install_to/require`; do
+      _install_plugin "$dep"
+    done
+  fi
+  rebuild=1
+}
+
+rebuild=0
+for plugin in "$@"; do
+  _install_plugin $plugin
+done
+
+if (( $rebuild )); then
+  echo -e '\e[32;1mStarting init script to realod maps\e[0;0m'
+  $(dirname $0)/php-exec 'Env::init()'
+fi

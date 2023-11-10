@@ -1,0 +1,11 @@
+image: manticoresearch/manticore:dev-6.2.13-cb5fdc6
+labels:
+  - role=manticore
+working_dir: /
+restart: "always"
+user: root
+volumes:
+  - manticore-storage:/var/lib/manticore:rw
+entrypoint: ["searchd"]
+command:
+  - --nodetach

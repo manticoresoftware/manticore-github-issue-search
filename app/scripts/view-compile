@@ -1,0 +1,27 @@
+#!/usr/bin/env /src/bin/php-exec-one
+<?php
+$action_map = Env::load(config('common.action_map_file'));
+$setups = [
+  ['prepend' => '_head', 'append' => '_head']
+];
+
+// Reset all possible views first
+View::flush();
+
+foreach ($setups as $setup) {
+  foreach (config('common.languages') as $language) {
+    echo 'Rendering ' . $language . PHP_EOL;
+    foreach ($action_map as $action => $file) {
+      echo '  ' .$file . PHP_EOL;
+      Lang::init($language);
+      View::create($action)
+        ->configure(['source_dir' => config('view.source_dir') . '/' . $language])
+        ->prepend($setup['prepend'])
+        ->append($setup['append'])
+        ->render(true)
+      ;
+    }
+  }
+}
+
+echo 'Done' . PHP_EOL;

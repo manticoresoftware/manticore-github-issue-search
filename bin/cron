@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -e
+
+# shellcheck source=./env.sh
+source "$(dirname $0)/../env.sh"
+
+timeout="${2:-0}"
+if [[ -z "$1" ]]; then
+  >&2 echo 'Usage bin/cron [path-to-executable] [timeout]'
+  exit 1
+fi
+
+file="$PROJECT_DIR/$1"
+if [[ ! -f "$file" || ! -x "$file" ]]; then
+  >&2 echo "File should exists and be executable (chmod 700): $file"
+  exit 1
+fi
+
+job_pid=
+trap quit SIGSEGV SIGINT SIGTERM SIGQUIT
+quit() {
+  datetime="$(date +%Y-%m-%d\ %T)"
+  echo "[$datetime] STOP signal received. Waiting for jobs to finish..."
+  test -n "$job_pid" && wait "$_"
+}
+
+while true; do
+  datetime="$(date +%Y-%m-%d\ %T)"
+  echo "[$datetime] Starting the job"
+
+  ts="$(date +%s)"
+  "$file" 1> /dev/stdout 2> /dev/stderr & job_pid=$!
+  wait "$job_pid"
+  job_pid=
+  job_time=$(( $(date +%s) - ts ))
+
+  datetime="$(date +%Y-%m-%d\ %T)"
+  echo "[$datetime] Job took ${job_time}s"
+  if (( timeout > 0 )); then
+    echo "[$datetime] Waiting ${timeout}s"
+    sleep "$timeout"
+  fi
+done

@@ -1,0 +1,19 @@
+{
+  "eslint.enable": true,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "app/static/files": true,
+    "env": true,
+    "app/static/asset": true,
+    "app/client/asset": true,
+    "app/vendor": true
+  },
+  "files.associations": {
+    "*.tpl": "html",
+    "Dockerfile-*": "dockerfile"
+  }
+}

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -e
+
+source "$(pwd)/docker/.yodarc"
+
+fswatch -m poll_monitor -0 -r app/actions/ app/config/ | \
+  while read -r -d "" f; do
+    echo "$f"
+    docker exec "$COMPOSE_PROJECT_NAME.php" bin/init > /dev/null
+    docker kill -s HUP "$COMPOSE_PROJECT_NAME.nginx" > /dev/null
+  done

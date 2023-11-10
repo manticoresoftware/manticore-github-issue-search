@@ -1,0 +1,13 @@
+image: queue
+labels:
+  - role=queue
+restart: unless-stopped
+entrypoint: ["beanstalkd"]
+command:
+  - "-l"
+  - "127.0.0.1"
+  - "-p"
+  - "4444"
+  - "-z"
+  - "262144"
+stop_signal: SIGINT

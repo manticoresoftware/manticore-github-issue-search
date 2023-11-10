@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+commit=$(git rev-parse HEAD 2>/dev/null || echo 'latest')
+REVISION_TAG=$(git describe --exact-match "$commit" 2>/dev/null || true)
+GIT_URL=$(git config --get remote.origin.url 2> /dev/null || true)
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2> /dev/null || echo 'master')
+SOURCE_PATH=$(pwd)
+DOCKER_ROOT=$(cd "${BASH_SOURCE%/*}" && pwd)
+ENV=${ENV:-dev}
+
+export \
+  YODA_VERSION="2.3" \
+  YODA_VAR_REGEX='%(\{[A-Z_]+\})' \
+  REVISION=${REVISION:-$commit} \
+  REVISION_TAG \
+  GIT_URL \
+  GIT_BRANCH \
+  SOURCE_PATH \
+  DOCKER_ROOT \
+  HOSTNAME=${HOSTNAME:-$(hostname)} \
+  ENV STACK \
+  COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-"manticore-github-issue-search"} \
+  COMPOSE_HTTP_TIMEOUT=${COMPOSE_HTTP_TIMEOUT:-300} \
+  COMPOSE_FILE="$DOCKER_ROOT/docker-compose.$ENV.yml" \
+  STOP_WAIT_TIMEOUT=${STOP_WAIT_TIMEOUT:-10} \
+  REGISTRY_URL=${REGISTRY_URL:-''} \
+  GIT_SECRET_PASSWORD=${GIT_SECRET_PASSWORD:-''}

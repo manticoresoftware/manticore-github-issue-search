@@ -1,0 +1,16 @@
+#!/usr/bin/env /src/bin/php-exec
+<?php declare(strict_types=1);
+
+use App\Lib\Queue;
+
+$hostname = gethostname();
+$no = false !== strpos($hostname, '.')
+	? (int)substr($hostname, strrpos($hostname, '.') + 1)
+	: 0;
+$ns = 'queue-process-' . config("task.processor.{$no}");
+Cli::print('Queue NS: ' . $ns);
+
+Queue::process($ns, function (mixed $job) {
+
+	return true;
+});

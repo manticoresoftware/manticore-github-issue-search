@@ -1,0 +1,12 @@
+FROM node:18.18-alpine3.18
+LABEL maintainer="Manticore Software Co. Ltd <contact@manticoresearch.com>"
+
+RUN mkdir -p /src
+COPY package.json /src
+ENV BUILD_DEPS="build-base python3"
+RUN apk add $BUILD_DEPS && \
+  cd /src && yarn install && yarn cache clean && \
+  apk del $BUILD_DEPS
+COPY . /src
+
+WORKDIR /src

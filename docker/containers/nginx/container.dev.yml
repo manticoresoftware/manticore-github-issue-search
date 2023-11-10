@@ -1,0 +1,5 @@
+volumes:
+  - ${SOURCE_PATH}:/src
+  - env-storage:/src/env
+ports:
+  - '80:80'

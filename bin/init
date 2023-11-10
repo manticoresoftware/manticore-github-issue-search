@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# shellcheck source=./env.sh
+source "$(dirname $0)/../env.sh"
+
+if [ -e /.inited ]; then
+  echo 'Skipping first initialization'
+else
+  echo "Running first initiazliation"
+
+  echo "Preparing env/* dirs"
+  mkdir -p /src/env/backup /src/env/etc /src/env/log /src/env/run /src/env/tmp /src/env/var
+
+  echo "Touch /.inited"
+  touch /.inited
+fi
+
+php=$(which php)
+config=$($php --ini | head -n 1)
+config=${config##* }
+
+OPTS=''
+if [[ -f $config ]]; then
+  OPTS='-c '$config
+  echo "Found php config – $config"
+fi
+
+echo "Running Env::init()"
+$php $OPTS <<EOF
+<?php
+  include getenv('KISS_CORE');
+  Env::init();
+EOF
+
+"$APP_DIR/scripts/view-compile"
+
+echo 'Done'

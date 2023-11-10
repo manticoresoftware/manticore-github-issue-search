@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+cd app || exit 1
+if [[ ! -f "./vendor/bin/noverify" ]]; then
+	./vendor/bin/noverify-get
+fi
+
+# --exclude-checks='undefined'
+./vendor/bin/noverify check --allow-all-checks \
+	--exclude-checks=useExitOrDie \
+	--exclude=plugin/ \
+	--exclude=core.php \
+	--php-extensions=php \
+	--fix core.php src actions

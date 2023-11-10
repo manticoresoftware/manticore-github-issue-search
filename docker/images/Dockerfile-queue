@@ -1,0 +1,6 @@
+FROM alpine:3.13
+LABEL maintainer="Muvon Co. Ltd <contact@muvon.io>"
+
+RUN apk add --update beanstalkd && rm -fr /var/cache/apk
+
+ENTRYPOINT ["/usr/bin/beanstalkd"]

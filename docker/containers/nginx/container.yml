@@ -1,0 +1,19 @@
+image: nginx
+labels:
+  - role=nginx
+working_dir: /src
+expose:
+  - '80'
+cap_drop:
+  - ALL
+cap_add:
+  - NET_BIND_SERVICE
+  - SYS_NICE
+  - CHOWN
+  - DAC_OVERRIDE
+  - SETGID
+  - SETUID
+volumes:
+  - env-storage:/src/env
+environment:
+  - PROJECT=$COMPOSE_PROJECT_NAME

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+cd app || exit 1
+./vendor/bin/phpcbf -v -s --standard="$(pwd)/ruleset.xml" .

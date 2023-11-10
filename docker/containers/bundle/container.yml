@@ -1,0 +1,13 @@
+image: webpack
+labels:
+  - role=bundle
+working_dir: /src
+restart: "no"
+cap_drop:
+  - ALL
+volumes:
+  - env-storage:/src/env:rw
+entrypoint: ["yarn"]
+command:
+  - run
+  - build

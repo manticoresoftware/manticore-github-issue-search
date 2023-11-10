@@ -1,0 +1,8 @@
+extends:
+  service: php
+labels:
+  - role=queue
+entrypoint: /src/bin/cron
+command:
+  - app/scripts/github-issue-fetch
+  - "15"

@@ -1,0 +1,56 @@
+*
+  font-family: 'Roboto Mono'
+  font-size: 15px
+  box-sizing: border-box
+
+body
+  max-width: 100%
+  margin: 0
+  padding: 0
+
+header, footer
+  background-color: var(--highlight)
+
+container
+  padding: 20px
+  max-width: 1280px
+  margin: 0 auto
+  display: block
+
+input
+  border: 2px solid transparent
+  &:focus,  &:active
+    box-shadow: none
+    border: 2px solid $selection-color
+
+.input-group
+  input
+    width: 100%
+
+  cell:first-child>input
+    border-top-right-radius: 0
+    border-bottom-right-radius: 0
+
+  cell:last-child>input
+    border-top-left-radius: 0
+    border-bottom-left-radius: 0
+
+table
+  tbody
+    display: block
+    overflow: auto
+    width: 100%
+
+  thead, tbody tr
+    display: table
+    min-width: 100%
+    table-layout: fixed
+    overflow: auto
+
+@media only screen and (max-width: 600px)
+  body
+    width: 100%
+
+a[target="_blank"]::after
+  content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==)
+  margin: 0 3px 0 5px
