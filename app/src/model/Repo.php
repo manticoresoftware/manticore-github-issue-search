@@ -5,6 +5,7 @@ namespace App\Model;
 // CREATE TABLE repo (
 // id bigint,
 // issues integer,
+// pull_requests integer,
 // expected_issues integer,
 // comments integer,
 // is_indexing bool,
@@ -17,6 +18,7 @@ final class Repo extends Model {
 	public string $org;
 	public string $name;
 	public int $issues;
+	public int $pull_requests;
 	public int $expected_issues;
 	public bool $is_indexing;
 	public int $comments;
@@ -45,7 +47,7 @@ final class Repo extends Model {
 	 */
 	public function getIndexedPercentage(): float {
 		return $this->expected_issues > 0
-		? round(($this->issues / $this->expected_issues) * 100, 2)
+		? round((($this->issues + $this->pull_requests) / $this->expected_issues) * 100, 2)
 		: 0;
 	}
 

@@ -3,6 +3,7 @@
 <ul>
 	<li{is_everywhere_active} class="active"{/is_everywhere_active}><a href="{filter_urls.everywhere}">{>icon/code} Everywhere</a><counter>{counters.total}</counter></li>
 	<li{is_issues_active} class="active"{/is_issues_active}><a href="{filter_urls.issues}">{>icon/open} Issues</a><counter>{counters.issues}</counter></li>
+	<li{is_pull_requests_active} class="active"{/is_pull_requests_active}><a href="{filter_urls.pull_requests}">{>icon/pull_request} Pull Requests</a><counter>{counters.pull_requests}</counter></li>
 	<li{is_comments_active} class="active"{/is_comments_active}><a href="{filter_urls.comments}">{>icon/comment} Comments</a><counter>{counters.comments}</counter></li>
 </ul>
 <label>State</label>

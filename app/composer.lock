@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b98abafab65f363a0b8c3bc37da6679",
+    "content-hash": "ec5345f249f3aadc6dfe0c7496491d89",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -858,16 +858,16 @@
         },
         {
             "name": "manticoresoftware/manticoresearch-php",
-            "version": "3.1.0",
+            "version": "dev-fix/self-to-static",
             "source": {
                 "type": "git",
                 "url": "https://github.com/manticoresoftware/manticoresearch-php.git",
-                "reference": "a04f9cd56a64aab6a4089f663c03d5400097daa4"
+                "reference": "b56b06270f91a4bd8bc447ad2b1e43827810b328"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/manticoresoftware/manticoresearch-php/zipball/a04f9cd56a64aab6a4089f663c03d5400097daa4",
-                "reference": "a04f9cd56a64aab6a4089f663c03d5400097daa4",
+                "url": "https://api.github.com/repos/manticoresoftware/manticoresearch-php/zipball/b56b06270f91a4bd8bc447ad2b1e43827810b328",
+                "reference": "b56b06270f91a4bd8bc447ad2b1e43827810b328",
                 "shasum": ""
             },
             "require": {
@@ -921,7 +921,7 @@
                 "issues": "https://github.com/manticoresoftware/manticoresearch-php/issues",
                 "source": "https://github.com/manticoresoftware/manticoresearch-php/"
             },
-            "time": "2023-09-15T10:43:57+00:00"
+            "time": "2023-12-05T05:24:43+00:00"
         },
         {
             "name": "muvon/kiss-binary-codec",
@@ -2776,6 +2776,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "manticoresoftware/manticoresearch-php": 20,
         "squizlabs/php_codesniffer": 20,
         "muvon/coding-standard": 20
     },

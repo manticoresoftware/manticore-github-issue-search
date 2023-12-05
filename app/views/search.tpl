@@ -3,7 +3,7 @@
 	<p>👀 While it's loading, feel free to check out other repositories.</p>
 	<ul>
 		{showcase}
-			<li><a href="{url}">{project}</a></li>
+			<li><a href="/{project}">{project}</a></li>
 		{/showcase}
 	</ul>
 </container>

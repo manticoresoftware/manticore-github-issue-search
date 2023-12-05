@@ -96,6 +96,7 @@ class Manticore {
 			'is_indexing' => true,
 			'expected_issues' => 0,
 			'issues' => 0,
+			'pull_requests' => 0,
 			'comments' => 0,
 			'updated_at' => 0,
 			], $data
@@ -121,21 +122,23 @@ class Manticore {
 	 */
 	public static function search(string $query = '', array $filters = [], string $sort = 'best-match', int $offset = 0): Result {
 		$client = static::client();
-		$issueIndex = $client->index('issue');
-		$commentIndex = $client->index('comment');
-		$userIndex = $client->index('user');
-		$labelIndex = $client->index('label');
-		$searchIssues = $filters['issues'] ?? false;
-		$searchComments = $filters['comments'] ?? false;
-		$issueFilters = array_merge($filters['common'] ?? [], $filters['issue'] ?? []);
-		$commentFilters = array_merge($filters['common'] ?? [], $filters['comment'] ?? []);
+		$IssueIndex = $client->index('issue');
+		$CommentIndex = $client->index('comment');
+		$UserIndex = $client->index('user');
+		$LabelIndex = $client->index('label');
+		$search_issues = $filters['issues'] ?? false;
+		$search_pull_requests = $filters['pull_requests'] ?? false;
+		$search_comments = $filters['comments'] ?? false;
+		$issue_filters = array_merge($filters['common'] ?? [], $filters['issue'] ?? []);
+		$comment_filters = array_merge($filters['common'] ?? [], $filters['comment'] ?? []);
 		$time = 0;
 
-		$issueCount = 0;
-		$issueRelation = 'eq';
+		$issue_count = 0;
+		$issue_relation = 'eq';
+		$pull_request_count = 0;
 		$items = [];
-		if ($searchIssues) {
-			$search = $issueIndex
+		if ($search_issues || $search_pull_requests) {
+			$search = $IssueIndex
 				->search($query)
 				->offset($offset)
 				->highlight(
@@ -143,6 +146,10 @@ class Manticore {
 					static::HIGHLIGHT_CONFIG
 				);
 			;
+			if (!$search_issues || !$search_pull_requests) {
+				$search->filter('is_pull_request', $search_pull_requests);
+			}
+
 			// Special state filter
 			if (isset($filters['state'])) {
 				$fn = match ($filters['state']) {
@@ -168,7 +175,7 @@ class Manticore {
 				}
 			}
 
-			foreach ($issueFilters as $key => $value) {
+			foreach ($issue_filters as $key => $value) {
 				$search->filter($key, is_array($value) ? 'in' : 'equals', $value);
 			}
 
@@ -177,18 +184,18 @@ class Manticore {
 			$docs = $search->get();
 			$time += (int)($docs->getResponse()->getTime() * 1000);
 			// Confused ?
-			$issueRelation = $docs->getResponse()->getResponse()['hits']['total_relation'] ?? 'eq';
-			$issueCount = $docs->getTotal();
+			$issue_relation = $docs->getResponse()->getResponse()['hits']['total_relation'] ?? 'eq';
+			$issue_count = $docs->getTotal();
 			foreach ($docs as $n => $doc) {
 				$row = ['id' => (int)$doc->getId(), ...$doc->getData()];
 				$row['highlight'] = static::highlight($doc, strip_tags($row['body']));
-				$user = $userIndex->getDocumentById($row['user_id'])?->getData();
+				$user = $UserIndex->getDocumentById($row['user_id'])?->getData();
 				$row['user'] = $user;
 				// TODO: migrate to by ids
 				$labels = [];
 				if ($row['label_ids']) {
 					foreach ($row['label_ids'] as $label_id) {
-						$label = $labelIndex->getDocumentById($label_id)?->getData();
+						$label = $LabelIndex->getDocumentById($label_id)?->getData();
 						if (!$label) {
 							continue;
 						}
@@ -196,25 +203,25 @@ class Manticore {
 					}
 				}
 				$row['labels'] = $labels;
-				$user = $labelIndex->getDocumentById($row['user_id'])?->getData();
+				$user = $LabelIndex->getDocumentById($row['user_id'])?->getData();
 				$row['is_closed'] = $row['closed_at'] > 0;
 				$row['is_open'] = !$row['is_closed'];
-				$rbpScore = pow(static::PERSISTENCE_FACTOR, $n) * $doc->getScore();
-				$items[] = ['score' => $rbpScore, 'issue' => $row, 'comment' => []];
+				$rbp_score = pow(static::PERSISTENCE_FACTOR, $n) * $doc->getScore();
+				$items[] = ['score' => $rbp_score, 'issue' => $row, 'comment' => []];
 			}
 		}
 
-		$commentCount = 0;
-		$commentRelation = 'eq';
-		if ($searchComments) {
-			$search = $commentIndex
+		$comment_count = 0;
+		$comment_relation = 'eq';
+		if ($search_comments) {
+			$search = $CommentIndex
 				->search($query)
 				->offset($offset)
 				->highlight(
 					['body'],
 					static::HIGHLIGHT_CONFIG
 				);
-			foreach ($commentFilters as $key => $value) {
+			foreach ($comment_filters as $key => $value) {
 				$search->filter($key, is_array($value) ? 'in' : 'eq', $value);
 			}
 
@@ -225,21 +232,21 @@ class Manticore {
 
 			$docs = $search->get();
 			$time += (int)($docs->getResponse()->getTime() * 1000);
-			$commentRelation = $docs->getResponse()->getResponse()['hits']['total_relation'] ?? 'eq';
-			$commentCount = $docs->getTotal();
+			$comment_relation = $docs->getResponse()->getResponse()['hits']['total_relation'] ?? 'eq';
+			$comment_count = $docs->getTotal();
 			foreach ($docs as $n => $doc) {
 				$row = ['id' => (int)$doc->getId(), ...$doc->getData()];
 				$row['highlight'] = static::highlight($doc, strip_tags($row['body']));
-				$user = $userIndex->getDocumentById($row['user_id'])?->getData();
+				$user = $UserIndex->getDocumentById($row['user_id'])?->getData();
 				$row['user'] = $user;
 
-				$issue = $issueIndex->getDocumentById($row['issue_id'])?->getData();
+				$issue = $IssueIndex->getDocumentById($row['issue_id'])?->getData();
 				if ($issue) {
-					$user = $userIndex->getDocumentById($issue['user_id'])->getData();
+					$user = $UserIndex->getDocumentById($issue['user_id'])->getData();
 					$issue['user'] = $user;
 				}
-				$rbpScore = pow(static::PERSISTENCE_FACTOR, $n) * $doc->getScore();
-				$items[] = ['score' => $rbpScore, 'issue' => $issue, 'comment' => $row];
+				$rbp_score = pow(static::PERSISTENCE_FACTOR, $n) * $doc->getScore();
+				$items[] = ['score' => $rbp_score, 'issue' => $issue, 'comment' => $row];
 			}
 		}
 
@@ -255,12 +262,14 @@ class Manticore {
 			'time' => $time,
 			'items' => $items,
 			'count' => [
-				'total' => $issueCount + $commentCount,
-				'total_more' => $issueRelation !== 'eq' || $commentRelation !== 'eq',
-				'issue' => $issueCount,
-				'issue_more' => $issueRelation !== 'eq',
-				'comment' => $commentCount,
-				'comment_more' => $commentRelation !== 'eq',
+				'total' => $issue_count + $pull_request_count + $comment_count,
+				'total_more' => $issue_relation !== 'eq' || $comment_relation !== 'eq',
+				'issue' => $issue_count,
+				'issue_more' => $issue_relation !== 'eq',
+				'pull_request' => $pull_request_count,
+				'pull_request_more' => $issue_relation !== 'eq',
+				'comment' => $comment_count,
+				'comment_more' => $comment_relation !== 'eq',
 			],
 			]
 		);
@@ -271,9 +280,9 @@ class Manticore {
 	 * @param  int    $repoId
 	 * @return Result<array{open:int,closed:int}>
 	 */
-	public static function getIssueCounters(int $repoId): Result {
+	public static function getIssueCounters(int $repoId, string $index = 'issue'): Result {
 		$client = static::client();
-		$index = $client->index('issue');
+		$index = $client->index($index);
 		$search = $index->search('');
 		$facets = $search
 			->limit(0)
@@ -344,14 +353,17 @@ class Manticore {
 		$search = $index->search('');
 		$docs = $search
 			->limit($limit)
+			->filter('is_indexing', false)
 			->sort('issues', 'desc')
 			->get();
 		$result = [];
 		foreach ($docs as $doc) {
-			$result[] = new Repo([
+			$result[] = new Repo(
+				[
 				'id' => (int)$doc->getId(),
 				...$doc->getData(),
-			]);
+				]
+			);
 		}
 
 		return ok($result);

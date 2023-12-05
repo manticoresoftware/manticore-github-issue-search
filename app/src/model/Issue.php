@@ -6,6 +6,7 @@ namespace App\Model;
 // id bigint,
 // title text,
 // body text,
+// is_pull_request bool,
 // number integer,
 // comments integer,
 // repo_id bigint,
@@ -22,6 +23,7 @@ final class Issue extends Model {
 	public int $id;
 	public int $repo_id;
 	public int $user_id;
+	public bool $is_pull_request;
 	/**
 	 * @var array<int>
 	 */

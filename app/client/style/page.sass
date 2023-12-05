@@ -404,17 +404,19 @@ label
 		&:last-child
 			margin-right: 0
 
-.progress-bar + container
+.progress-bar + .preload + .search
 	opacity: 0.4
 	pointer-events: none
 
 .progress-bar + .preload
-	opacity: 1
 	transform: translateY(0)
 .preload
 	position: absolute
 	z-index: 1
 	width: 100%
+	max-width: 100%
+	right: 0
+	left: 0
 	background-color: white
 	transition: transform 0.5s ease-in-out
 	transform: translateY(-100%)
@@ -428,7 +430,7 @@ label
 		overflow-x: auto
 		list-style: none
 		align-content: flex-start
-		gap: 16px
+		column-gap: 16px
 		padding: 0
 		margin: 0
 	li

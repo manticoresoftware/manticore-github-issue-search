@@ -75,7 +75,7 @@ final class Search {
 		$repo = result($repoResult);
 
 		// Index only we have something to index in gap of 1 min
-		if (!$repo->is_indexing || (time() - $repo->updated_at) >= 86400) {
+		if ((!$repo->is_indexing || $repo->updated_at === 0) && (time() - $repo->updated_at) >= 86400) {
 			$repo->is_indexing = true;
 			Manticore::add([$repo]);
 			Queue::add('github-issue-fetch', $repo);
@@ -87,18 +87,19 @@ final class Search {
 	/**
 	 * Get counters for the repo
 	 * @param  Repo   $repo
-	 * @return Result<array{total:int,issues:int,comments:int,open_issues:int,closed_issues:int}>
+	 * @return Result<array{total:int,issues:int,comments:int,pull_requests:int,open_issues:int,closed_issues:int}>
 	 */
 	public static function getRepoCounters(Repo $repo): Result {
-		/** @var array{open:int,closed:int} $counters */
-		$counters = result(Manticore::getIssueCounters($repo->id));
+		/** @var array{open:int,closed:int} */
+		$issueCounters = result(Manticore::getIssueCounters($repo->id));
 		return ok(
 			[
-			'total' => $repo->issues + $repo->comments,
+			'total' => $repo->issues + $repo->pull_requests + $repo->comments,
 			'issues' => $repo->issues,
+			'pull_requests' => $repo->pull_requests,
 			'comments' => $repo->comments,
-			'open_issues' => $counters['open'],
-			'closed_issues' => $counters['closed'],
+			'open_issues' => $issueCounters['open'],
+			'closed_issues' => $issueCounters['closed'],
 			]
 		);
 	}
@@ -126,6 +127,8 @@ final class Search {
 		/** @var string $since_date */
 		while (true) {
 			$since_date = gmdate('Y-m-d\TH:i:s\Z', $since + 1);
+			$issue_count = 0;
+			$pull_request_count = 0;
 			$issues = Github::getIssues($repo->org, $repo->name, $since_date);
 			Cli::print("Since: $since_date");
 			Cli::print('Issues: ' . sizeof($issues));
@@ -144,6 +147,13 @@ final class Search {
 				$issue['assignee_id'] = $issue['assignee']['id'] ?? 0;
 				$issue['assignee_ids'] = array_column($issue['assignees'], 'id');
 				$issue['label_ids'] = array_column($issue['labels'], 'id');
+				$issue['is_pull_request'] = isset($issue['pull_request']);
+				if ($issue['is_pull_request']) {
+					$pull_request_count += 1;
+				} else {
+					$issue_count += 1;
+				}
+
 				// TODO: temporarely solution cuz manticore has bug
 				if (!$issue['assignee_ids']) {
 					unset($issue['assignee_ids']);
@@ -210,7 +220,8 @@ final class Search {
 			);
 
 			$since_date = gmdate('Y-m-d\TH:i:s\Z', $since);
-			$repo->issues += sizeof($issues);
+			$repo->issues += $issue_count;
+			$repo->pull_requests += $pull_request_count;
 			$repo->comments += sizeof($comments);
 			$repo->updated_at = $since;
 
@@ -309,9 +320,11 @@ final class Search {
 		}
 
 		$filtered['issues'] = (bool)($filters['issues'] ?? false);
+		$filtered['pull_requests'] = (bool)($filters['pull_requests'] ?? false);
 		$filtered['comments'] = (bool)($filters['comments'] ?? false);
-		if (!$filtered['issues'] && !$filtered['comments']) {
+		if (!$filtered['issues'] && !$filtered['comments'] && !$filtered['pull_requests']) {
 			$filtered['issues'] = true;
+			$filtered['pull_requests'] = true;
 			if ($query) {
 				$filtered['comments'] = true;
 			}
