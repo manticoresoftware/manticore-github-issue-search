@@ -1,1 +1,1 @@
-dev: nginx php bundle manticore
+dev: nginx php bundle manticore queue

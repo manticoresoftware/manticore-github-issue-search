@@ -20,6 +20,6 @@
       document.head.appendChild(script);
     });
   </script>
-  <title>KISS Core</title>
+  <title>Manticore Github Issue Search Demo</title>
 </head>
 <body>

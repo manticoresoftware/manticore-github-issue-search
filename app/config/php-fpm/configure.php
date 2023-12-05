@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+// phpcs:disable SlevomatCodingStandard.Variables.UnusedVariable
+
 $save_handler = config('session.save_handler');
 $save_path = config('session.save_path');
 Env::configure(

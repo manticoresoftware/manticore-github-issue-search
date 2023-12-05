@@ -36,19 +36,15 @@ export default class Navigation {
       }
     }
 
+    pageEl.classList.add('loading');
     fetch(url, opts).then(res => res.text()).then(body => {
       window.requestAnimationFrame(() => {
-        window.scrollTo(0, 0)
+        // window.scrollTo(0, 0)
         pageEl.innerHTML = body
-        const title_el = pageEl.querySelector('#title')
-        const token_el = pageEl.querySelector('#token')
-        document.title = title_el.innerText
-        pageEl.removeChild(title_el)
-        pageEl.removeChild(token_el)
-
+        pageEl.classList.remove('loading');
         const url_path = url.replace(/https?\:\/\/[^\/]+/, '')
+        history.pushState(null, '', url_path)
         dispatcher.send('page_content_loaded', {ajax: true, url: url_path}, 'navigation')
-        dispatcher.send('token_updated', token_el.innerText, 'navigation')
       })
     })
   }

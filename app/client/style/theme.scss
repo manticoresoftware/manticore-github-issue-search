@@ -1,4 +1,6 @@
 :root {
+  --button-base: #{$button-base-color};
+  --background: #{$background};
   --background-body: #{$background-color};
   --background-alt: #{$background-alt-color};
   --text-main: #{$text-color};
@@ -8,17 +10,6 @@
   --highlight: #{$primary-color};
   --focus: #{$primary-color};
   --border: #{$primary-color};
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background-body: #{$dark-background-color};
-    --background-alt: #{$dark-background-alt-color};
-    --text-main: #{$dark-text-color};
-    --text-bright: #{$dark-text-color};
-    --selection: #{$dark-selection-color};
-    --links: #{$dark-link-color};
-    --highlight: #{$dark-primary-color};
-    --focus: #{$dark-primary-color};
-    --border: #{$dark-primary-color};
-  }
+  --form-text: #{$text-color};
+  --form-placeholder: #{$secondary-color};
 }

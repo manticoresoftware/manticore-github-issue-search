@@ -1,0 +1,437 @@
+.input-wrapper
+	&:focus-within
+		border-color: #afc35b
+	.error &
+		border-color: #cf222e
+	position: relative
+	display: flex
+	width: 100%
+	border: 2px solid #d0d7de
+	border-radius: 6px
+	height: 42px
+	padding: 0 12px
+	background-repeat: no-repeat
+  background-position: right 8px center
+	input
+		width: 100%
+		height: 100%
+
+input.unstyled, button.unstyled
+	background: transparent
+	border: 0
+	outline: 0
+	display: inline-block
+	margin: 0
+	padding: 0
+	&:focus
+		border: 0
+		outline: 0
+
+.icon
+	margin-right: 8px
+	align-self: center
+	color: rgb(101, 109, 118)
+  flex-shrink: 0
+
+button.icon
+	margin-top: 3px
+
+// Define variables for easier configuration
+$header-height: 60px
+$progress-height: 4px
+
+// Include this mixin to your header styles to append the progress bar
+@mixin progress-bar
+	position: relative
+	&.progress-bar:after
+		content: ''
+		position: absolute
+		top: $header-height
+		left: 0
+		width: 100%
+		height: $progress-height
+		background-color: #afc35b
+		transform-origin: left center
+		transition: transform var(--progress-duration, 2s) ease-in-out
+		transform: scaleX(var(--progress-value, 0))
+
+// Keyframes for the progress animation
+@keyframes progress-animation
+	to
+		transform: scaleX(1)
+  0%
+    width: 0
+  30%
+    width: 30%
+    ease-out
+  60%
+    width: 60%
+    linear
+  100%
+    width: 100%
+    ease-in
+
+body > header
+	position: relative
+	z-index: 2
+	height: $header-height
+	background-color: #f6f8fa
+	border-bottom: 1px solid #d0d7de
+	line-height: 1.5
+	@include progress-bar
+	cell
+		align-self: center
+		&:last-child
+			justify-self: right
+
+	.input-wrapper
+		border: 1px solid #d0d7de
+
+		height: 32px
+		padding: 0 8px
+
+body > footer
+	margin-top: 0
+	border-top: 1px solid #d0d7de
+	border-bottom: 1px solid #d0d7de
+
+container
+	padding: 0
+
+header > container, footer > container
+	padding: 0px
+.logo svg
+	max-height: 36px
+.logo>a
+	display: flex
+	justify-content: center
+.logo span
+	text-align: center
+	display: block
+	&, a
+		font-size: 12px
+.landing
+	width: 100vw
+	height: 100vh
+	display: flex
+	align-items: center
+	justify-content: center
+	cell
+		padding: 8px
+	form
+		width: 100%
+
+.search
+	.filters
+		padding: 16px
+		border-right: 1px solid #d0d7de
+		p:first-child
+			display: flex
+			a
+				flex-grow: 1
+				text-align: right
+		label, label>span
+			color: rgb(101, 109, 118)
+			font-weight: 500
+			font-size: 12px
+		ul
+			margin-top: 0
+			padding: 0
+			list-style: none
+			li
+				display: flex
+				cursor: pointer
+				height: 32px
+				padding: 6px
+				align-items: center
+				&:hover, &.active
+					background-color: #f6f8fa
+				svg
+					width: 16px
+				a
+					width: 100%
+					&:hover
+						text-decoration: none
+				border-left: 3px solid transparent
+				&.active
+					border-left: 3px solid #afc35b
+			&.advanced>li>label
+				font-weight: normal
+				color: inherit
+				font-size: 14px
+				align-self: start
+			&.advanced form
+				width: 100%
+				ul
+					padding-top: 6px
+				li
+					overflow: hidden
+					padding: 3px 0
+					height: auto
+					font-size: 12px
+					img
+						width: 12px
+						border-radius: 50%
+			&.advanced>li
+				flex-direction: column
+				height: auto
+			&.advanced
+				input[type="checkbox"], input[type="radio"]
+					appearance: none
+					border: none
+					background: none
+					padding: 0
+					margin: 0
+					position: relative
+					width: 16px
+					height: 16px
+					&:checked:after
+						content: '✔'
+
+	.results
+		padding: 16px
+		max-height: calc(100vh - 120px)
+		overflow: scroll
+		.header
+			display: flex
+			justify-content: space-between
+			align-items: center
+		a
+			color: rgb(9, 105, 218)
+		.title a
+			line-height: 1
+			font-size: 16px
+	card
+		display: block
+		border: 1px solid rgb(208, 215, 222)
+		border-radius: 6px
+		padding: 16px
+		margin: 16px 0
+		p
+			margin: 8px 0
+			a
+				font-weight: 500
+		p:first-child
+			margin-top: 0
+		p:last-child
+			margin-bottom: 0
+		.info
+			max-height: 20px
+			img
+				max-width: 20px
+				border-radius: 50%
+			span, img
+				vertical-align: middle
+			span, a
+				font-size: 12px
+				color: rgb(101, 109, 118)
+			a:after
+				display: none
+		issue, comment
+			display: block
+		issue+comment
+			margin-top: 8px
+			padding: 8px
+			border-left: 1px solid rgb(208, 215, 222)
+		has-comment+issue
+			opacity: 0.5
+
+.center
+	align-self: center
+	justify-self: center
+	text-align: center
+
+counter
+	display: inline-block
+	font-size: 12px
+	font-weight: 600
+	line-height: 20px
+	border-radius: 20px
+	background-color: rgba(175, 184, 193, 0.2)
+	color: rgb(31, 35, 40)
+	height: 20px
+	padding: 0px 8px
+
+.reactions
+	cursor: default
+	display: flex
+	reaction
+		margin-left: 4px
+		&:first-child
+			margin-left: 0
+
+reaction
+	display: inline-flex
+	height: 24px
+	padding: 0 6px
+	border: 1px solid #d2dff0
+	border-radius: 100px
+	background-color: transparent
+	span
+		color: rgb(31, 35, 40)
+		display: inline-flex
+		height: 100%
+		align-items: center
+	span:first-child
+		margin-right: 0
+		width: 16px
+		svg
+			fill: #d1d5da
+			width: 16px
+			height: 16px
+	span:last-child
+		font-size: 12px
+		margin-left: 2px
+
+$select-border-color: #d1d5da
+$select-hover-border-color: #c8cacb
+$select-focus-border-color: #0366d6
+$select-arrow-color: #24292e
+
+.select-wrapper
+	display: flex
+	justify-content: flex-end
+	flex-grow: 1
+
+label
+	color: rgb(101, 109, 118)
+	display: inline-block
+	font-weight: 500
+	margin: 0 8px 0 0
+
+.select-menu
+	display: inline-block
+	border: 1px solid #d0d7de
+	border-radius: 6px
+	margin: 0
+	padding: 0 0 0 8px
+	appearance: none
+	background-color: transparent
+	background-image: url("data:image/svg+xml,%3Csvg width='14' height='16' viewBox='0 0 14 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 11L1 5h12L7 11z' fill='%23$select-arrow-color'/%3E%3C/svg%3E")
+	background-repeat: no-repeat
+	background-position: right 8px center
+	font-size: 14px
+	line-height: 20px
+	color: #24292e
+
+	&:hover
+	  border-color: $select-hover-border-color
+
+	&:focus
+	  border-color: $select-focus-border-color
+	  outline: none
+	  box-shadow: 0 0 0 3px rgba(3,102,214,0.3)
+.open
+	color: rgb(9, 105, 218)
+.closed
+	color: #afc35b
+.highlight span
+	border-radius: 6px
+	padding: 0 4px
+	font-weight: 500
+	background-color: rgba(175, 184, 193, 0.2)
+
+.toggle-checkbox
+  display: none
+
+.toggle-form
+  position: relative
+  margin: 0
+  width: 100%
+  overflow-x: hidden
+  overflow-y: auto
+  max-height: 0
+  transition: max-height 0.3s ease-in-out
+  will-change: max-height
+  input[type="text"]
+  	margin-top: 6px
+  	width: 100%
+  	border: none
+  	background: none
+  	border-bottom: 1px solid rgba(175, 184, 193, 0.2)
+  	border-radius: 0
+  	padding: 0
+  	font-size: 12px
+
+.toggle-checkbox:checked + label + .toggle-form
+  max-height: 200px // Adjust as per content height
+
+.toggle-label
+  display: block // Ensures that label takes up full width
+  background-color: inherit
+  cursor: pointer
+
+// This rule seems incorrect as it would change the color of the label
+// when the checkbox is checked, but there is no sibling selector (+) preceding .toggle-label
+// Assuming you want to change the label color when the checkbox is checked:
+.toggle-checkbox:checked + .toggle-label
+  color: green
+
+@keyframes pulsate
+  0%, 100%
+    opacity: 0.55
+  50%
+    opacity: 0.25
+
+.loading
+  animation: pulsate 1s infinite ease-in-out;
+
+.color-label
+	display: inline-block
+	width: 12px
+	height: 12px
+	background-color: rgba(175, 184, 193, 0.2)
+	margin-right: 2px
+	border-radius: 50%
+
+.label
+	display: inline-block
+	border-radius: 12px
+	font-size: 12px
+	padding: 0 6px
+	border: 1px solid rgba(175, 184, 193, 0.2)
+	margin-right: 2px
+
+.labels
+	display: flex
+	align-items: center
+	span
+		color: rgb(101, 109, 118)
+		font-size: 12px
+		margin-right: 6px
+		&:nth-child(odd)
+			margin-right: 2px
+		&:last-child
+			margin-right: 0
+
+.progress-bar + container
+	opacity: 0.4
+	pointer-events: none
+
+.progress-bar + .preload
+	opacity: 1
+	transform: translateY(0)
+.preload
+	position: absolute
+	z-index: 1
+	width: 100%
+	background-color: white
+	transition: transform 0.5s ease-in-out
+	transform: translateY(-100%)
+	border-bottom: 1px solid #d0d7de
+	padding: 6px 16px
+	p
+		margin: 0 0 6px 0
+	ul
+		display: flex
+		flex-wrap: wrap
+		overflow-x: auto
+		list-style: none
+		align-content: flex-start
+		gap: 16px
+		padding: 0
+		margin: 0
+	li
+		flex: 0 0 auto
+	a
+		color: #0969da

@@ -6,7 +6,7 @@ fi
 
 # --exclude-checks='undefined'
 ./vendor/bin/noverify check --allow-all-checks \
-	--exclude-checks=useExitOrDie \
+	--exclude-checks=useExitOrDie,argCount \
 	--exclude=plugin/ \
 	--exclude=core.php \
 	--php-extensions=php \

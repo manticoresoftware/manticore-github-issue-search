@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+// phpcs:disable SlevomatCodingStandard.Variables.UnusedVariable
+
 App::exec('echo "' . config('nginx.auth_name') . ':"$(openssl passwd -apr1 ' . escapeshellarg(config('nginx.auth_pass')) . ') > $CONFIG_DIR/.htpasswd');
 
 $routes = Env::load(config('common.uri_map_file'));
@@ -27,7 +29,7 @@ foreach ($routes as $route => $action) {
 		},
 		$route
 	)
-	   . '&ACTION=' . array_shift($action);
+	. '&ACTION=' . array_shift($action);
 
 	if ($action) {
 		foreach ($action as $k => $v) {

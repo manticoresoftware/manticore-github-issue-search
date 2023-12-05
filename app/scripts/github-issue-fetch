@@ -1,16 +1,16 @@
 #!/usr/bin/env /src/bin/php-exec
 <?php declare(strict_types=1);
 
+use App\Component\Search;
 use App\Lib\Queue;
+use App\Model\Repo;
 
-$hostname = gethostname();
-$no = false !== strpos($hostname, '.')
-	? (int)substr($hostname, strrpos($hostname, '.') + 1)
-	: 0;
-$ns = 'queue-process-' . config("task.processor.{$no}");
-Cli::print('Queue NS: ' . $ns);
+$ns = 'github-issue-fetch';
+Cli::print("Queue NS: $ns");
 
-Queue::process($ns, function (mixed $job) {
-
+Queue::process($ns, function (Repo $repo) {
+	Cli::print("Indexing #{$repo->id}: https://github.com/{$repo->org}/{$repo->name}");
+	Search::index($repo);
+	Cli::print(' done');
 	return true;
 });

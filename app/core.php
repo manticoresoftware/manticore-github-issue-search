@@ -22,7 +22,7 @@ final class App {
 		if (isset($params[$file])) {
 			foreach ($params[$file] as $param) {
 				$args[] = $param['name'] . ':' . $param['type']
-					. (isset($param['default']) ? '=' . $param['default'] : '')
+				. (isset($param['default']) ? '=' . $param['default'] : '')
 				;
 			}
 		}
@@ -202,14 +202,16 @@ final class App {
 					str_contains('application/msgpack', $accept) => 'msgpack',
 					default => Input::isMsgpack() ? 'msgpack' : 'json',
 				};
-
+				if ($response instanceof Result) {
+					$response = $response->toArray();
+				}
 				$Response->header('Content-type', 'application/' . $type . ';charset=utf-8');
 				$encoded = $type === 'msgpack'
-					? msgpack_pack($response)
-					: json_encode(
-						$response,
-						JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE
-					);
+				? msgpack_pack($response)
+				: json_encode(
+					$response,
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE
+				);
 				if (false === $encoded) {
 					throw new Error('Failed to encode ' . $type  . ' response');
 				}
@@ -294,10 +296,10 @@ final class App {
 
 				case $type === 'html':
 					$response = '<html><head><title>Error</title></head><body>'
-					 . '<p>Unhandled exception <b>'
-					 . $Exception::class . '</b> with message "' . $Exception->getMessage()
-					 . (static::$debug ? '" in file "' . $Exception->getFile() . ':' . $Exception->getLine() : '')
-					 . '"</p>';
+					. '<p>Unhandled exception <b>'
+					. $Exception::class . '</b> with message "' . $Exception->getMessage()
+					. (static::$debug ? '" in file "' . $Exception->getFile() . ':' . $Exception->getLine() : '')
+					. '"</p>';
 
 					if (static::$debug) {
 						$response .= '<p><ul>'
@@ -1059,13 +1061,13 @@ final class Input {
 			static::$params += $argv;
 		} elseif (static::isJson()) {
 			static::$params = (array)filter_input_array(INPUT_GET)
-				+ (array)json_decode(file_get_contents('php://input'), true);
+			+ (array)json_decode(file_get_contents('php://input'), true);
 		} elseif (static::isMsgpack()) {
 			static::$params = (array)filter_input_array(INPUT_GET)
-				+ (array)msgpack_unpack(file_get_contents('php://input'));
+			+ (array)msgpack_unpack(file_get_contents('php://input'));
 		} else {
 			static::$params = (array)filter_input_array(INPUT_POST)
-				+ (array)filter_input_array(INPUT_GET);
+			+ (array)filter_input_array(INPUT_GET);
 		}
 
 		static::$is_parsed = true;
@@ -1832,6 +1834,45 @@ class Secret {
 }
 
 
+class ResultError extends Error {
+
+}
+
+
+final class Result {
+	/**
+	 * @param ?string $err
+	 * @param mixed $res
+	 */
+	public function __construct(public ?string $err, public mixed $res) {
+	}
+
+	/**
+	 * @param mixed $res
+	 * @return static
+	 */
+	public static function ok(mixed $res): static {
+		return new static(null, $res);
+	}
+
+	/**
+	 * @param string $err
+	 * @param mixed $res
+	 * @return static
+	 */
+	public static function err(string $err, mixed $res = null): static {
+		return new static($err, $res);
+	}
+
+	/**
+	 * @return array{0:?string,1:mixed}
+	 */
+	public function toArray(): array {
+		return [$this->err, $this->res];
+	}
+}
+
+
 /**
  * Class Session
  * Work with sessions
@@ -1983,7 +2024,7 @@ final class Session {
  * </code>
  */
 final class View {
-	const VAR_PTRN = '\!?[a-z\_]{1}[a-z0-9\.\_]*';
+	const VAR_PTRN = '\!?[a-z\_\+\-]{1}[a-z0-9\.\_\+\-]*';
 
 	/** @var array<string,mixed> */
 	protected array $data = [];
@@ -2202,7 +2243,10 @@ final class View {
 			$last = sizeof($param) - 1;
 			$i = 0;
 			foreach ($param as $value) {
-				if (!is_array($value)) {
+				// If this is an object and array convertion exists
+				if (is_object($value) && method_exists($value, 'toArray')) {
+					$value = $value->toArray();
+				} elseif (!is_array($value)) {
 					$value = ['parent' => $item, 'this' => $value];
 				}
 
@@ -2520,9 +2564,9 @@ final class View {
 	protected function getCompiledFile(array $routes = []): string {
 		assert(is_dir($this->compile_dir) && is_writable($this->compile_dir));
 		return $this->compile_dir
-			. '/view-' . $this->prefix . '-'
-			. md5($this->source_dir . ':' . implode(':', $routes ?: $this->routes))
-			. '.tplc'
+		. '/view-' . $this->prefix . '-'
+		. md5($this->source_dir . ':' . implode(':', $routes ?: $this->routes))
+		. '.tplc'
 		;
 	}
 
@@ -2818,40 +2862,59 @@ function array_order_by(): array {
 	return array_pop($args);
 }
 
+// Helpers for Result class
 /**
- * This is simple helper in case we need to throw exception when has error
+ * This is a simple helper in case we need to throw an exception when there is an error.
  *
- * @param array{0:?string,1:mixed} $response
- *   Stanadrd array in presentation [err, result]
- *   Where err should be string and result mixed
- * @param string $error
+ * @param Result $result
  * @return mixed
+ * @throws ResultError If the result contains an error.
  */
-function result(array $response, string $error = 'result'): mixed {
-	if (isset($response[0]) && is_array($response[0])) {
-		$errors = array_filter(array_column($response, 0));
-		if ($errors) {
-			throw new Error('Errors while ' . $error . ' in multiple result: ' . var_export($errors, true));
-		}
-		return array_column($response, 1);
+function result(Result $Result): mixed {
+	if ($Result->err) {
+		throw new ResultError($Result->err);
 	}
-
-	[$err, $result] = $response;
-	if ($err) {
-		throw new Error('Error while ' . $error . ': ' . $err . '. Got result: ' . var_export($result, true));
-	}
-	return $result;
+	return $Result->res;
 }
+
+/**
+ * Shortcut for Result::ok()
+ *
+ * @param mixed $res
+ * @return Result
+ */
+function ok(mixed $res = null): Result {
+	return Result::ok($res);
+}
+
+/**
+ * Shortcut for Result::err()
+ *
+ * @param string $err
+ * @param mixed $res
+ * @return Result
+ */
+function err(string $err, mixed $res = null): Result {
+	return Result::err($err, $res);
+}
+
+/**
+ * Multiple errors creation for single response
+ * @param array<string> $errs
+ * @return Result
+ */
+function errs(array $errs): Result {
+	return Result::err('e_errors', $errs);
+}
+
 
 if (!function_exists('defer')) {
 	/**
-	 * @param ?SplStack $ctx
+	 * @param SplStack &$ctx
 	 * @param callable $cb
 	 * @return void
 	 */
-	function defer(?SplStack &$ctx, callable $cb): void {
-		$ctx ??= new SplStack();
-
+	function defer(SplStack $ctx, callable $cb): void {
 		$ctx->push(
 			new class($cb) {
 				protected $cb;
