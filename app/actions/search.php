@@ -26,9 +26,9 @@ $is_issues_active = $filters['issues'] ?? false;
 $is_comments_active = $filters['comments'] ?? false;
 $is_pull_requests_active = $filters['pull_requests'] ?? false;
 $is_everywhere_active =
-	(!$is_issues_active && !$is_comments_active && !$is_pull_requests_active)
-		||
-	($filters['issues'] && $filters['comments'] && $filters['pull_requests']);
+(!$is_issues_active && !$is_comments_active && !$is_pull_requests_active)
+||
+($filters['issues'] && $filters['comments'] && $filters['pull_requests']);
 if ($is_everywhere_active) {
 	$is_comments_active = $is_issues_active = $is_pull_requests_active = false;
 }

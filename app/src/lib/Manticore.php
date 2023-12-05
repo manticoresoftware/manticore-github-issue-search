@@ -133,6 +133,10 @@ class Manticore {
 		$comment_filters = array_merge($filters['common'] ?? [], $filters['comment'] ?? []);
 		$time = 0;
 
+		// Collect user_ids for appending to resulting by using single query to the manticore
+		$user_ids = [];
+		$label_ids = [];
+
 		$issue_count = 0;
 		$issue_relation = 'eq';
 		$pull_request_count = 0;
@@ -189,21 +193,10 @@ class Manticore {
 			foreach ($docs as $n => $doc) {
 				$row = ['id' => (int)$doc->getId(), ...$doc->getData()];
 				$row['highlight'] = static::highlight($doc, strip_tags($row['body']));
-				$user = $UserIndex->getDocumentById($row['user_id'])?->getData();
-				$row['user'] = $user;
-				// TODO: migrate to by ids
-				$labels = [];
+				$user_ids[] = $row['user_id'];
 				if ($row['label_ids']) {
-					foreach ($row['label_ids'] as $label_id) {
-						$label = $LabelIndex->getDocumentById($label_id)?->getData();
-						if (!$label) {
-							continue;
-						}
-						$labels[] = $label;
-					}
+					$label_ids = array_merge($label_ids, $row['label_ids']);
 				}
-				$row['labels'] = $labels;
-				$user = $LabelIndex->getDocumentById($row['user_id'])?->getData();
 				$row['is_closed'] = $row['closed_at'] > 0;
 				$row['is_open'] = !$row['is_closed'];
 				$rbp_score = pow(static::PERSISTENCE_FACTOR, $n) * $doc->getScore();
@@ -230,6 +223,8 @@ class Manticore {
 				static::applySorting($search, $sort);
 			}
 
+			// Collect issue ids to append it by adding only one extra query to manticore
+			$issue_ids = [];
 			$docs = $search->get();
 			$time += (int)($docs->getResponse()->getTime() * 1000);
 			$comment_relation = $docs->getResponse()->getResponse()['hits']['total_relation'] ?? 'eq';
@@ -237,17 +232,44 @@ class Manticore {
 			foreach ($docs as $n => $doc) {
 				$row = ['id' => (int)$doc->getId(), ...$doc->getData()];
 				$row['highlight'] = static::highlight($doc, strip_tags($row['body']));
-				$user = $UserIndex->getDocumentById($row['user_id'])?->getData();
-				$row['user'] = $user;
-
-				$issue = $IssueIndex->getDocumentById($row['issue_id'])?->getData();
-				if ($issue) {
-					$user = $UserIndex->getDocumentById($issue['user_id'])->getData();
-					$issue['user'] = $user;
-				}
+				$user_ids[] = $row['user_id'];
 				$rbp_score = pow(static::PERSISTENCE_FACTOR, $n) * $doc->getScore();
-				$items[] = ['score' => $rbp_score, 'issue' => $issue, 'comment' => $row];
+				$issue_ids[] = $row['issue_id'];
+				$items[] = ['score' => $rbp_score, 'issue' => [], 'comment' => $row];
 			}
+
+			// Append issues fetched in single query
+			$issue_map = static::getDocMap('issue', $issue_ids);
+			foreach ($items as &$item) {
+				if (!$item['comment'] || $item['issue']) {
+					continue;
+				}
+
+				$item['issue'] = $issue_map[$item['comment']['issue_id']];
+				if ($item['issue']['label_ids']) {
+					$label_ids = array_merge($label_ids, $item['issue']['label_ids']);
+				}
+				$user_ids[] = $item['issue']['user_id'];
+			}
+			unset($issue_ids, $issue_map);
+		}
+
+		// Append users and labels to all entities
+		$user_map = static::getDocMap('user', $user_ids);
+		$label_map = $label_ids ? static::getDocMap('label', $label_ids) : [];
+		foreach ($items as &$item) {
+			if ($item['issue']) {
+				$item['issue']['user'] = $user_map[$item['issue']['user_id']];
+				$item['labels'] = array_map(
+					fn ($id) => $label_map[$id],
+					$item['issue']['label_ids']
+				);
+			}
+			if (!$item['comment']) {
+				continue;
+			}
+
+			$item['comment']['user'] = $user_map[$item['comment']['user_id']];
 		}
 
 		// Sort by score
@@ -323,24 +345,18 @@ class Manticore {
 			->facet($field, 'users', $max)
 			->get()
 			->getFacets();
-		$userIds = array_filter(array_column($facets['users']['buckets'], 'key'));
-
+		$user_ids = array_filter(array_column($facets['users']['buckets'], 'key'));
 		$index = $client->index('user');
-		// TODO: migrate to getDocumentByIds but it does not work now
-		$docs = [];
-		foreach ($userIds as $userId) {
-			$user = $index->getDocumentById($userId)?->getData();
-			// Missing assignees
-			if (!$user) {
-				continue;
-			}
-			$docs[] = [
-				'id' => $userId,
-				...$user,
+		$docs = $index->getDocumentByIds($user_ids);
+		$users = [];
+		foreach ($docs as $doc) {
+			$users[] = [
+				'id' => $doc->getId(),
+				...$doc->getData(),
 			];
 		}
 
-		return ok($docs);
+		return ok($users);
 	}
 
 	/**
@@ -380,24 +396,23 @@ class Manticore {
 		$index = $client->index('issue');
 		$search = $index->search('');
 		$facets = $search
-			->limit(0) # TODO: fix it after manticore will fix bug
+			->limit(0)
 			->filter('repo_id', $repoId)
 			->facet('label_ids', 'labels', $max)
 			->get()
 			->getFacets();
-		$labelIds = array_filter(array_column($facets['labels']['buckets'], 'key'));
+		$label_ids = array_filter(array_column($facets['labels']['buckets'], 'key'));
 		$index = $client->index('label');
-		// TODO: migrate to getDocumentByIds but it does not work now
-		$docs = [];
-		foreach ($labelIds as $labelId) {
-			$label = $index->getDocumentById($labelId)?->getData();
-			$docs[] = [
-				'id' => $labelId,
-				...$label,
+		$docs = $index->getDocumentByIds($label_ids);
+		$labels = [];
+		foreach ($docs as $doc) {
+			$labels[] = [
+				'id' => $doc->getId(),
+				...$doc->getData(),
 			];
 		}
 
-		return ok($docs);
+		return ok($labels);
 	}
 
 	/**
@@ -512,5 +527,28 @@ class Manticore {
 			);
 		}
 		$search->sort(...$sorting);
+	}
+
+	/**
+	 * Helper method to get the doc map indexed by id by using provided ides
+	 * @param  string $table
+	 * @param  array  $ids
+	 * @return array<int,array<mixed>>
+	 */
+	protected static function getDocMap(string $table, array $ids): array {
+		$ids = array_values(array_unique($ids));
+		if (!$ids) {
+			return [];
+		}
+
+		$client = static::client();
+		$Index = $client->index($table);
+		$docs = $Index->getDocumentByIds($ids);
+		$map = [];
+		foreach ($docs as $doc) {
+			$map[$doc->getId()] = $doc->getData();
+		}
+
+		return $map;
 	}
 }
