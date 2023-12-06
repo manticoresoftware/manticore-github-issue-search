@@ -1,10 +1,10 @@
-<form class="header" action="{url}" method="get">
+<form class="header" action="{url}" method="get" data-component="filterable" data-url="/{project}" data-key="sort">
 	<span class="info-wrapper">
 		<b>{list.count.total}{list.count.total_more}+{/list.count.total_more} results</b> <counter>{list.time} ms</counter> in <a href="https://github.com/{repo.org}/{repo.name}" target="_blank" rel="noopener noreferrer">{repo.org}/{repo.name}</a>
 	</span>
 	<span class="select-wrapper">
 		<label for="sort-by">Sort by:</label>
-		<select id="sort-by" class="select-menu" name="sort" onchange="this.form.submit()">
+		<select id="sort-by" class="select-menu" name="sort">
 			{sort_list:} <option value="{value}"{selected} selected="selected"{/selected}>{name}</option>
 		</select>
 		<input type="hidden" name="query" value="{query}"/>

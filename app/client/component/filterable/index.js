@@ -19,6 +19,32 @@ export default element => {
 		})
 	})
 
+	d.on('change', 'select', (ev, el) => {
+		const option = el.options[el.selectedIndex]
+		let query = location.search.replace(new RegExp("(\\&|\\;)?" + key + "=\\w+(&|;|$)", "g"), '');
+		query = query.replace(/^\?|&|;$/, '')
+		if (query[0] === '?') {
+		  query = query.substring(1)
+		}
+		nav.load(slug + '?' + query + ';' + key + '=' + option.value)
+	})
+
+	d.on('click', 'a', (ev, el) => {
+		checkboxes.forEach(function(item) {
+			item.classList.remove('active')
+		})
+		el.parentElement.classList.add('active')
+
+		let query = location.search.replace(new RegExp("(\\&|\\;)?filters\\[" + key + "\\]\\[\\]=\\w+(&|;|$)", "g"), '');
+		query = query.replace(/^\?|&|;$/, '')
+		if (query[0] === '?') {
+		  query = query.substring(1)
+		}
+		const value = el.getAttribute('data-value')
+		nav.load(slug + '?' + query + ';filters[' + key + ']=' + value)
+		return false
+	})
+
 	d.on('click', 'input[type="checkbox"]', (ev, el) => {
 		let filters = []
 		const checkboxes = element.querySelectorAll('input[type="checkbox"]')

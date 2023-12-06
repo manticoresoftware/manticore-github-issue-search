@@ -319,17 +319,17 @@ final class Search {
 			$filtered['issue']['label_ids'] = array_filter(array_unique(array_map('intval', $filters['labels'])));
 		}
 
-		$filtered['issues'] = (bool)($filters['issues'] ?? false);
-		$filtered['pull_requests'] = (bool)($filters['pull_requests'] ?? false);
-		$filtered['comments'] = (bool)($filters['comments'] ?? false);
-		if (!$filtered['issues'] && !$filtered['comments'] && !$filtered['pull_requests']) {
-			$filtered['issues'] = true;
-			$filtered['pull_requests'] = true;
-			if ($query) {
-				$filtered['comments'] = true;
-			}
-		}
+		$search_in = $filters['index'] ?? 'everywhere';
+		[$issues, $pull_requests, $comments] = match ($search_in) {
+			'everywhere' => [true, true, $query ? true : false],
+			'issues' => [true, false, false],
+			'pull_requests' => [false, true, false],
+			'comments' => [false, false, true],
+		};
 
+		$filtered['issues'] = $issues;
+		$filtered['pull_requests'] = $pull_requests;
+		$filtered['comments'] = $comments;
 		$filtered['common'] = [
 			'repo_id' => $repo->id,
 			'user_id' => $users,

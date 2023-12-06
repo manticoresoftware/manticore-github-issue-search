@@ -1,15 +1,15 @@
 <p><b>Filter by</b>{has_filters} <a href="{url}">reset</a>{/has_filters}</p>
 <label>Search in</label>
-<ul>
-	<li{is_everywhere_active} class="active"{/is_everywhere_active}><a href="{filter_urls.everywhere}">{>icon/code} Everywhere</a><counter>{counters.total}</counter></li>
-	<li{is_issues_active} class="active"{/is_issues_active}><a href="{filter_urls.issues}">{>icon/open} Issues</a><counter>{counters.issues}</counter></li>
-	<li{is_pull_requests_active} class="active"{/is_pull_requests_active}><a href="{filter_urls.pull_requests}">{>icon/pull_request} Pull Requests</a><counter>{counters.pull_requests}</counter></li>
-	<li{is_comments_active} class="active"{/is_comments_active}><a href="{filter_urls.comments}">{>icon/comment} Comments</a><counter>{counters.comments}</counter></li>
+<ul data-component="filterable" data-url="/{project}" data-key="index">
+	<li{is_everywhere_active} class="active"{/is_everywhere_active}><a href="{filter_urls.everywhere}" data-value="everywhere">{>icon/code} Everywhere</a><counter>{counters.total}</counter></li>
+	<li{is_issues_active} class="active"{/is_issues_active}><a href="{filter_urls.issues}" data-value="issues">{>icon/open} Issues</a><counter>{counters.issues}</counter></li>
+	<li{is_pull_requests_active} class="active"{/is_pull_requests_active}><a href="{filter_urls.pull_requests}" data-value="pull_requests">{>icon/pull_request} Pull Requests</a><counter>{counters.pull_requests}</counter></li>
+	<li{is_comments_active} class="active"{/is_comments_active}><a href="{filter_urls.comments}" data-value="comments">{>icon/comment} Comments</a><counter>{counters.comments}</counter></li>
 </ul>
 <label>State</label>
-<ul>
-	<li{is_open_active} class="active"{/is_open_active}><a href="{filter_urls.open}"><span class="open">{>icon/open}</span> Open</a><counter>{counters.open_issues}</counter></li>
-	<li{is_closed_active} class="active"{/is_closed_active}><a href="{filter_urls.closed}"><span class="closed">{>icon/closed}</span> Closed</a><counter>{counters.closed_issues}</counter></li>
+<ul data-component="filterable" data-url="/{project}" data-key="state">
+	<li{is_open_active} class="active"{/is_open_active}><a href="{filter_urls.open}" data-value="open"><span class="open">{>icon/open}</span> Open</a><counter>{counters.open_issues}</counter></li>
+	<li{is_closed_active} class="active"{/is_closed_active}><a href="{filter_urls.closed}" data-value="closed"><span class="closed">{>icon/closed}</span> Closed</a><counter>{counters.closed_issues}</counter></li>
 </ul>
 <label>Advanced</label>
 <ul class="advanced">

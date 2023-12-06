@@ -22,13 +22,21 @@ $url = $repo->getUrl();
 $counters = result(Search::getRepoCounters($repo));
 $list = result(Search::process($repo, $query, $filters, $sort, $offset));
 
-$is_issues_active = $filters['issues'] ?? false;
-$is_comments_active = $filters['comments'] ?? false;
-$is_pull_requests_active = $filters['pull_requests'] ?? false;
-$is_everywhere_active =
-(!$is_issues_active && !$is_comments_active && !$is_pull_requests_active)
-||
-($filters['issues'] && $filters['comments'] && $filters['pull_requests']);
+$search_in = $filters['index'] ?? 'everywhere';
+[
+	$is_everywhere_active,
+	$is_issues_active,
+	$is_pull_requests_active,
+	$is_comments_active,
+] = match ($search_in) {
+	'everywhere' => [true, false, false, false],
+	'issues' => [false, true, false, false],
+	'pull_requests' => [false, false, true, false],
+	'comments' => [false, false, false, true],
+};
+
+$is_everywhere_active = (!$is_issues_active && !$is_comments_active && !$is_pull_requests_active);
+
 if ($is_everywhere_active) {
 	$is_comments_active = $is_issues_active = $is_pull_requests_active = false;
 }
@@ -108,10 +116,10 @@ $getUrlFn = function (array $config) use ($repo, $query, $filters, $sort) {
 };
 
 $filter_urls = [
-	'everywhere' => $getUrlFn(['issues' => 1, 'pull_requests' => 1, 'comments' => 1]),
-	'issues' => $getUrlFn(['issues' => 1, 'pull_requests' => 0, 'comments' => 0]),
-	'pull_requests' => $getUrlFn(['issues' => 0, 'pull_requests' => 1, 'comments' => 0]),
-	'comments' => $getUrlFn(['issues' => 0, 'pull_requests' => 0, 'comments' => 1]),
+	'everywhere' => $getUrlFn(['index' => 'everywhere']),
+	'issues' => $getUrlFn(['index' => 'issues']),
+	'pull_requests' => $getUrlFn(['index' => 'pull_requests']),
+	'comments' => $getUrlFn(['index' => 'comments']),
 	'open' => $getUrlFn(['state' => 'open']),
 	'closed' => $getUrlFn(['state' => 'closed']),
 ];

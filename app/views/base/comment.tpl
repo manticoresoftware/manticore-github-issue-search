@@ -1,6 +1,6 @@
 <comment>
 	<!-- <p>{>icon/comment} {body:md_preview}</p> -->
-	<p class="highlight">{>icon/comment} {highlight:html}</p>
+	<p class="highlight">{>icon/comment} {highlight}</p>
 	<!-- <p>{body:md_preview}</p> -->
 	<p class="info">
 		<img src="{user.avatar_url}" alt="{user.login}"/>

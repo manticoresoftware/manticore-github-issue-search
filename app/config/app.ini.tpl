@@ -26,10 +26,10 @@ languages[] = 'en'
 cli_level = 2
 
 [common:test]
-domain = '{{PROJECT}}.dev'
+domain = 'test.github.manticoresearch.com'
 
 [common:production]
-domain = '{{PROJECT}}.com'
+domain = 'github.manticoresearch.com'
 
 [default]
 action = 'home'
