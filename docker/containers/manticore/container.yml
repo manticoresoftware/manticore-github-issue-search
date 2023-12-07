@@ -1,8 +1,6 @@
-image: manticoresearch/manticore:dev-6.2.13-5431d6e
+image: manticoresearch/manticore:dev-6.2.13-69cd5a6
 labels:
   - role=manticore
-working_dir: /
 restart: "always"
-user: root
 volumes:
   - manticore-storage:/var/lib/manticore:rw
