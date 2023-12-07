@@ -23,6 +23,25 @@ export default class Navigation {
     }
   }
 
+  static removeParam(url, parameter) {
+  	const urlParts = url.split('?')
+
+  	// If there is no query string, return the original URL
+  	if (urlParts.length <= 1) {
+  		return url
+  	}
+
+  	const baseUrl = urlParts[0]
+  	const queryString = urlParts[1]
+  	const queryParts = queryString.split(/[&;]/g)
+  	const filteredQuery = queryParts.filter(function(param) {
+  		return !param.startsWith(parameter + '=')
+  	})
+
+  	// Re-join the filtered query parameters if any remain
+  	return baseUrl + (filteredQuery.length > 0 ? '?' + filteredQuery.join(';') : '')
+  }
+
   static load(url) {
     if (location.href !== url) {
       history.pushState({}, '', url)

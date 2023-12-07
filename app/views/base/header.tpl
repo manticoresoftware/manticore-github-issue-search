@@ -6,7 +6,7 @@
         <span>Demo by <a href="https://manticoresearch.com" target="_blank" rel="noopener noreferrer">Manticore Search</a></span>
       </cell>
       <cell span="8">
-      	<form action="/{project}" method="get">
+      	<form action="/{project}" method="get" data-component="search-form">
       		<grid>
       			<row>
       				<div class="input-wrapper">

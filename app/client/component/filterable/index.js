@@ -21,11 +21,7 @@ export default element => {
 
 	d.on('change', 'select', (ev, el) => {
 		const option = el.options[el.selectedIndex]
-		let query = location.search.replace(new RegExp("(\\&|\\;)?" + key + "=\\w+(&|;|$)", "g"), '');
-		query = query.replace(/^\?|&|;$/, '')
-		if (query[0] === '?') {
-		  query = query.substring(1)
-		}
+		let query = nav.removeParam(location.search, key)
 		nav.load(slug + '?' + query + ';' + key + '=' + option.value)
 	})
 
@@ -34,12 +30,7 @@ export default element => {
 			item.classList.remove('active')
 		})
 		el.parentElement.classList.add('active')
-
-		let query = location.search.replace(new RegExp("(\\&|\\;)?filters\\[" + key + "\\]\\[\\]=\\w+(&|;|$)", "g"), '');
-		query = query.replace(/^\?|&|;$/, '')
-		if (query[0] === '?') {
-		  query = query.substring(1)
-		}
+		let query = nav.removeParam(location.search, `filters[${key}][]`)
 		const value = el.getAttribute('data-value')
 		nav.load(slug + '?' + query + ';filters[' + key + ']=' + value)
 		return false
@@ -55,22 +46,14 @@ export default element => {
 	  })
 
 	  const filters_query = filters.join(';')
-		let query = location.search.replace(new RegExp("(\\&|\\;)?filters\\[" + key + "\\]\\[\\]=\\d+(&|;|$)", "g"), '');
-		query = query.replace(/^\?|&|;$/, '')
-		if (query[0] === '?') {
-		  query = query.substring(1)
-		}
+	  let query = nav.removeParam(location.search, `filters[${key}][]`)
 		nav.load(slug + '?' + query + (filters_query ? ';' + filters_query : ''))
 	})
 
 
 	d.on('click', 'input[type="radio"]', (ev, el) => {
 		const value = element.querySelector('input[type="radio"]:checked').value
-		let query = location.search.replace(new RegExp("(\\&|\\;)?filters\\[" + key + "\\]=\\d+(&|;|$)", "g"), '');
-		query = query.replace(/^\?|&|;$/, '')
-		if (query[0] === '?') {
-		  query = query.substring(1)
-		}
+		let query = nav.removeParam(location.search, `filters[${key}]`)
 		nav.load(slug + '?' + query + (value ? ';' + 'filters[' + key + ']=' + value : ''))
 	})
 

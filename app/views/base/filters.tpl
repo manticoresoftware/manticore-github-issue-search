@@ -13,7 +13,7 @@
 </ul>
 <label>Advanced</label>
 <ul class="advanced">
-	<li>
+	<li data-component="focusable">
 		<input type="checkbox" id="toggle-author" class="toggle-checkbox"/>
     <label for="toggle-author" class="toggle-label">{>icon/plus} Author</label>
 		<form class="toggle-form" data-component="filterable" data-url="/{project}" data-key="authors">
@@ -28,7 +28,7 @@
 			</ul>
 		</form>
 	</li>
-	<li>
+	<li data-component="focusable">
 		<input type="checkbox" id="toggle-assignee" class="toggle-checkbox"/>
     <label for="toggle-assignee" class="toggle-label">{>icon/plus} Assignee</label>
 		<form class="toggle-form" data-component="filterable" data-url="/{project}" data-key="assignees">
@@ -43,7 +43,7 @@
 			</ul>
 		</form>
 	</li>
-	<li>
+	<li data-component="focusable">
 		<input type="checkbox" id="toggle-label" class="toggle-checkbox"/>
     <label for="toggle-label" class="toggle-label">{>icon/plus} Labels</label>
 		<form class="toggle-form" data-component="filterable" data-url="/{project}" data-key="labels">
