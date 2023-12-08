@@ -124,8 +124,6 @@ class Manticore {
 		$client = static::client();
 		$IssueIndex = $client->index('issue');
 		$CommentIndex = $client->index('comment');
-		$UserIndex = $client->index('user');
-		$LabelIndex = $client->index('label');
 		$search_issues = $filters['issues'] ?? false;
 		$search_pull_requests = $filters['pull_requests'] ?? false;
 		$search_comments = $filters['comments'] ?? false;

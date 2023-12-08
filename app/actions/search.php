@@ -151,7 +151,6 @@ $form_vars[] = [
 	'value' => $sort,
 ];
 
-$has_filters = sizeof($filters) > 0 || ($sort && $sort !== 'best-match');
 $authors = result(Search::getAuthors($repo));
 $assignees = result(Search::getAssignees($repo));
 $labels = result(Search::getLabels($repo));

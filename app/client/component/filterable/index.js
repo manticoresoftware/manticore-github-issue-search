@@ -1,5 +1,6 @@
 import domd from 'domd'
 import nav from 'lib/navigation'
+import dispatcher from 'edispatcher'
 
 export default element => {
 	const d = domd(element)
@@ -30,7 +31,7 @@ export default element => {
 			item.classList.remove('active')
 		})
 		el.parentElement.classList.add('active')
-		let query = nav.removeParam(location.search, `filters[${key}][]`)
+		let query = nav.removeParam(location.search, `filters[${key}]`)
 		const value = el.getAttribute('data-value')
 		nav.load(slug + '?' + query + ';filters[' + key + ']=' + value)
 		return false
@@ -57,6 +58,28 @@ export default element => {
 		nav.load(slug + '?' + query + (value ? ';' + 'filters[' + key + ']=' + value : ''))
 	})
 
-
+	dispatcher.on('counters_updated', (ev, counters) => {
+		const links = element.querySelectorAll('a')
+		links.forEach(lnk => {
+			const key = lnk.getAttribute('data-value')
+			const counter = lnk.parentElement.querySelector('counter')
+			if (!key ||!counter) {
+				return
+			}
+			switch (key) {
+				case 'everywhere':
+					counter.innerText = counters.total
+					break
+				case 'open':
+					counter.innerText = counters.open_issues
+					break
+				case 'closed':
+					counter.innerText = counters.closed_issues
+					break
+				default:
+					counter.innerText = counters[key]
+			}
+		})
+	})
 	return () => {}
 }

@@ -1,4 +1,4 @@
-<p><b>Filter by</b>{has_filters} <a href="{url}">reset</a>{/has_filters}</p>
+<p><b>Filter by</b> <a href="{url}">reset</a></p>
 <label>Search in</label>
 <ul data-component="filterable" data-url="/{project}" data-key="index">
 	<li{is_everywhere_active} class="active"{/is_everywhere_active}><a href="{filter_urls.everywhere}" data-value="everywhere">{>icon/code} Everywhere</a><counter>{counters.total}</counter></li>

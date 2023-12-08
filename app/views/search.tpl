@@ -12,7 +12,7 @@
 		<cell class="filters" span="2">
 			{>base/filters}
 		</cell>
-		<cell class="results" span="10" id="page" data-component="infinite-scroll">
+		<cell class="results" span="10" id="page">
 			{>base/results}
 		</cell>
 	</grid>

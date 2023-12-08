@@ -332,8 +332,11 @@ final class Search {
 		$filtered['comments'] = $comments;
 		$filtered['common'] = [
 			'repo_id' => $repo->id,
-			'user_id' => $users,
 		];
+
+		if ($users) {
+			$filtered['common']['user_id'] = $users;
+		}
 
 		return Manticore::search($query, $filtered, $sort, $offset);
 	}

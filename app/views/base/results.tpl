@@ -1,4 +1,4 @@
-<form class="header" action="{url}" method="get" data-component="filterable" data-url="/{project}" data-key="sort">
+<form class="header" action="{url}" method="get" data-component="filterable" data-url="/{project}" data-key="sort" data-component="infinite-scroll" data-counters-json='{counters:json}'>
 	<span class="info-wrapper">
 		<b>{list.count.total}{list.count.total_more}+{/list.count.total_more} results</b> <counter>{list.time} ms</counter> in <a href="https://github.com/{repo.org}/{repo.name}" target="_blank" rel="noopener noreferrer">{repo.org}/{repo.name}</a>
 	</span>
