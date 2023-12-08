@@ -15,7 +15,7 @@ class Github {
 
 		if (!$client) {
 			$client = new Client();
-			$token = getenv('GITHUB_TOKEN');
+			$token = getenv('GITHUB_TOKEN', true);
 			if ($token) {
 				$client->authenticate($token, authMethod: Client::AUTH_ACCESS_TOKEN);
 			}

@@ -78,5 +78,6 @@ credentials = 'true'
 host = 'queue'
 port = 4444
 
-[queue:production]
-host = '127.0.0.1'
+[manticore]
+host = 'manticore'
+port = 9308

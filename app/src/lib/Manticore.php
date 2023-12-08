@@ -30,8 +30,7 @@ class Manticore {
 		static $client;
 
 		if (!$client) {
-			$config = ['host' => 'manticore','port' => 9308];
-			$client = new Client($config);
+			$client = new Client(config('manticore'));
 		}
 
 		return $client;

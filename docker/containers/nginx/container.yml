@@ -2,8 +2,8 @@ image: nginx
 labels:
   - role=nginx
 working_dir: /src
-expose:
-  - '80'
+ports:
+  - '80:80'
 cap_drop:
   - ALL
 cap_add:

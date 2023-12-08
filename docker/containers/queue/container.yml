@@ -3,11 +3,14 @@ labels:
   - role=queue
 restart: unless-stopped
 entrypoint: ["beanstalkd"]
+ports:
+  - '4444:4444'
 command:
   - "-l"
-  - "127.0.0.1"
+  - "0.0.0.0"
   - "-p"
   - "4444"
   - "-z"
   - "262144"
+  - "-VV"
 stop_signal: SIGINT

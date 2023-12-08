@@ -5,6 +5,10 @@ use App\Component\Search;
 use App\Lib\Queue;
 use App\Model\Repo;
 
+$hostname = gethostname();
+$no = (int)ltrim(substr($hostname, -2), '.');
+putenv('GITHUB_TOKEN=' . getenv("GITHUB_TOKEN_{$no}"));
+
 $ns = 'github-issue-fetch';
 Cli::print("Queue NS: $ns");
 
