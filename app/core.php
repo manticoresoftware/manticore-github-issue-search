@@ -2482,7 +2482,8 @@ final class View {
 
 	  // Переменные: {array.index}
 		$str = static::chunkTransformVars($str);
-
+		// Init global context
+		$str = '<?php if (!isset($item)) $item = &$this->data; ?>' . $str;
 		file_put_contents($file_c, $str, LOCK_EX);
 		return $file_c;
 	}
