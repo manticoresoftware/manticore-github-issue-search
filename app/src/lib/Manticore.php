@@ -126,8 +126,6 @@ class Manticore {
 		$search_issues = $filters['issues'] ?? false;
 		$search_pull_requests = $filters['pull_requests'] ?? false;
 		$search_comments = $filters['comments'] ?? false;
-		$issue_filters = array_merge($filters['common'] ?? [], $filters['issue'] ?? []);
-		$comment_filters = array_merge($filters['common'] ?? [], $filters['comment'] ?? []);
 		$time = 0;
 
 		// Collect user_ids for appending to resulting by using single query to the manticore
@@ -151,34 +149,8 @@ class Manticore {
 				$search->filter('is_pull_request', $search_pull_requests);
 			}
 
-			// Special state filter
-			if (isset($filters['state'])) {
-				$fn = match ($filters['state']) {
-					'open' => 'filter',
-					'closed' => 'notFilter',
-				};
-				$search->$fn('closed_at', 0);
-			}
-			if (isset($filters['comment_ranges'])) {
-				$condition = Search::FILTER_AND;
-				foreach ($filters['comment_ranges'] as $range) {
-					if (isset($range['min'])) {
-						$search->filter('comments', 'gt', $range['min'], $condition);
-						$condition = Search::FILTER_OR;
-					}
-
-					if (!isset($range['max'])) {
-						continue;
-					}
-
-					$search->filter('comments', 'lte', $range['max'], $condition);
-					$condition = Search::FILTER_OR;
-				}
-			}
-
-			foreach ($issue_filters as $key => $value) {
-				$search->filter($key, is_array($value) ? 'in' : 'equals', $value);
-			}
+			// Apply varios filters on search instance
+			static::applyFilters($search, $filters, 'issues');
 
 			// Apply sorting
 			static::applySorting($search, $sort);
@@ -211,10 +183,7 @@ class Manticore {
 					['body'],
 					static::HIGHLIGHT_CONFIG
 				);
-			foreach ($comment_filters as $key => $value) {
-				$search->filter($key, is_array($value) ? 'in' : 'eq', $value);
-			}
-
+			static::applyFilters($search, $filters, 'comments');
 			// We can sort comments by all but comments
 			if ($sort !== 'most-commented' && $sort !== 'least-commented') {
 				static::applySorting($search, $sort);
@@ -297,12 +266,16 @@ class Manticore {
 	/**
 	 * Get counters for issues in given repository
 	 * @param  int    $repoId
+	 * @param string $query
+	 * @param array<string,mixed> $filters
 	 * @return Result<array{open:int,closed:int}>
 	 */
-	public static function getIssueCounters(int $repoId, string $index = 'issue'): Result {
+	public static function getIssueCounters(int $repoId, string $query = '', array $filters = []): Result {
 		$client = static::client();
-		$index = $client->index($index);
-		$search = $index->search('');
+		$index = $client->index('issue');
+		$search = $index->search($query);
+		unset($filters['state']);
+		static::applyFilters($search, $filters, 'issues');
 		$facets = $search
 			->limit(0)
 			->filter('repo_id', $repoId)
@@ -526,6 +499,60 @@ class Manticore {
 		$search->sort(...$sorting);
 	}
 
+	/**
+	 * Apply filters to type of index
+	 * @param  Search $search
+	 * @param  array  $filters
+	 * @param  string $type One of comments or issues
+	 * @return void
+	 */
+	protected static function applyFilters(Search $search, array $filters, string $type): void {
+		$issue_filters = array_merge($filters['common'] ?? [], $filters['issue'] ?? []);
+		$comment_filters = array_merge($filters['common'] ?? [], $filters['comment'] ?? []);
+
+		if ($type === 'issues') {
+			// Special state filter
+			if (isset($filters['state'])) {
+				$fn = match ($filters['state']) {
+					'open' => 'filter',
+					'closed' => 'notFilter',
+					default => null,
+				};
+				if (isset($fn)) {
+					$search->$fn('closed_at', 0);
+				}
+			}
+
+			if (isset($filters['comment_ranges'])) {
+				$condition = Search::FILTER_AND;
+				foreach ($filters['comment_ranges'] as $range) {
+					if (isset($range['min'])) {
+						$search->filter('comments', 'gt', $range['min'], $condition);
+						$condition = Search::FILTER_OR;
+					}
+
+					if (!isset($range['max'])) {
+						continue;
+					}
+
+					$search->filter('comments', 'lte', $range['max'], $condition);
+					$condition = Search::FILTER_OR;
+				}
+			}
+
+			foreach ($issue_filters as $key => $value) {
+				$search->filter($key, is_array($value) ? 'in' : 'equals', $value);
+			}
+		}
+
+		if ($type !== 'comments') {
+			return;
+		}
+
+		foreach ($comment_filters as $key => $value) {
+			$search->filter($key, is_array($value) ? 'in' : 'eq', $value);
+		}
+	}
 	/**
 	 * Helper method to get the doc map indexed by id by using provided ides
 	 * @param  string $table

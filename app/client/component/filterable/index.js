@@ -70,6 +70,9 @@ export default element => {
 				case 'everywhere':
 					counter.innerText = counters.total
 					break
+				case 'any':
+					counter.innerText = counters.issues
+					break
 				case 'open':
 					counter.innerText = counters.open_issues
 					break

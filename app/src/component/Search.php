@@ -87,11 +87,13 @@ final class Search {
 	/**
 	 * Get counters for the repo
 	 * @param  Repo   $repo
+	 * @param string $query
+	 * @param array<string,mixed> $filters
 	 * @return Result<array{total:int,issues:int,comments:int,pull_requests:int,open_issues:int,closed_issues:int}>
 	 */
-	public static function getRepoCounters(Repo $repo): Result {
+	public static function getRepoCounters(Repo $repo, string $query = '', array $filters = []): Result {
 		/** @var array{open:int,closed:int} */
-		$issueCounters = result(Manticore::getIssueCounters($repo->id));
+		$issueCounters = result(Manticore::getIssueCounters($repo->id, $query, $filters));
 		return ok(
 			[
 			'total' => $repo->issues + $repo->pull_requests + $repo->comments,

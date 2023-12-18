@@ -8,6 +8,7 @@
 </ul>
 <label>State</label>
 <ul data-component="filterable" data-url="/{project}" data-key="state">
+	<li{is_any_active} class="active"{/is_any_active}><a href="{filter_urls.any}" data-value="any"><span class="any">{>icon/open}</span> Any</a><counter>{counters.issues}</counter></li>
 	<li{is_open_active} class="active"{/is_open_active}><a href="{filter_urls.open}" data-value="open"><span class="open">{>icon/open}</span> Open</a><counter>{counters.open_issues}</counter></li>
 	<li{is_closed_active} class="active"{/is_closed_active}><a href="{filter_urls.closed}" data-value="closed"><span class="closed">{>icon/closed}</span> Closed</a><counter>{counters.closed_issues}</counter></li>
 </ul>
