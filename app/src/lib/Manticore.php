@@ -158,7 +158,11 @@ class Manticore {
 			$time += (int)($docs->getResponse()->getTime() * 1000);
 			// Confused ?
 			$issue_relation = $docs->getResponse()->getResponse()['hits']['total_relation'] ?? 'eq';
-			$issue_count = $docs->getTotal();
+			if ($search_pull_requests) {
+				$pull_request_count = $docs->getTotal();
+			} else {
+				$issue_count = $docs->getTotal();
+			}
 			foreach ($docs as $n => $doc) {
 				$row = ['id' => (int)$doc->getId(), ...$doc->getData()];
 				$row['highlight'] = static::highlight($doc, strip_tags($row['body']));
@@ -521,6 +525,11 @@ class Manticore {
 				if (isset($fn)) {
 					$search->$fn('closed_at', 0);
 				}
+			}
+
+			$is_pull_requests = $filters['pull_requests'] ?? false;
+			if ($is_pull_requests) {
+				$search->filter('is_pull_request', $is_pull_requests);
 			}
 
 			if (isset($filters['comment_ranges'])) {
