@@ -19,8 +19,9 @@ $repo = result(Search::fetchIssues("https://github.com/{$org}/{$repo}"));
 /** @var Repo $repo */
 $project = $repo->getProject();
 $url = $repo->getUrl();
+$filters = Search::prepareFilters($repo, $query, $filters);
 $counters = result(Search::getRepoCounters($repo, $query, $filters));
-$list = result(Search::process($repo, $query, $filters, $sort, $offset));
+$list = result(Search::process($query, $filters, $sort, $offset));
 
 $search_in = $filters['index'] ?? 'everywhere';
 [
@@ -49,7 +50,7 @@ if ($query) {
 	$counters = array_merge(
 		$counters, [
 		'total' => $list['count']['total'] . ($list['count']['total_more'] ? '+' : ''),
-		'issues' => $counters['open_issues'] + $counters['closed_issues'],
+		'issues' => $list['count']['issue'] . ($list['count']['issue_more'] ? '+' : ''),
 		'pull_requests' => $list['count']['pull_request'] . ($list['count']['pull_request_more'] ? '+' : ''),
 		'comments' => $list['count']['comment'] . ($list['count']['comment_more'] ? '+' : ''),
 		]

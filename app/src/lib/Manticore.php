@@ -145,9 +145,6 @@ class Manticore {
 					static::HIGHLIGHT_CONFIG
 				);
 			;
-			if (!$search_issues || !$search_pull_requests) {
-				$search->filter('is_pull_request', $search_pull_requests);
-			}
 
 			// Apply varios filters on search instance
 			static::applyFilters($search, $filters, 'issues');
@@ -163,6 +160,7 @@ class Manticore {
 			} else {
 				$issue_count = $docs->getTotal();
 			}
+
 			foreach ($docs as $n => $doc) {
 				$row = ['id' => (int)$doc->getId(), ...$doc->getData()];
 				$row['highlight'] = static::highlight($doc, strip_tags($row['body']));
@@ -249,20 +247,27 @@ class Manticore {
 			}
 		);
 
+		$counters = [
+			'total' => $issue_count + $pull_request_count + $comment_count,
+			'total_more' => $issue_relation !== 'eq' || $comment_relation !== 'eq',
+			'issue' => $issue_count,
+			'issue_more' => $issue_relation !== 'eq',
+			'pull_request' => $pull_request_count,
+			'pull_request_more' => $issue_relation !== 'eq',
+			'comment' => $comment_count,
+			'comment_more' => $comment_relation !== 'eq',
+		];
+
+		$counters = array_merge(
+			$counters,
+			result(static::getDocCount($query, $filters))
+		);
+
 		return ok(
 			[
 			'time' => $time,
 			'items' => $items,
-			'count' => [
-				'total' => $issue_count + $pull_request_count + $comment_count,
-				'total_more' => $issue_relation !== 'eq' || $comment_relation !== 'eq',
-				'issue' => $issue_count,
-				'issue_more' => $issue_relation !== 'eq',
-				'pull_request' => $pull_request_count,
-				'pull_request_more' => $issue_relation !== 'eq',
-				'comment' => $comment_count,
-				'comment_more' => $comment_relation !== 'eq',
-			],
+			'count' => $counters,
 			]
 		);
 	}
@@ -287,7 +292,6 @@ class Manticore {
 			->facet('open', 'counters', 2)
 			->get()
 			->getFacets();
-
 		$counters = [
 			'open' => 0,
 			'closed' => 0,
@@ -299,6 +303,61 @@ class Manticore {
 			}] = $bucket['doc_count'];
 		}
 
+		return ok($counters);
+	}
+
+	/**
+	 * Get facets counters for related search requests for all entitites
+	 * @param string $query
+	 * @param array<string,mixed> $filters
+	 * @return Result<array{open:int,closed:int}>
+	 */
+	public static function getDocCount(string $query = '', array $filters = []): Result {
+		$client = static::client();
+
+		// Initialize default counters keys
+		$counters = [
+			'total' => 0,
+			'total_more' => '',
+			'pull_request' => 0,
+			'pull_request_more' => '',
+			'issue' => 0,
+			'issue_more' => '',
+			'comment' => 0,
+			'comment_more' => '',
+		];
+
+		// Get issues first
+		$index = $client->index('issue');
+		$search = $index->search($query);
+		unset($filters['pull_requests'], $filters['comments'], $filters['issues']);
+		static::applyFilters($search, $filters, 'issues');
+		$facets = $search
+			->limit(0)
+			->expression('pull', 'if(is_pull_request=1,1,0)')
+			->facet('pull', 'counters', 2)
+			->get()
+			->getFacets();
+
+		foreach ($facets['counters']['buckets'] as $bucket) {
+			$counters[match ($bucket['key']) {
+				1 => 'pull_request',
+				0 => 'issue',
+			}] = $bucket['doc_count'];
+			$counters['total'] += $bucket['doc_count'];
+		}
+
+		// Get comments now=
+		$index = $client->index('comment');
+		$search = $index->search($query);
+		static::applyFilters($search, $filters, 'comments');
+		$facets = $search
+			->limit(0)
+			->facet('repo_id', 'counters', 1)
+			->get()
+			->getFacets();
+		$counters['comment'] = $facets['counters']['buckets'][0]['doc_count'] ?? 0;
+		$counters['total'] += $counters['comment'];
 		return ok($counters);
 	}
 
@@ -527,7 +586,7 @@ class Manticore {
 				}
 			}
 
-			$is_pull_requests = $filters['pull_requests'] ?? false;
+			$is_pull_requests = !($filters['issues'] ?? false) && ($filters['pull_requests'] ?? false);
 			if ($is_pull_requests) {
 				$search->filter('is_pull_request', $is_pull_requests);
 			}

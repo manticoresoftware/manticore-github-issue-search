@@ -97,9 +97,10 @@ final class Search {
 		return ok(
 			[
 			'total' => $repo->issues + $repo->pull_requests + $repo->comments,
-			'issues' => $repo->issues,
+			'issues' => $issueCounters['open'] + $issueCounters['closed'],
 			'pull_requests' => $repo->pull_requests,
 			'comments' => $repo->comments,
+			'any_issues' => $issueCounters['open'] + $issueCounters['closed'],
 			'open_issues' => $issueCounters['open'],
 			'closed_issues' => $issueCounters['closed'],
 			]
@@ -256,14 +257,24 @@ final class Search {
 
 	/**
 	 * Get the list of issues for requested repo
-	 * @param Repo $repo
 	 * @param string $query
-	 * @param array<string,mixed> $filters
 	 * @param string $sort
 	 * @param int $offset
 	 * @return Result<array<Issue>>
 	 */
-	public static function process(Repo $repo, string $query = '', array $filters = [], string $sort = 'best-match', int $offset = 0): Result {
+	public static function process(string $query = '', array $filters = [], string $sort = 'best-match', int $offset = 0): Result {
+		return Manticore::search($query, $filters, $sort, $offset);
+	}
+
+	/**
+	 * Prepare filters
+	 * @param  Repo   $repo
+	 * @param  string $query
+	 * @param array<string,mixed> $filters
+	 * @return array<string,mixed>
+
+	 */
+	public static function prepareFilters(Repo $repo, string $query = '', array $filters = []): array {
 		$filtered = [];
 		foreach ([Issue::class, Comment::class] as $modelClass) {
 			$reflectionClass = new ReflectionClass($modelClass);
@@ -340,7 +351,7 @@ final class Search {
 			$filtered['common']['user_id'] = $users;
 		}
 
-		return Manticore::search($query, $filtered, $sort, $offset);
+		return $filtered;
 	}
 
 	/**
