@@ -550,7 +550,7 @@ class Manticore {
 		}
 
 		foreach ($comment_filters as $key => $value) {
-			$search->filter($key, is_array($value) ? 'in' : 'eq', $value);
+			$search->filter($key, is_array($value) ? 'in' : 'equals', $value);
 		}
 	}
 	/**
