@@ -94,9 +94,11 @@ final class Search {
 	public static function getRepoCounters(Repo $repo, string $query = '', array $filters = []): Result {
 		/** @var array{open:int,closed:int} */
 		$issueCounters = result(Manticore::getIssueCounters($repo->id, $query, $filters));
+		$total = $repo->issues + $repo->pull_requests + $repo->comments;
 		return ok(
 			[
-			'total' => $repo->issues + $repo->pull_requests + $repo->comments,
+			'total' => $total,
+			'found' => $total,
 			'issues' => $issueCounters['open'] + $issueCounters['closed'],
 			'pull_requests' => $repo->pull_requests,
 			'comments' => $repo->comments,

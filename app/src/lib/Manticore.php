@@ -250,6 +250,8 @@ class Manticore {
 		$counters = [
 			'total' => $issue_count + $pull_request_count + $comment_count,
 			'total_more' => $issue_relation !== 'eq' || $comment_relation !== 'eq',
+			'found' => $issue_count + $pull_request_count + $comment_count,
+			'found_more' => $issue_relation !== 'eq' || $comment_relation !== 'eq',
 			'issue' => $issue_count,
 			'issue_more' => $issue_relation !== 'eq',
 			'pull_request' => $pull_request_count,
@@ -585,10 +587,13 @@ class Manticore {
 					$search->$fn('closed_at', 0);
 				}
 			}
+			$search_all = ($filters['issues'] ?? true)
+				&& ($filters['pull_requests'] ?? true)
+				&& ($filters['comments'] ?? true)
+			;
 
-			$is_pull_requests = !($filters['issues'] ?? false) && ($filters['pull_requests'] ?? false);
-			if ($is_pull_requests) {
-				$search->filter('is_pull_request', $is_pull_requests);
+			if (!$search_all && isset($filters['pull_requests'])) {
+				$search->filter('is_pull_request', $filters['pull_requests']);
 			}
 
 			if (isset($filters['comment_ranges'])) {
