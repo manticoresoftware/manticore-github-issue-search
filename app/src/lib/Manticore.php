@@ -139,6 +139,7 @@ class Manticore {
 		if ($search_issues || $search_pull_requests) {
 			$search = $IssueIndex
 				->search($query)
+				->option('cutoff', 0)
 				->offset($offset)
 				->highlight(
 					['title', 'body'],
@@ -180,6 +181,7 @@ class Manticore {
 		if ($search_comments) {
 			$search = $CommentIndex
 				->search($query)
+				->option('cutoff', 0)
 				->offset($offset)
 				->highlight(
 					['body'],
@@ -247,7 +249,9 @@ class Manticore {
 			}
 		);
 
-		$counters = [
+		/** @var array{open:int,closed:int} */
+		$issueCounters = result(Manticore::getIssueCounters($filters['common']['repo_id'], $query, $filters));
+		$counters = array_merge([
 			'total' => $issue_count + $pull_request_count + $comment_count,
 			'total_more' => $issue_relation !== 'eq' || $comment_relation !== 'eq',
 			'found' => $issue_count + $pull_request_count + $comment_count,
@@ -258,7 +262,7 @@ class Manticore {
 			'pull_request_more' => $issue_relation !== 'eq',
 			'comment' => $comment_count,
 			'comment_more' => $comment_relation !== 'eq',
-		];
+		], $issueCounters);
 
 		$counters = array_merge(
 			$counters,
@@ -295,6 +299,7 @@ class Manticore {
 			->get()
 			->getFacets();
 		$counters = [
+			'any' => 0,
 			'open' => 0,
 			'closed' => 0,
 		];
@@ -303,6 +308,7 @@ class Manticore {
 				1 => 'open',
 				0 => 'closed',
 			}] = $bucket['doc_count'];
+			$counters['any'] += $bucket['doc_count'];
 		}
 
 		return ok($counters);
@@ -589,7 +595,7 @@ class Manticore {
 			}
 			$search_all = ($filters['issues'] ?? true)
 				&& ($filters['pull_requests'] ?? true)
-				&& ($filters['comments'] ?? true)
+				// && ($filters['comments'] ?? true)
 			;
 
 			if (!$search_all && isset($filters['pull_requests'])) {

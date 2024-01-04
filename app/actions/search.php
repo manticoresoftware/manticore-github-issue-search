@@ -20,7 +20,6 @@ $repo = result(Search::fetchIssues("https://github.com/{$org}/{$repo}"));
 $project = $repo->getProject();
 $url = $repo->getUrl();
 $filters = Search::prepareFilters($repo, $query, $filters);
-$counters = result(Search::getRepoCounters($repo, $query, $filters));
 $list = result(Search::process($query, $filters, $sort, $offset));
 
 $search_in = $filters['index'] ?? 'everywhere';
@@ -45,17 +44,15 @@ if ($is_everywhere_active) {
 $is_open_active = ($filters['state'] ?? '') === 'open';
 $is_closed_active = ($filters['state'] ?? '') === 'closed';
 $is_any_active = !$is_open_active && !$is_closed_active;
-
-if ($query) {
-	$counters = array_merge(
-		$counters, [
-		'total' => $list['count']['total'] . ($list['count']['total_more'] ? '+' : ''),
-		'issues' => $list['count']['issue'] . ($list['count']['issue_more'] ? '+' : ''),
-		'pull_requests' => $list['count']['pull_request'] . ($list['count']['pull_request_more'] ? '+' : ''),
-		'comments' => $list['count']['comment'] . ($list['count']['comment_more'] ? '+' : ''),
-		]
-	);
-}
+$counters = [
+	'total' => $list['count']['total'] . ($list['count']['total_more'] ? '+' : ''),
+	'issues' => $list['count']['issue'] . ($list['count']['issue_more'] ? '+' : ''),
+	'pull_requests' => $list['count']['pull_request'] . ($list['count']['pull_request_more'] ? '+' : ''),
+	'comments' => $list['count']['comment'] . ($list['count']['comment_more'] ? '+' : ''),
+	'open_issues' => $list['count']['open'],
+	'closed_issues' => $list['count']['closed'],
+	'any_issues' => $list['count']['any'],
+];
 
 // Sorting list with some dynamic logic
 $sort_list = [

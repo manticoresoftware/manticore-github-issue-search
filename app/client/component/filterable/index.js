@@ -71,7 +71,7 @@ export default element => {
 					counter.innerText = counters.total
 					break
 				case 'any':
-					counter.innerText = counters.issues
+					counter.innerText = counters.any_issues
 					break
 				case 'open':
 					counter.innerText = counters.open_issues

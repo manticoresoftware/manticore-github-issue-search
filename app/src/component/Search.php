@@ -85,31 +85,6 @@ final class Search {
 	}
 
 	/**
-	 * Get counters for the repo
-	 * @param  Repo   $repo
-	 * @param string $query
-	 * @param array<string,mixed> $filters
-	 * @return Result<array{total:int,issues:int,comments:int,pull_requests:int,open_issues:int,closed_issues:int}>
-	 */
-	public static function getRepoCounters(Repo $repo, string $query = '', array $filters = []): Result {
-		/** @var array{open:int,closed:int} */
-		$issueCounters = result(Manticore::getIssueCounters($repo->id, $query, $filters));
-		$total = $repo->issues + $repo->pull_requests + $repo->comments;
-		return ok(
-			[
-			'total' => $total,
-			'found' => $total,
-			'issues' => $issueCounters['open'] + $issueCounters['closed'],
-			'pull_requests' => $repo->pull_requests,
-			'comments' => $repo->comments,
-			'any_issues' => $issueCounters['open'] + $issueCounters['closed'],
-			'open_issues' => $issueCounters['open'],
-			'closed_issues' => $issueCounters['closed'],
-			]
-		);
-	}
-
-	/**
 	 * This method helps us to load the issues from the repository
 	 * and store it in manticore
 	 * @param  Repo   $repo
