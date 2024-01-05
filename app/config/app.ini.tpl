@@ -54,6 +54,7 @@ save_path     = "{{TMP_DIR}}/{{PROJECT_REV}}/sessions"
 
 [server]
 port = 80
+ssl_port = 443
 
 [nginx]
 auth_name = 'test'

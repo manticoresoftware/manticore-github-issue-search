@@ -48,11 +48,20 @@ foreach ($routes as $route => $action) {
 	$rewrites[] = "rewrite '(*UTF8)^/$route/?$' '$uri';";
 }
 
+$cert_pem = getenv('SSL_CERT_PEM') ?: '';
+$cert_key = getenv('SSL_CERT_KEY') ?: '';
+$ssl_port = config('server.ssl_port');
+
+$use_ssl = is_file($cert_pem) && is_file($cert_key);
+
 Env::configure(
 	__DIR__, [
 	'{{UPLOAD_MAX_FILESIZE}}' => config('common.upload_max_filesize'),
 	'{{SERVER_NAME}}' => config('common.domain'),
 	'{{SERVER_PORT}}' => config('server.port'),
+	'{{SSL_LISTEN_DIRECTIVE}}' => $use_ssl ? "listen 	 $ssl_port ssl;" : '',
+	'{{SSL_CERT_DIRECTIVE}}' => $use_ssl ? "ssl_certificate $cert_pem;" : '',
+	'{{SSL_CERT_KEY_DIRECTIVE}}' => $use_ssl ? "ssl_certificate_key $cert_key;" : '',
 	'{{AUTH}}' => config('nginx.auth'),
 	'{{REWRITE_RULES}}' => implode(PHP_EOL, $rewrites),
 	'{{CORS_ORIGIN}}' => config('cors.origin'),

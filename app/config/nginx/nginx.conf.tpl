@@ -12,6 +12,12 @@ server {
   error_log {{LOG_DIR}}/nginx-error.log;
 
   listen   {{SERVER_PORT}};
+  {{SSL_LISTEN_DIRECTIVE}}
+
+  {{SSL_CERT_DIRECTIVE}}
+  {{SSL_CERT_KEY_DIRECTIVE}}
+
+  # Other configuration settings...
   server_name  {{SERVER_NAME}};
   client_max_body_size {{UPLOAD_MAX_FILESIZE}};
 

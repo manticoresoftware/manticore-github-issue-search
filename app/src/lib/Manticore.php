@@ -251,7 +251,8 @@ class Manticore {
 
 		/** @var array{open:int,closed:int} */
 		$issueCounters = result(Manticore::getIssueCounters($filters['common']['repo_id'], $query, $filters));
-		$counters = array_merge([
+		$counters = array_merge(
+			[
 			'total' => $issue_count + $pull_request_count + $comment_count,
 			'total_more' => $issue_relation !== 'eq' || $comment_relation !== 'eq',
 			'found' => $issue_count + $pull_request_count + $comment_count,
@@ -262,7 +263,8 @@ class Manticore {
 			'pull_request_more' => $issue_relation !== 'eq',
 			'comment' => $comment_count,
 			'comment_more' => $comment_relation !== 'eq',
-		], $issueCounters);
+			], $issueCounters
+		);
 
 		$counters = array_merge(
 			$counters,
@@ -339,6 +341,7 @@ class Manticore {
 		$index = $client->index('issue');
 		$search = $index->search($query);
 		unset($filters['pull_requests'], $filters['comments'], $filters['issues']);
+		unset($filters['state']);
 		static::applyFilters($search, $filters, 'issues');
 		$facets = $search
 			->limit(0)
@@ -594,7 +597,7 @@ class Manticore {
 				}
 			}
 			$search_all = ($filters['issues'] ?? true)
-				&& ($filters['pull_requests'] ?? true)
+			&& ($filters['pull_requests'] ?? true)
 				// && ($filters['comments'] ?? true)
 			;
 

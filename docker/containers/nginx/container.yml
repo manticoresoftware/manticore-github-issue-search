@@ -4,6 +4,7 @@ labels:
 working_dir: /src
 ports:
   - '80:80'
+  - '443:443'
 cap_drop:
   - ALL
 cap_add:
@@ -15,5 +16,7 @@ cap_add:
   - SETUID
 volumes:
   - env-storage:/src/env
+  - $SSL_CERT_PEM:/etc/ssl/cert.pem
+  - $SSL_CERT_KEY:/etc/ssl/cert.key
 environment:
   - PROJECT=$COMPOSE_PROJECT_NAME
