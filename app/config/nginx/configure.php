@@ -48,8 +48,8 @@ foreach ($routes as $route => $action) {
 	$rewrites[] = "rewrite '(*UTF8)^/$route/?$' '$uri';";
 }
 
-$cert_pem = getenv('SSL_CERT_PEM') ?: '';
-$cert_key = getenv('SSL_CERT_KEY') ?: '';
+$cert_pem = '/etc/nginx/ssl/cert.pem';
+$cert_key = '/etc/nginx/ssl/cert.key';
 $ssl_port = config('server.ssl_port');
 
 $use_ssl = is_file($cert_pem) && is_file($cert_key);
