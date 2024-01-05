@@ -62,9 +62,11 @@ auth_pass = 'test'
 ; auth_basic nginx param: off, Restricted
 auth = 'off'
 open_file_cache = 'off'
+use_ssl = 0
 
 [nginx:production]
 open_file_cache = 'max=100000 inactive=600s'
+use_ssl = 1
 
 [nginx:test]
 auth = 'Restricted'

@@ -52,7 +52,7 @@ $cert_pem = '/etc/nginx/ssl/cert.pem';
 $cert_key = '/etc/nginx/ssl/cert.key';
 $ssl_port = config('server.ssl_port');
 
-$use_ssl = is_file($cert_pem) && is_file($cert_key);
+$use_ssl = config('nginx.use_ssl');
 
 Env::configure(
 	__DIR__, [
