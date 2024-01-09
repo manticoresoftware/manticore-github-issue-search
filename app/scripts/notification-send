@@ -1,0 +1,16 @@
+#!/usr/bin/env /src/bin/php-exec
+<?php declare(strict_types=1);
+
+use App\Component\Notification;
+use App\Lib\Queue;
+use App\Model\Repo;
+
+$ns = 'notification-send';
+Cli::print("Queue NS: $ns");
+
+Queue::process($ns, function (Repo $repo) {
+	Cli::print("Notification for {$repo->org}/{$repo->name}");
+	Notification::notify($repo);
+	Cli::print(' done');
+	return true;
+});

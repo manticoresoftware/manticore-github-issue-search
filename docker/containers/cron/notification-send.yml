@@ -1,0 +1,8 @@
+extends:
+  service: php
+labels:
+  - role=queue
+entrypoint: /src/bin/cron
+command:
+  - app/scripts/notification-send
+  - "15"

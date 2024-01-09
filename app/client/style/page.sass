@@ -89,7 +89,14 @@ body > header
 
 		height: 32px
 		padding: 0 8px
+body > .preload
+	.input-wrapper
+		border: 1px solid #d0d7de
 
+		height: 32px
+		padding: 0 8px
+		.icon:first-child
+			margin-top: 4px
 body > footer
 	margin-top: 0
 	border-top: 1px solid #d0d7de
@@ -409,12 +416,13 @@ label
 	pointer-events: none
 
 .progress-bar + .preload
-	transform: translateY(0)
+	transform: translateY(50%)
 .preload
 	position: absolute
 	z-index: 1
-	width: 100%
-	max-width: 100%
+	width: 50%
+	max-width: 50%
+  background: white
 	right: 0
 	left: 0
 	background-color: white
@@ -422,6 +430,8 @@ label
 	transform: translateY(-100%)
 	border-bottom: 1px solid #d0d7de
 	padding: 6px 16px
+	border: 2px solid #d0d7de
+	border-radius: 6px
 	p
 		margin: 0 0 6px 0
 	ul
@@ -430,10 +440,9 @@ label
 		overflow-x: auto
 		list-style: none
 		align-content: flex-start
-		column-gap: 16px
-		padding: 0
+		padding: 0 0 16px 0
 		margin: 0
 	li
-		flex: 0 0 auto
+		flex: 0 0 50%
 	a
 		color: #0969da

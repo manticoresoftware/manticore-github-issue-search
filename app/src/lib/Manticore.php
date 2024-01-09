@@ -4,8 +4,10 @@ namespace App\Lib;
 
 use App\Model\Comment;
 use App\Model\Issue;
+use App\Model\Notification;
 use App\Model\Repo;
 use App\Model\User;
+use Generator;
 use Manticoresearch\Client;
 use Manticoresearch\ResultHit;
 use Manticoresearch\Search;
@@ -656,5 +658,63 @@ class Manticore {
 		}
 
 		return $map;
+	}
+
+	/**
+	 * Get all emails that subscribed to the repo status on index
+	 * @param  int    $repo_id
+	 * @return Generator<string> iterator with email of the customer
+	 */
+	public static function getRepoSubscribers(int $repo_id): Generator {
+		$client = static::client();
+		$Index = $client->index('notification');
+		$docs = $Index
+			->search('')
+			->limit(1000)
+			->filter('repo_id', $repo_id)
+			->filter('is_sent', false)
+			->get();
+
+		foreach ($docs as $doc) {
+			$data = $doc->getData();
+
+			// First update document and mark it processed
+			$data['is_sent'] = true;
+			$data['updated_at'] = time();
+			$Index->replaceDocument($data, $doc->getId());
+
+			// Return the email
+			yield $data['email'];
+		}
+	}
+
+	/**
+	 * Method to add subscriber to the repository
+	 * @param int    $repo_id
+	 * @param string $email
+	 * @return Result<Notification>
+	 */
+	public static function addRepoSubscriber(int $repo_id, string $email): Result {
+		$client = static::client();
+		$Index = $client->index('notification');
+		$id = hexdec(substr(md5("$email:$repo_id"), 0, 12));
+		$doc = $Index->getDocumentById($id);
+		$data = $doc?->getData();
+		if ($data) {
+			$data['is_sent'] = false;
+		} else {
+			$data = [
+				'email' => $email,
+				'repo_id' => $repo_id,
+				'is_sent' => false,
+				'created_at' => time(),
+			];
+		}
+		$data['updated_at'] = time();
+
+		$Notification = Notification::fromArray($data);
+		$Index->replaceDocument($Notification->toArray(), $id);
+
+		return ok($Notification);
 	}
 }

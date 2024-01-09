@@ -75,11 +75,11 @@ final class Search {
 		$repo = result($repoResult);
 
 		// Index only we have something to index in gap of 1 min
-		if ((!$repo->is_indexing || $repo->updated_at === 0) && (time() - $repo->updated_at) >= 86400) {
-			$repo->is_indexing = true;
-			Manticore::add([$repo]);
-			Queue::add('github-issue-fetch', $repo);
-		}
+		// if ((!$repo->is_indexing || $repo->updated_at === 0) && (time() - $repo->updated_at) >= 86400) {
+		$repo->is_indexing = true;
+		Manticore::add([$repo]);
+		Queue::add('github-issue-fetch', $repo);
+		// }
 
 		return ok($repo);
 	}

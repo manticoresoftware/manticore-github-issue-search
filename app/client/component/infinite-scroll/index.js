@@ -1,5 +1,4 @@
 import domd from 'domd'
-import nav from 'lib/navigation'
 
 const opts = {
   credentials: 'same-origin',

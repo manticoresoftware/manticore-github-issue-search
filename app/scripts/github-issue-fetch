@@ -15,6 +15,7 @@ Cli::print("Queue NS: $ns");
 Queue::process($ns, function (Repo $repo) {
 	Cli::print("Indexing #{$repo->id}: https://github.com/{$repo->org}/{$repo->name}");
 	Search::index($repo);
+	Queue::add('notification-send', $repo);
 	Cli::print(' done');
 	return true;
 });
