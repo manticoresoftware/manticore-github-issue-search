@@ -43,14 +43,35 @@ final class Notification {
 			$Mailer->Password = $gmail_password;
 			$Mailer->SMTPSecure = 'tls';
 			$Mailer->Port = 587;
-			$Mailer->isHTML(false);
-			$Mailer->Subject = "✅ Issues indexed for {$repo->org}/{$repo->name} with Manticore";
-			$Mailer->Body = "👋Hello,
+			$Mailer->isHTML(true);
+			$project = $repo->org . '/' . $repo->name;
+			$ImageRes = static::getGithubOpengraphImage($repo);
+			$og_image_html = '';
+			if (!$ImageRes->err) {
+				$image_url = result($ImageRes);
+				$og_image_html = "<img src='{$image_url}' alt='{$project}'/><br/>";
+			}
+			$Mailer->Subject = "github.manticoresearch.com/{$project} is ready";
+			$Mailer->Body = "Hey there
+<br/><br/>
+Your repo <a href='https://github.com/{$project}'>{$project}</a> is now searchable at <a href='{$host}/{$project}'>{$host}</a><br/>
+{$og_image_html}
+Interested in the magic behind it? Remember, <a href='{$host}'>{$host}</a> is a demo of <a href='https://manticoresearch.com'>Manticore Search</a>.
+<br/>
+The code is open for you to explore and contribute. Find it <a href='https://github.com/manticoresoftware/manticore-github-issue-search'>here</a>
+<br/><br/>
+Best wishes,<br/>
+Manticore team";
+			$Mailer->AltBody = "Hey there
 
-We are pleased to inform you that the GitHub Issues for {$repo->org}/{$repo->name} can now be searched here: {$host}/{$repo->org}/{$repo->name}.
+Your repo https://github.com/{$project} is now searchable at {$host}/{$project}
 
-Best regards,
-The Manticore Team";
+Interested in the magic behind it? Remember, https://github.manticoresearch.com/ is a demo of Manticore Search.
+
+The code is open for you to explore and contribute. Find it here https://github.com/manticoresoftware/manticore-github-issue-search
+
+Best wishes,
+Manticore team";
 			$Mailer->setFrom($gmail_account);
 			$Mailer->addAddress($email);
 			$Mailer->send();
@@ -58,4 +79,20 @@ The Manticore Team";
 		return ok(true);
 	}
 
+	/**
+	 * Get the image URL for opengraph of request repository
+	 * @param  Repo   $repo
+	 * @return Result<string>
+	 */
+	public static function getGithubOpengraphImage(Repo $repo): Result {
+		$url = "https://github.com/{$repo->org}/{$repo->name}";
+		$html = @file_get_contents($url) ?: '';
+
+		preg_match('/property="og:image" content="(.*?)"/ius', $html, $matches);
+		if (isset($matches[1])) {
+			return ok($matches[1]);
+		}
+
+		return err('e_opegraph_not_found');
+	}
 }
