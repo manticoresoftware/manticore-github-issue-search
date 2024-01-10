@@ -126,25 +126,35 @@ $filter_urls = [
 $url = "/{$repo->org}/{$repo->name}?" . http_build_query(['query' => $query]);
 
 // For template active filters
-$form_vars = [];
-foreach ($filters as $k => $v) {
-	if (is_array($v)) {
-		foreach ($v as $mk => $mv) {
-			$form_vars[] = [
-				"is_{$k}" => true,
-				'name' => "filters[$k][]",
-				'value' => $mv,
+$form_vars = array_map(
+	function ($key, $value) {
+		if (!is_array($value)) {
+			return [
+			"is_{$key}" => true,
+			'name' => "filters[$key]",
+			'value' => $value,
 			];
 		}
-	} else {
-		$form_vars[] = [
-			"is_{$k}" => true,
-			'name' => "filters[$k]",
-			'value' => $v,
-		];
-	}
-}
 
+		$result = [];
+		foreach ($value as $subKey => $subValue) {
+			$name = is_array($subValue) ? "filters[$key][$subKey][]" : "filters[$key][]";
+			foreach ((array)$subValue as $val) {
+				$result[] = [
+				"is_{$key}" => true,
+				'name' => $name,
+				'value' => $val,
+				];
+			}
+		}
+		return $result;
+	}, array_keys($filters), $filters
+);
+
+// Flatten the array since array_map can return nested arrays
+$form_vars = array_merge([], ...$form_vars);
+
+// Add sorting option
 $form_vars[] = [
 	'is_sort' => true,
 	'name' => 'sort',
