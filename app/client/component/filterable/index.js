@@ -6,7 +6,25 @@ export default element => {
 	const d = domd(element)
 	const slug = element.getAttribute('data-url')
 	const key = element.getAttribute('data-key')
+	const only_for = element.getAttribute('data-only-for')
 	const checkboxes = element.querySelectorAll('li')
+
+	dispatcher.on('filters_updated', (ev, data) => {
+		for (const update_key in data) {
+			if (key !== update_key) {
+				continue
+			}
+			const value = data[key]
+			checkboxes.forEach(el => {
+				el.classList.remove('active')
+				const el_value = el.querySelector('a').getAttribute('data-value')
+				if (el_value === value) {
+					el.classList.add('active')
+				}
+			})
+		}
+	})
+
 	d.on('keyup', 'input[type="text"]', (ev, el) => {
 		const value = el.value.toLowerCase()
 
@@ -33,6 +51,19 @@ export default element => {
 		el.parentElement.classList.add('active')
 		let query = nav.removeParam(location.search, `filters[${key}]`)
 		const value = el.getAttribute('data-value')
+		const el_only_for = el.getAttribute('data-only-for')
+		if (el_only_for || only_for) {
+			const params = parseQueryString(location.search)
+			const fields = JSON.parse(el_only_for ? el_only_for : only_for)
+			for (const key in fields) {
+				const value = params.get(`filters[${key}]`)
+				if (!fields[key].includes(value)) {
+					query = nav.removeParam(query, `filters[${key}]`)
+					query += ';filters[' + key + ']=' + fields[key][0]
+					dispatcher.send('filters_updated', {[key]: fields[key][0]});
+				}
+			}
+		}
 		nav.load(slug + '?' + query + ';filters[' + key + ']=' + value)
 		return false
 	})
@@ -85,4 +116,14 @@ export default element => {
 		})
 	})
 	return () => {}
+}
+
+function parseQueryString(query) {
+  const params = new URLSearchParams()
+  const pairs = query.split(';')
+  pairs.forEach(pair => {
+    const [key, value] = pair.split('=')
+    params.append(decodeURIComponent(key), decodeURIComponent(value))
+  })
+  return params
 }
