@@ -10,14 +10,12 @@ const opts = {
 
 export default element => {
   const d = domd(element)
-
   const url = new URL(window.location.href)
   let offset = parseInt(url.searchParams.get('offset'), 10) || 0
 
   // Scroll event listener to trigger fetching new items
   element.addEventListener('scroll', () => {
     if (isNearBottom(element)) {
-
       if (url.searchParams.has('offset')) {
       	offset += 50
         url.searchParams.set('offset', offset)

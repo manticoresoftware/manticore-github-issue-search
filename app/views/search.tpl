@@ -18,7 +18,7 @@
 		<cell class="filters" span="2">
 			{>base/filters}
 		</cell>
-		<cell class="results" span="10" id="page">
+		<cell class="results" span="10" id="page" data-component="infinite-scroll">
 			{>base/results}
 		</cell>
 	</grid>
