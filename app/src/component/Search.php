@@ -102,7 +102,6 @@ final class Search {
 		$repo = result(static::getRepo($repo->org, $repo->name));
 		$repo->expected_issues = Github::getIssueCount($repo->org, $repo->name);
 		$since = $repo->updated_at;
-		$comments = [];
 		$users = [];
 		/** @var string $since_date */
 		while (true) {
@@ -110,6 +109,7 @@ final class Search {
 			$issue_count = 0;
 			$pull_request_count = 0;
 			$issues = Github::getIssues($repo->org, $repo->name, $since_date);
+			$comments = [];
 			Cli::print("Since: $since_date");
 			Cli::print('Issues: ' . sizeof($issues));
 			if (!$issues) {
@@ -154,7 +154,6 @@ final class Search {
 				// Add common parameters
 				$issue['repo_id'] = $repo->id;
 				$issue['user_id'] = $issue['user']['id'];
-				$comments = [];
 				Cli::print("Comments: {$issue['comments']}");
 				if ($issue['comments'] > 0) {
 					$issueComments = Github::getIssueComments($repo->org, $repo->name, $issue['number']);
