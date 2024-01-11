@@ -311,7 +311,7 @@ final class Search {
 
 		$search_in = $filters['index'] ?? 'everywhere';
 		[$issues, $pull_requests, $comments] = match ($search_in) {
-			'everywhere' => [true, true, $query ? true : false],
+			'everywhere' => [true, true, true],
 			'issues' => [true, false, false],
 			'pull_requests' => [false, true, false],
 			'comments' => [false, false, true],

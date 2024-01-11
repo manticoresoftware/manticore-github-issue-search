@@ -125,9 +125,9 @@ class Manticore {
 		$client = static::client();
 		$IssueIndex = $client->index('issue');
 		$CommentIndex = $client->index('comment');
-		$search_issues = $filters['issues'] ?? false;
-		$search_pull_requests = $filters['pull_requests'] ?? false;
-		$search_comments = $filters['comments'] ?? false;
+		$search_issues = $filters['issues'] ?? true;
+		$search_pull_requests = $filters['pull_requests'] ?? true;
+		$search_comments = $filters['comments'] ?? true;
 		$time = 0;
 
 		// Collect user_ids for appending to resulting by using single query to the manticore
@@ -532,24 +532,24 @@ class Manticore {
 		if (!$highlights) {
 			$highlights = [$body];
 		}
-		return implode(' ', $highlights);
-		// $lastI = sizeof($highlights) - 1;
-		// $result = '';
-		// foreach ($highlights as $i => $highlight) {
-		// 	if (substr($highlight, 0, 5) !== substr($body, 0, 5)) {
-		// 		$result .= "…{$highlight}";
-		// 		continue;
-		// 	}
+		// return implode(' ', $highlights);
+		$lastI = sizeof($highlights) - 1;
+		$result = '';
+		foreach ($highlights as $i => $highlight) {
+			if (substr($highlight, 0, 5) !== substr($body, 0, 5)) {
+				$result .= "…{$highlight}";
+				continue;
+			}
 
-		// 	if ($i === $lastI && substr($highlight, -5, 5) !== substr($body, -5, 5)) {
-		// 		$result .= "{$highlight}…";
-		// 		continue;
-		// 	}
+			if ($i === $lastI && substr($highlight, -5, 5) !== substr($body, -5, 5)) {
+				$result .= "{$highlight}…";
+				continue;
+			}
 
-		// 	$result .= "$highlight";
-		// }
+			$result .= "$highlight";
+		}
 
-		// return $result;
+		return $result;
 	}
 
 	/**
