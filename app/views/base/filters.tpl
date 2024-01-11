@@ -21,7 +21,7 @@
 			<input type="text" name="filter" placeholder="Type to filter"/>
 			<ul>
 				{authors}
-					<li>
+					<li title="{count} issues">
 						<input id="author-{id}" type="checkbox" name="filters[authors][]" value="{id}"/>
 						<label for="author-{id}"><img src="{avatar_url}" alt="login"/> {login}</label>
 					</li>
@@ -32,11 +32,11 @@
 	<li data-component="focusable">
 		<input type="checkbox" id="toggle-assignee" class="toggle-checkbox"/>
     <label for="toggle-assignee" class="toggle-label">{>icon/plus} Assignee</label>
-		<form class="toggle-form" data-component="filterable" data-url="/{project}" data-key="assignees">
+		<form class="toggle-form" data-component="filterable" data-url="/{project}" data-key="assignees" data-only-for='{"index":["everywhere","issues","pull_requests"]}'>
 			<input type="text" name="filter" placeholder="Type to filter"/>
 			<ul>
 				{assignees}
-					<li>
+					<li title="{count} issues">
 						<input id="assignee-{id}" type="checkbox" name="filters[assignees][]" value="{id}"/>
 						<label for="assignee-{id}"><img src="{avatar_url}" alt="login"/> {login}</label>
 					</li>
@@ -47,11 +47,11 @@
 	<li data-component="focusable">
 		<input type="checkbox" id="toggle-label" class="toggle-checkbox"/>
     <label for="toggle-label" class="toggle-label">{>icon/plus} Labels</label>
-		<form class="toggle-form" data-component="filterable" data-url="/{project}" data-key="labels">
+		<form class="toggle-form" data-component="filterable" data-url="/{project}" data-key="labels" data-only-for='{"index":["everywhere","issues","pull_requests"]}'>
 			<input type="text" name="filter" placeholder="Type to filter"/>
 			<ul>
 				{labels}
-					<li>
+					<li title="{count} issues">
 						<input id="label-{id}" type="checkbox" name="filters[labels][]" value="{id}"/>
 						<label for="label-{id}"><span class="color-label" style="background-color: #{color}"></span><span>{name}</span></label>
 					</li>
@@ -62,7 +62,7 @@
 	<li>
 		<input type="checkbox" id="toggle-comment-range" class="toggle-checkbox"/>
     <label for="toggle-comment-range" class="toggle-comment-range">{>icon/plus} Comments count</label>
-		<form class="toggle-form" data-component="filterable" data-url="/{project}" data-key="comment_ranges">
+		<form class="toggle-form" data-component="filterable" data-url="/{project}" data-key="comment_ranges" data-only-for='{"index":["everywhere","issues","pull_requests"]}'>
 			<ul>
 				{comment_ranges}
 					<li>

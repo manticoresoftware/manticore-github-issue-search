@@ -24,14 +24,11 @@ export default class Navigation {
   }
 
   static removeParam(url, parameter) {
-  	const queryString = url.replace(/^\?+|;+/, "")
-  	const queryParts = queryString.split(/[&;]/g)
-  	const filteredQuery = queryParts.filter(function(param) {
-  		return !param.startsWith(parameter + '=')
-  	})
-
-  	// Re-join the filtered query parameters if any remain
-  	return filteredQuery.join(';')
+  	const queryParts = url.replace(/^[?;]+/, '').split(/[&;]/)
+    const filteredQuery = queryParts.filter(function(param) {
+      return !param.startsWith(parameter + '=');
+    })
+    return filteredQuery.join(';')
   }
 
   static load(url) {

@@ -84,3 +84,6 @@ port = 4444
 [manticore]
 host = 'manticore'
 port = 9308
+
+[github]
+organizations[] = 'manticoresoftware'

@@ -232,7 +232,7 @@ class Manticore {
 		foreach ($items as &$item) {
 			if ($item['issue']) {
 				$item['issue']['user'] = $user_map[$item['issue']['user_id']];
-				$item['labels'] = array_map(
+				$item['issue']['labels'] = array_map(
 					fn ($id) => $label_map[$id],
 					$item['issue']['label_ids']
 				);
@@ -388,21 +388,27 @@ class Manticore {
 		$facets = $search
 			->limit(0)
 			->filter('repo_id', $repoId)
-			->facet($field, 'users', $max)
+			->facet($field, 'users', $max, 'COUNT(*)')
 			->get()
 			->getFacets();
+
 		$user_ids = array_filter(array_column($facets['users']['buckets'], 'key'));
+		$user_counts = array_filter(array_column($facets['users']['buckets'], 'doc_count'));
+		$sorting = array_flip($user_ids);
 		$index = $client->index('user');
 		$docs = $index->getDocumentByIds($user_ids);
 		$users = [];
 		foreach ($docs as $doc) {
-			$users[] = [
-				'id' => $doc->getId(),
+			$id = (int)$doc->getId();
+			$users[$sorting[$id]] = [
+				'id' => $id,
+				'count' => $user_counts[$sorting[$id]],
 				...$doc->getData(),
 			];
 		}
+		ksort($users);
 
-		return ok($users);
+		return ok(array_values($users));
 	}
 
 	/**
@@ -413,6 +419,10 @@ class Manticore {
 		$client = static::client();
 		$index = $client->index('repo');
 		$search = $index->search('');
+		$organizations = config('github.organizations');
+		foreach ($organizations as $org) {
+			$search->filter('org', $org);
+		}
 		$docs = $search
 			->limit($limit)
 			->filter('is_indexing', false)
@@ -444,21 +454,25 @@ class Manticore {
 		$facets = $search
 			->limit(0)
 			->filter('repo_id', $repoId)
-			->facet('label_ids', 'labels', $max)
+			->facet('label_ids', 'labels', $max, 'COUNT(*)')
 			->get()
 			->getFacets();
 		$label_ids = array_filter(array_column($facets['labels']['buckets'], 'key'));
+		$label_counts = array_filter(array_column($facets['labels']['buckets'], 'doc_count'));
+		$sorting = array_flip($label_ids);
 		$index = $client->index('label');
 		$docs = $index->getDocumentByIds($label_ids);
 		$labels = [];
 		foreach ($docs as $doc) {
-			$labels[] = [
-				'id' => $doc->getId(),
+			$id = (int)$doc->getId();
+			$labels[$sorting[$id]] = [
+				'id' => $id,
+				'count' => $label_counts[$sorting[$id]],
 				...$doc->getData(),
 			];
 		}
-
-		return ok($labels);
+		ksort($labels);
+		return ok(array_values($labels));
 	}
 
 	/**
