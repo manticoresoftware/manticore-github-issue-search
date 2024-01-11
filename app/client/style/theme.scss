@@ -10,5 +10,6 @@
   --highlight: #{$primary-color};
   --focus: #{$primary-color};
   --border: #{$primary-color};
-  --form-text: #{$placeholder-color};
+  --form-text: #{$secondary-color};
+  --form-placeholder: #{$placeholder-color};
 }
