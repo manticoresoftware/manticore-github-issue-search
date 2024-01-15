@@ -54,7 +54,7 @@ final class Notification {
 			$Mailer->Subject = "github.manticoresearch.com/{$project} is ready";
 			$Mailer->Body = "Hey there
 <br/><br/>
-Your repo <a href='https://github.com/{$project}'>{$project}</a> is now searchable at <a href='{$host}/{$project}'>{$host}</a>.<br/>
+Your repo <a href='https://github.com/{$project}'>{$project}</a> is now searchable at <a href='{$host}/{$project}'>{$host}/{$project}</a>.<br/>
 {$og_image_html}
 Interested in the magic behind it? Remember, <a href='{$host}'>{$host}</a> is a demo of <a href='https://manticoresearch.com'>Manticore Search</a>.
 <br/>
