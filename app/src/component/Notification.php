@@ -58,7 +58,7 @@ Your repo <a href='https://github.com/{$project}'>{$project}</a> is now searchab
 {$og_image_html}
 Interested in the magic behind it? Remember, <a href='{$host}'>{$host}</a> is a demo of <a href='https://manticoresearch.com'>Manticore Search</a>.
 <br/>
-The code is open for you to explore and contribute. Find it <a href='https://github.com/manticoresoftware/manticore-github-issue-search'>here</a>
+The code is open for you to explore and contribute. Find it <a href='https://github.com/manticoresoftware/manticore-github-issue-search'>here</a>.
 <br/><br/>
 Best wishes,<br/>
 Manticore team";
@@ -68,7 +68,7 @@ Your repo https://github.com/{$project} is now searchable at {$host}/{$project}
 
 Interested in the magic behind it? Remember, https://github.manticoresearch.com/ is a demo of Manticore Search.
 
-The code is open for you to explore and contribute. Find it here https://github.com/manticoresoftware/manticore-github-issue-search
+The code is open for you to explore and contribute. Find it here https://github.com/manticoresoftware/manticore-github-issue-search .
 
 Best wishes,
 Manticore team";
