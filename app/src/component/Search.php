@@ -318,7 +318,7 @@ final class Search {
 
 		$filtered['issues'] = $issues;
 		$filtered['pull_requests'] = $pull_requests;
-		$filtered['comments'] = $comments;
+		$filtered['comments'] = $filtered['issue'] ? false : $comments;
 		$filtered['common'] = [
 			'repo_id' => $repo->id,
 		];
