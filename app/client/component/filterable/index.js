@@ -14,6 +14,7 @@ export default element => {
 			if (key !== update_key) {
 				continue
 			}
+			console.log(data[key])
 			const value = data[key]
 			checkboxes.forEach(el => {
 				el.classList.remove('active')
@@ -24,6 +25,16 @@ export default element => {
 			})
 		}
 	})
+
+	// Handle checkboxes set on load by url
+	const params = parseQueryString(location.search)
+	const values = params.getAll(`filters[${key}][]`)
+	if (values) {
+		const checkboxes = element.querySelectorAll('input[type="checkbox"]')
+		checkboxes.forEach(checkbox => {
+			checkbox.checked = values.includes(checkbox.value)
+		})
+	}
 
 	d.on('keyup', 'input[type="text"]', (ev, el) => {
 		const value = el.value.toLowerCase()
