@@ -1,4 +1,6 @@
 import domd from 'domd'
+import nav from 'lib/navigation'
+import dispatcher from 'edispatcher'
 
 const opts = {
   credentials: 'same-origin',
@@ -10,30 +12,42 @@ const opts = {
 
 export default element => {
   const d = domd(element)
-  const url = new URL(window.location.href)
-  let offset = parseInt(url.searchParams.get('offset'), 10) || 0
+  let offset = 0
+  let isEnd = false
+  let isProcessing = false
+  dispatcher.on('filters_updated', (ev, data) => {
+  	offset = 0
+  	isEnd = false
+  })
 
   // Scroll event listener to trigger fetching new items
   element.addEventListener('scroll', () => {
+  	if (isEnd || isProcessing) {
+  		return
+  	}
+
     if (isNearBottom(element)) {
-      if (url.searchParams.has('offset')) {
-      	offset += 50
-        url.searchParams.set('offset', offset)
-      }
+    	isProcessing = true
+    	offset += 50
+
+    	const path = window.location.pathname
+    	const query = nav.removeParam(location.search, 'offset')
+    	const url = path + '?' + query + ';' + 'offset' + '=' + offset
 
       fetch(url, opts).then(res => res.text()).then(body => {
         window.requestAnimationFrame(() => {
-          // Use DOMParser to parse the response body into a document
-         const parser = new DOMParser()
-         const doc = parser.parseFromString(body, 'text/html')
+					// Use DOMParser to parse the response body into a document
+					const parser = new DOMParser()
+					const doc = parser.parseFromString(body, 'text/html')
 
-         // Query the document for elements with the tag 'card'
-         const cards = doc.querySelectorAll('card')
-
-         // Append each 'card' to the element
-         cards.forEach(card => {
-           element.appendChild(card)
-         })
+					// Query the document for elements with the tag 'card'
+					const cards = doc.querySelectorAll('card')
+					isEnd = cards.length === 0
+					// Append each 'card' to the element
+					cards.forEach(card => {
+						element.appendChild(card)
+					})
+					isProcessing = false
         })
       })
     }
