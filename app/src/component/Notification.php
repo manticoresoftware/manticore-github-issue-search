@@ -49,7 +49,7 @@ final class Notification {
 			$og_image_html = '';
 			if (!$ImageRes->err) {
 				$image_url = result($ImageRes);
-				$og_image_html = "<img src='{$image_url}' alt='{$project}'/><br/>";
+				$og_image_html = "<a href="{$host}/{$project}"><img src='{$image_url}' alt='{$project}'/></a><br/>";
 			}
 			$Mailer->Subject = "github.manticoresearch.com/{$project} is ready";
 			$Mailer->Body = "Hey there
