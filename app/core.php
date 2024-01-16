@@ -288,17 +288,18 @@ final class App {
 				case $type === 'json':
 					$response = json_encode(
 						[
-							'error' => $Exception->getMessage(),
+							'error' => App::$debug ? $Exception->getMessage() : 'Something went wrong',
 							'trace' => App::$debug ? $Exception->getTrace() : [],
 						], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 					);
 				break;
 
 				case $type === 'html':
-					$response = '<html><head><title>Error</title></head><body>'
-					. '<p>Unhandled exception <b>'
-					. $Exception::class . '</b> with message "' . $Exception->getMessage()
-					. (static::$debug ? '" in file "' . $Exception->getFile() . ':' . $Exception->getLine() : '')
+					$response = '<html><head><title>Error</title></head><body><p>'
+					. (static::$debug ? 'Unhandled exception <b>'
+						. $Exception::class . '</b> with message "' . $Exception->getMessage()
+						. '" in file "' . $Exception->getFile() . ':' . $Exception->getLine()
+						: 'Something went wrong')
 					. '"</p>';
 
 					if (static::$debug) {
@@ -317,9 +318,11 @@ final class App {
 				break;
 
 				default:
-					$response = 'Error: ' . $Exception->getMessage();
 					if (static::$debug) {
+						$response = 'Error: ' . $Exception->getMessage();
 						$response .= PHP_EOL . $Exception->getTraceAsString();
+					} else {
+						$response = 'Something went wrong';
 					}
 			}
 
