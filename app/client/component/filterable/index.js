@@ -6,22 +6,56 @@ export default element => {
 	const d = domd(element)
 	const slug = element.getAttribute('data-url')
 	const key = element.getAttribute('data-key')
-	const only_for = element.getAttribute('data-only-for')
 	const checkboxes = element.querySelectorAll('li')
+	const only_for = element.getAttribute('data-only-for')
+	const reset_keys = element.getAttribute('data-reset-keys')
+	const applyOnlyFor = el => {
+		let query = nav.removeParam(location.search, `filters[${key}][]`)
+		const el_only_for = el.getAttribute('data-only-for')
+		if (el_only_for || only_for) {
+			const params = parseQueryString(location.search)
+			const fields = JSON.parse(el_only_for ? el_only_for : only_for)
+			for (const key in fields) {
+				const value = params.get(`filters[${key}]`)
+				if (!fields[key].includes(value)) {
+					query = nav.removeParam(query, `filters[${key}]`)
+					query += ';filters[' + key + ']=' + fields[key][0]
+					dispatcher.send('filters_updated', {[key]: fields[key][0]});
+				}
+			}
+		}
+
+		const el_reset_keys = el.getAttribute('data-reset-keys')
+		if (el_reset_keys || reset_keys) {
+			const keys = JSON.parse(el_reset_keys ? el_reset_keys : reset_keys)
+			for (let i = 0; i < keys.length; i++) {
+				query = nav.removeParam(query, `filters[${keys[i]}]`)
+				query = nav.removeParam(query, `filters[${keys[i]}][]`)
+				dispatcher.send('filters_updated', {[keys[i]]: null});
+			}
+		}
+		return query
+	}
 
 	dispatcher.on('filters_updated', (ev, data) => {
 		for (const update_key in data) {
 			if (key !== update_key) {
 				continue
 			}
-			console.log(data[key])
 			const value = data[key]
 			checkboxes.forEach(el => {
 				el.classList.remove('active')
-				const el_value = el.querySelector('a').getAttribute('data-value')
-				if (el_value === value) {
-					el.classList.add('active')
+				let link = el.querySelector('a')
+				if (link) {
+					const link_value = link.getAttribute('data-value')
+					if (link_value === value) {
+						el.classList.add('active')
+					}
+				} else {
+					let checkbox = el.querySelector('input[type="checkbox"]')
+					checkbox.checked = false
 				}
+
 			})
 		}
 	})
@@ -60,21 +94,8 @@ export default element => {
 			item.classList.remove('active')
 		})
 		el.parentElement.classList.add('active')
-		let query = nav.removeParam(location.search, `filters[${key}]`)
 		const value = el.getAttribute('data-value')
-		const el_only_for = el.getAttribute('data-only-for')
-		if (el_only_for || only_for) {
-			const params = parseQueryString(location.search)
-			const fields = JSON.parse(el_only_for ? el_only_for : only_for)
-			for (const key in fields) {
-				const value = params.get(`filters[${key}]`)
-				if (!fields[key].includes(value)) {
-					query = nav.removeParam(query, `filters[${key}]`)
-					query += ';filters[' + key + ']=' + fields[key][0]
-					dispatcher.send('filters_updated', {[key]: fields[key][0]});
-				}
-			}
-		}
+		let query = applyOnlyFor(el)
 		nav.load(slug + '?' + query + ';filters[' + key + ']=' + value)
 		return false
 	})
@@ -89,7 +110,7 @@ export default element => {
 	  })
 
 	  const filters_query = filters.join(';')
-	  let query = nav.removeParam(location.search, `filters[${key}][]`)
+	  let query = applyOnlyFor(el)
 		nav.load(slug + '?' + query + (filters_query ? ';' + filters_query : ''))
 	})
 
