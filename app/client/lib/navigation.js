@@ -23,6 +23,16 @@ export default class Navigation {
     }
   }
 
+  static parseQueryString(query) {
+    const params = new URLSearchParams()
+    const pairs = query.replace(/^[?;]+/, '').split(/[&;]/)
+    pairs.forEach(pair => {
+      const [key, value] = pair.split('=')
+      params.append(decodeURIComponent(key), decodeURIComponent(value))
+    })
+    return params
+  }
+
   static removeParam(url, parameter) {
   	const queryParts = url.replace(/^[?;]+/, '').split(/[&;]/)
     const filteredQuery = queryParts.filter(function(param) {

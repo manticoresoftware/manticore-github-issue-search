@@ -13,7 +13,7 @@ export default element => {
 		let query = nav.removeParam(location.search, `filters[${key}][]`)
 		const el_only_for = el.getAttribute('data-only-for')
 		if (el_only_for || only_for) {
-			const params = parseQueryString(location.search)
+			const params = nav.parseQueryString(location.search)
 			const fields = JSON.parse(el_only_for ? el_only_for : only_for)
 			for (const key in fields) {
 				const value = params.get(`filters[${key}]`)
@@ -61,7 +61,7 @@ export default element => {
 	})
 
 	// Handle checkboxes set on load by url
-	const params = parseQueryString(location.search)
+	const params = nav.parseQueryString(location.search)
 	const values = params.getAll(`filters[${key}][]`)
 	if (values) {
 		const checkboxes = element.querySelectorAll('input[type="checkbox"]')
@@ -148,14 +148,4 @@ export default element => {
 		})
 	})
 	return () => {}
-}
-
-function parseQueryString(query) {
-  const params = new URLSearchParams()
-  const pairs = query.split(';')
-  pairs.forEach(pair => {
-    const [key, value] = pair.split('=')
-    params.append(decodeURIComponent(key), decodeURIComponent(value))
-  })
-  return params
 }
