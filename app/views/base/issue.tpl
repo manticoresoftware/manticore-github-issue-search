@@ -9,7 +9,7 @@
 		{/!is_pull_request}
 		<a href="https://github.com/{global.project}/issues/{number}" target="_blank" rel="noopener noreferrer"> {title}</a>
 	</p>
-	<p class="highlight">{highlight:html}</p>
+	<p class="highlight">{highlight:highlight}</p>
 	<!-- <p>{body:md_preview}</p> -->
 	<p class="info">
 		<img src="{user.avatar_url}" alt="{user.login}"/>
