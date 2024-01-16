@@ -365,4 +365,29 @@ final class Search {
 	public static function getCommentRanges(Repo $repo): Result {
 		return Manticore::getCommentRanges($repo->id, [3, 5, 10, 15, 20, 30, 50]);
 	}
+
+
+	/**
+	 * Sanitize the query and prepare it, returns new one that
+	 * we will use for search
+	 * @param  string $query
+	 * @return string
+	 */
+	public static function sanitizeQuery(string $query): string {
+		$quote_count = substr_count($query, '"');
+		if ($quote_count >= 2) {
+			$query = preg_replace(['/"+/', '/\-+/', '/\/+/', '/@+/'], ['"', '-', '', ''], $query);
+			if ($quote_count % 2 !== 0) {
+				$in_quotes = str_starts_with($query, '"') && str_ends_with($query, '"');
+				$query = trim($query, '"');
+				$query = str_replace('"', '', $query);
+
+				if ($in_quotes) {
+					$query = '"' . $query . '"';
+				}
+			}
+		}
+
+		return $query;
+	}
 }

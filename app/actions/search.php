@@ -19,8 +19,12 @@ $repo = result(Search::fetchIssues("https://github.com/{$org}/{$repo}"));
 /** @var Repo $repo */
 $project = $repo->getProject();
 $url = $repo->getUrl();
-$filters = Search::prepareFilters($repo, $query, $filters);
-$list = result(Search::process($query, $filters, $sort, $offset));
+$search_query = Search::sanitizeQuery($query);
+if ($query !== $search_query) {
+	$show_query = true;
+}
+$filters = Search::prepareFilters($repo, $search_query, $filters);
+$list = result(Search::process($search_query, $filters, $sort, $offset));
 
 $search_in = $filters['index'] ?? 'everywhere';
 [

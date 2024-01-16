@@ -10,7 +10,7 @@ export default element => {
 	const only_for = element.getAttribute('data-only-for')
 	const reset_keys = element.getAttribute('data-reset-keys')
 	const applyOnlyFor = el => {
-		let query = nav.removeParam(location.search, `filters[${key}][]`)
+		let query = nav.removeParam(location.search, `filters[${key}]`)
 		const el_only_for = el.getAttribute('data-only-for')
 		if (el_only_for || only_for) {
 			const params = nav.parseQueryString(location.search)

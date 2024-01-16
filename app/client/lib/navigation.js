@@ -36,7 +36,7 @@ export default class Navigation {
   static removeParam(url, parameter) {
   	const queryParts = url.replace(/^[?;]+/, '').split(/[&;]/)
     const filteredQuery = queryParts.filter(function(param) {
-      return !param.startsWith(parameter + '=');
+      return !param.startsWith(parameter + '=') || !param.startsWith(parameter + '[]=');
     })
     return filteredQuery.join(';')
   }

@@ -298,9 +298,9 @@ final class App {
 					$response = '<html><head><title>Error</title></head><body><p>'
 					. (static::$debug ? 'Unhandled exception <b>'
 						. $Exception::class . '</b> with message "' . $Exception->getMessage()
-						. '" in file "' . $Exception->getFile() . ':' . $Exception->getLine()
+						. '" in file "' . $Exception->getFile() . ':' . $Exception->getLine() . '"'
 						: 'Something went wrong')
-					. '"</p>';
+					. '</p>';
 
 					if (static::$debug) {
 						$response .= '<p><ul>'
