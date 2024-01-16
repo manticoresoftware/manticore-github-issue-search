@@ -14,6 +14,6 @@ use App\Model\Repo;
 $project = null;
 if ($url) {
 	/** @var Repo $repo */
-	$repo = result(Search::fetchIssues($url));
+	$repo = result(Search::fetchIssues(rtrim($url, '/')));
 	return Response::redirect("/{$repo->org}/{$repo->name}/");
 }

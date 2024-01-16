@@ -1,6 +1,6 @@
 import domd from 'domd'
 
-const githubRepoRegex = /^(?:https:\/\/github\.com\/)?([a-zA-Z0-9_-]+\/[a-zA-Z0-9_.-]+)$/;
+const githubRepoRegex = /^(?:https:\/\/github\.com\/)?([a-zA-Z0-9_-]+\/[a-zA-Z0-9_.-]+)\/?$/;
 
 export default element => {
 
