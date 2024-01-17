@@ -388,6 +388,10 @@ final class Search {
 			}
 		}
 
+		if ($query === '""') {
+			$query = '';
+		}
+
 		return $query;
 	}
 }
