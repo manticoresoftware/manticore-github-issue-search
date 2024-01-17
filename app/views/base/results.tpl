@@ -20,4 +20,4 @@
 		</card>
 	{/items}
 {/list}
-{!list.items:}<p>No results found, try to search</p>
+{!list.items:}<p>No results found. Please try a different query or apply alternative filters.</p>
