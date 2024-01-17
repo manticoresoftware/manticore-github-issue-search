@@ -862,23 +862,24 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/manticoresoftware/manticoresearch-php.git",
-                "reference": "c8c82b0de82d893e9c8088c83d7f7aed9b833e18"
+                "reference": "da726dcb3e1da865a3a46d20125263d043f47da2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/manticoresoftware/manticoresearch-php/zipball/c8c82b0de82d893e9c8088c83d7f7aed9b833e18",
-                "reference": "c8c82b0de82d893e9c8088c83d7f7aed9b833e18",
+                "url": "https://api.github.com/repos/manticoresoftware/manticoresearch-php/zipball/da726dcb3e1da865a3a46d20125263d043f47da2",
+                "reference": "da726dcb3e1da865a3a46d20125263d043f47da2",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": ">=7.1",
-                "psr/log": ">=1.1"
+                "php": "^7.1|^8.0",
+                "psr/log": "^1.1 || ^2.0 || ^3.0"
             },
             "require-dev": {
                 "mockery/mockery": "*",
-                "phpunit/phpunit": ">=7.5",
-                "squizlabs/php_codesniffer": ">=3.5"
+                "phpstan/phpstan": "^1.4",
+                "phpunit/phpunit": ">=7.5 || ^9.6",
+                "squizlabs/php_codesniffer": "^3.7"
             },
             "suggest": {
                 "ext-curl": "*",
@@ -922,7 +923,7 @@
                 "issues": "https://github.com/manticoresoftware/manticoresearch-php/issues",
                 "source": "https://github.com/manticoresoftware/manticoresearch-php/"
             },
-            "time": "2023-12-29T09:42:34+00:00"
+            "time": "2024-01-12T17:04:06+00:00"
         },
         {
             "name": "muvon/kiss-binary-codec",
@@ -2749,12 +2750,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "364cc7269d54dc4c862d1a41318764c86e43710d"
+                "reference": "17a4c19c971c1803c8f09d20cad9b3796456442f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/364cc7269d54dc4c862d1a41318764c86e43710d",
-                "reference": "364cc7269d54dc4c862d1a41318764c86e43710d",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/17a4c19c971c1803c8f09d20cad9b3796456442f",
+                "reference": "17a4c19c971c1803c8f09d20cad9b3796456442f",
                 "shasum": ""
             },
             "require": {
@@ -2822,7 +2823,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-01-10T13:52:25+00:00"
+            "time": "2024-01-16T18:55:19+00:00"
         },
         {
             "name": "vkcom/noverify",

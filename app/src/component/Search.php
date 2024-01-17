@@ -298,14 +298,14 @@ final class Search {
 
 		$users = [];
 		if (isset($filters['authors'])) {
-			$users = array_filter(array_unique(array_map('intval', $filters['authors'])));
+			$users = array_values(array_filter(array_unique(array_map('intval', $filters['authors']))));
 		}
 		$filtered['issue'] = [];
 		if (isset($filters['assignees'])) {
-			$filtered['issue']['assignee_ids'] = array_filter(array_unique(array_map('intval', $filters['assignees'])));
+			$filtered['issue']['assignee_ids'] = array_values(array_filter(array_unique(array_map('intval', $filters['assignees']))));
 		}
 		if (isset($filters['labels'])) {
-			$filtered['issue']['label_ids'] = array_filter(array_unique(array_map('intval', $filters['labels'])));
+			$filtered['issue']['label_ids'] = array_values(array_filter(array_unique(array_map('intval', $filters['labels']))));
 		}
 
 		$search_in = $filters['index'] ?? 'everywhere';
