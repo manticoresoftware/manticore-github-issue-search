@@ -23,7 +23,7 @@ export default element => {
       }
       const [err, result] = await response.json()
       if (!step) {
-      	step = 1 / parseInt(result.expected_issues / 100, 10) + 1
+      	step = 1 / (parseInt(result.expected_issues / 100, 10) + 1)
       } else {
       	duration = parseInt(Math.min(100, result.expected_issues) / 6, 10)
       }
@@ -32,10 +32,14 @@ export default element => {
       }
       percentage = result.indexed_percentage
       updateProgressBar(percentage, duration)
-      if (!result.is_indexing) {
-      	element.classList.remove('progress-bar')
-        clearInterval(pollingInterval)
-        console.log('Indexing complete, stopped polling.')
+      if (result.is_indexing) {
+      	element.classList.add('show-preload')
+      	element.classList.add('progress-bar')
+      } else {
+    		element.classList.remove('progress-bar')
+    		element.classList.remove('show-preload')
+    	  clearInterval(pollingInterval)
+    	  console.log('Indexing complete, stopped polling.')
       }
     } catch (error) {
       console.error('Failed to fetch data:', error)
