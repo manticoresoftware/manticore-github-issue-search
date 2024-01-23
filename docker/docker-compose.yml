@@ -87,7 +87,6 @@ services:
     environment:
       - PROJECT=manticore-github-issue-search
     volumes:
-      - ..:/src
       - env-storage:/src/env
     <<: [*default_dev_networks,*default_dev_restart]
     hostname: nginx
@@ -114,7 +113,6 @@ services:
       - GMAIL_ACCOUNT=$GMAIL_ACCOUNT
       - GMAIL_PASSWORD=$GMAIL_PASSWORD
     volumes:
-      - ..:/src
       - env-storage:/src/env:rw
     <<: [*default_dev_networks,*default_dev_restart]
     hostname: php
@@ -147,9 +145,7 @@ services:
     cap_drop:
       - ALL
     volumes:
-      - ../app/client:/src
       - env-storage:/src/env:rw
-      - /src/node_modules
     entrypoint: ["yarn"]
     command:
       - run

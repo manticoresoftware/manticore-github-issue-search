@@ -1,5 +1,5 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const postcssWillChange = require('postcss-will-change')
 const postcssAssets = require('postcss-assets')
 const path = require('path')
@@ -158,8 +158,7 @@ module.exports = {
       new TerserPlugin({
         parallel: true
       }),
-      new OptimizeCSSAssetsPlugin({}),
-      '...'
+      new CssMinimizerPlugin(),
     ]
   },
   watchOptions: {

@@ -5,8 +5,8 @@ RUN mkdir -p /src
 COPY app/client/package.json /src
 ENV BUILD_DEPS="build-base python3"
 RUN apk add $BUILD_DEPS && \
-  cd /src && yarn install && yarn cache clean && \
+  cd /src && npm install && npm cache --force clean && \
   apk del $BUILD_DEPS
-COPY . /src
+COPY app/client/. /src/
 
 WORKDIR /src
