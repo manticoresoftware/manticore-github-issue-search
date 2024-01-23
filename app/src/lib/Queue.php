@@ -86,7 +86,7 @@ class Queue {
 		if ($job === false) {
 			return false;
 		}
-		$payload = json_decode($job['body']);
+		$payload = json_decode($job['body'], true);
 		$result = $func($payload);
 
 		if (false === $result) {

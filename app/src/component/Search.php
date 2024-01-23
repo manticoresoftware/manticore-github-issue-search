@@ -78,7 +78,7 @@ final class Search {
 		if ((!$repo->is_indexing || $repo->updated_at === 0) && (time() - $repo->updated_at) >= 86400) {
 			$repo->is_indexing = true;
 			Manticore::add([$repo]);
-			Queue::add('github-issue-fetch', $repo);
+			Queue::add('github-issue-fetch', $repo->toArray());
 		}
 
 		return ok($repo);

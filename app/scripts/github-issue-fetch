@@ -16,10 +16,11 @@ putenv('GITHUB_TOKEN=' . $tokens[$no]);
 $ns = 'github-issue-fetch';
 Cli::print("Queue NS: $ns");
 
-Queue::process($ns, function (Repo $repo) {
+Queue::process($ns, function (array $repo) {
+	$repo = Repo::fromArray($repo);
 	Cli::print("Indexing #{$repo->id}: https://github.com/{$repo->org}/{$repo->name}");
 	Search::index($repo);
-	Queue::add('notification-send', $repo);
+	Queue::add('notification-send', $repo->toArray());
 	Cli::print(' done');
 	return true;
 });
