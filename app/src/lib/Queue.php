@@ -38,7 +38,7 @@ class Queue {
 			}
 
 			$client->useTube($ns);
-			$client->put(0, $delay, $ttr, base64_encode(msgpack_pack($job)));
+			$client->put(0, $delay, $ttr, json_encode($job));
 			return true;
 		};
 
@@ -86,7 +86,7 @@ class Queue {
 		if ($job === false) {
 			return false;
 		}
-		$payload = msgpack_unpack(base64_decode($job['body']));
+		$payload = json_decode($job['body'], true);
 		$result = $func($payload);
 
 		if (false === $result) {
