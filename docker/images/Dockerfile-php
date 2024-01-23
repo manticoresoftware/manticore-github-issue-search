@@ -4,7 +4,6 @@ LABEL maintainer="Manticore Software Co. Ltd <contact@manticoresearch.com>"
 RUN apk add --update curl bash openssl && \
   rm -fr /var/cache/apk/* && \
   rm -fr /tmp/*
-RUN php-ext add msgpack yaml sodium
 
 COPY . /src
 RUN ln -fs /src/docker/containers/php/config/php.ini /etc/php/php.ini && \

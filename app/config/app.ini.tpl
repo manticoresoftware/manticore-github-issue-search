@@ -13,7 +13,7 @@ action_map_file    = '{{CONFIG_DIR}}/action_map.php'
 upload_max_filesize = '10M'
 
 proto = 'http'
-domain = 'manticore-github-issue-search.zz'
+domain = 'localhost'
 type = 'fpm'
 
 lang_type = 'none' ; path or domain or none depends what we use for split

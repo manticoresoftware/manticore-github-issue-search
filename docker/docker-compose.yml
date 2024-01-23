@@ -1,0 +1,169 @@
+# Build args: nginx php bundle manticore queue cron.github-issue-fetch cron.notification-send
+version: "2.4"
+# This is common file for all environments
+# You can use compose.yml in each container for variables extensions
+x-dev-networks: &default_dev_networks
+  networks:
+    - default
+
+x-production-networks: &default_production_networks
+  networks:
+    - default
+
+x-dev-restart: &default_dev_restart
+  restart: 'no'
+
+x-production-restart: &default_production_restart
+  restart: always
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  env-storage:
+  manticore-storage:
+
+services:
+
+  cron.notification-send:
+    container_name: manticore-github-issue-search.cron.notification-send
+    extends:
+      service: php
+    labels:
+      - role=queue
+    entrypoint: /src/bin/cron
+    command:
+      - app/scripts/notification-send
+      - "15"
+    <<: [*default_dev_networks,*default_dev_restart]
+    hostname: cron.notification-send
+
+  queue:
+    build:
+      dockerfile: ./docker/images/Dockerfile-queue
+      context: ..
+    container_name: manticore-github-issue-search.queue
+    image: manticore-github-issue-search/queue:1.11-a
+    labels:
+      - role=queue
+    restart: unless-stopped
+    entrypoint: ["beanstalkd"]
+    ports:
+      - '4444:4444'
+    command:
+      - "-l"
+      - "0.0.0.0"
+      - "-p"
+      - "4444"
+      - "-z"
+      - "262144"
+      - "-VV"
+    stop_signal: SIGINT
+    <<: [*default_dev_networks]
+    hostname: queue
+
+  nginx:
+    build:
+      dockerfile: ./docker/images/Dockerfile-nginx
+      context: ..
+    container_name: manticore-github-issue-search.nginx
+    image: manticore-github-issue-search/nginx:1.0.0
+    labels:
+      - role=nginx
+    working_dir: /src
+    ports:
+      - '80:80'
+      - '443:443'
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+      - SYS_NICE
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+    environment:
+      - PROJECT=manticore-github-issue-search
+    volumes:
+      - ..:/src
+      - env-storage:/src/env
+    <<: [*default_dev_networks,*default_dev_restart]
+    hostname: nginx
+    restart: "always"
+
+  php:
+    build:
+      dockerfile: ./docker/images/Dockerfile-php
+      context: ..
+    container_name: manticore-github-issue-search.php
+    image: manticore-github-issue-search/php:1.0.0
+    labels:
+      - role=php
+    working_dir: /src
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+    environment:
+      - PROJECT=manticore-github-issue-search
+      - PROJECT_ENV=dev
+      - PROJECT_REV=1.0.0
+      - GITHUB_TOKENS=$GITHUB_TOKENS
+      - GMAIL_ACCOUNT=$GMAIL_ACCOUNT
+      - GMAIL_PASSWORD=$GMAIL_PASSWORD
+    volumes:
+      - ..:/src
+      - env-storage:/src/env:rw
+    <<: [*default_dev_networks,*default_dev_restart]
+    hostname: php
+    restart: "always"
+
+  cron.github-issue-fetch:
+    container_name: manticore-github-issue-search.cron.github-issue-fetch
+    extends:
+      service: php
+    labels:
+      - role=queue
+    entrypoint: /src/bin/cron
+    command:
+      - app/scripts/github-issue-fetch
+      - "15"
+    <<: [*default_dev_networks,*default_dev_restart]
+    hostname: cron.github-issue-fetch
+    restart: "always"
+
+  bundle:
+    build:
+      dockerfile: ./docker/images/Dockerfile-webpack
+      context: ..
+    container_name: manticore-github-issue-search.bundle
+    image: manticore-github-issue-search/webpack:1.0.0
+    labels:
+      - role=bundle
+    working_dir: /src
+    restart: "no"
+    cap_drop:
+      - ALL
+    volumes:
+      - ../app/client:/src
+      - env-storage:/src/env:rw
+      - /src/node_modules
+    entrypoint: ["yarn"]
+    command:
+      - run
+      - watch
+    <<: [*default_dev_networks]
+    hostname: bundle
+
+  manticore:
+    container_name: manticore-github-issue-search.manticore
+    image: manticoresearch/manticore:dev-6.2.13-b01e9c7
+    labels:
+      - role=manticore
+    restart: "always"
+    volumes:
+      - manticore-storage:/var/lib/manticore:rw
+    <<: [*default_dev_networks]
+    hostname: manticore

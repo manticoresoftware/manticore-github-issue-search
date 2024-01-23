@@ -7,7 +7,11 @@ use App\Model\Repo;
 
 $hostname = gethostname();
 $no = (int)ltrim(substr($hostname, -2), '.');
-putenv('GITHUB_TOKEN=' . getenv("GITHUB_TOKEN_{$no}"));
+$tokens = array_map('trim', explode(' ', getenv("GITHUB_TOKENS") ?: ''));
+if (!isset($tokens[$no])) {
+	Cli::error("Missing token in GITHUB_TOKENS with no #{$no}");
+}
+putenv('GITHUB_TOKEN=' . $tokens[$no]);
 
 $ns = 'github-issue-fetch';
 Cli::print("Queue NS: $ns");
