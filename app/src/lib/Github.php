@@ -15,7 +15,8 @@ class Github {
 
 		if (!$client) {
 			$client = new Client();
-			$token = getenv('GITHUB_TOKEN', true);
+			$tokens = array_map('trim', explode(' ', getenv('GITHUB_TOKENS') ?: ''));
+			$token = $tokens[array_rand($tokens, 1)];
 			if ($token) {
 				$client->authenticate($token, authMethod: Client::AUTH_ACCESS_TOKEN);
 			}
