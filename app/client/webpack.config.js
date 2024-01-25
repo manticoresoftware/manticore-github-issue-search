@@ -31,7 +31,7 @@ const moveProps = require('postcss-move-props-to-bg-image-query')({
 })
 const postcssFlexbugsFixes = require('postcss-flexbugs-fixes')()
 const postcssPresetEnv = require('postcss-preset-env')({
-  autoprefixer: false,
+	autoprefixer: false,
 })
 const postcssSorting = require('postcss-sorting')({
   'properties-order': 'alphabetical',
@@ -133,7 +133,6 @@ module.exports = {
                   postcssWillChange(),
                   combineMediaQuery,
                   sortMediaQueries,
-                  // fix100vh(),
                   autoprefixerPlugin,
                   cssnano
                 ].filter(Boolean)

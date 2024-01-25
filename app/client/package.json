@@ -36,7 +36,7 @@
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^8.0.0",
     "postcss-move-props-to-bg-image-query": "^4.0.0",
-    "postcss-preset-env": "^9.3.0",
+    "postcss-preset-env": "^6.7.2",
     "postcss-sort-media-queries": "^5.2.0",
     "postcss-sorting": "^8.0.2",
     "postcss-will-change": "^4.0.1",
@@ -48,7 +48,7 @@
     "terser-webpack-plugin": "^5.3.10",
     "url-loader": "^4.1.1",
     "water.css": "^2.1.1",
-    "webpack": "^5.89.0",
+    "webpack": "^5.90.0",
     "webpack-cli": "^5.1.4",
     "whatwg-fetch": "^3.6.20"
   }
