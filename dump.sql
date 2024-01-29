@@ -14,7 +14,7 @@ is_pull_request bool,
 reactions json,
 label_ids multi64,
 assignee_ids multi64
-) html_strip='1';
+) html_strip='1' index_field_lengths='1';
 
 CREATE TABLE comment (
 id bigint,
@@ -25,7 +25,7 @@ user_id bigint,
 created_at timestamp,
 updated_at timestamp,
 reactions json
-) html_strip='1';
+) html_strip='1' index_field_lengths='1';
 
 CREATE TABLE user (
 id bigint,
