@@ -537,13 +537,11 @@ class Manticore {
 		$result = '';
 		foreach ($highlights as $i => $highlight) {
 			if (substr($highlight, 0, 5) !== substr($body, 0, 5)) {
-				$result .= "…{$highlight}";
-				continue;
+				$highlight = "…{$highlight}";
 			}
 
 			if ($i === $lastI && substr($highlight, -5, 5) !== substr($body, -5, 5)) {
-				$result .= "{$highlight}…";
-				continue;
+				$highlight = "{$highlight}…";
 			}
 
 			$result .= "$highlight";
