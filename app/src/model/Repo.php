@@ -12,7 +12,7 @@ namespace App\Model;
 // updated_at timestamp,
 // org string attribute,
 // name string attribute
-// )
+// ) index_field_lengths=1
 final class Repo extends Model {
 	public int $id;
 	public string $org;

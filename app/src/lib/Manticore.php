@@ -141,13 +141,13 @@ class Manticore {
 		if ($search_issues || $search_pull_requests) {
 			$search = $IssueIndex
 				->search($query)
-				->option('cutoff', 0)
 				->offset($offset)
 				->highlight(
 					['title', 'body'],
 					static::HIGHLIGHT_CONFIG
 				);
 			;
+			static::applyConfig($search);
 
 			// Apply varios filters on search instance
 			static::applyFilters($search, $filters, 'issues');
@@ -183,12 +183,12 @@ class Manticore {
 		if ($search_comments) {
 			$search = $CommentIndex
 				->search($query)
-				->option('cutoff', 0)
 				->offset($offset)
 				->highlight(
 					['body'],
 					static::HIGHLIGHT_CONFIG
 				);
+			static::applyConfig($search);
 			static::applyFilters($search, $filters, 'comments');
 			// We can sort comments by all but comments
 			if ($sort !== 'most-commented' && $sort !== 'least-commented') {
@@ -651,6 +651,18 @@ class Manticore {
 			$search->filter($key, is_array($value) ? 'in' : 'equals', $value);
 		}
 	}
+
+	/**
+	 * By default we use BM15 ranker, to make it better we change to BM25
+	 * @param  Search $search
+	 * @return void
+	 */
+	protected static function applyConfig(Search $search): void {
+		$search
+			->option('cutoff', 0)
+			->option('ranker', 'expr(\'10000 * bm25f(1.2,0.75)\')');
+	}
+
 	/**
 	 * Helper method to get the doc map indexed by id by using provided ides
 	 * @param  string $table

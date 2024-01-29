@@ -18,7 +18,7 @@ namespace App\Model;
 // closed_at timestamp,
 // reactions json,
 // assignee_ids multi64
-// ) html_strip='1';
+// ) html_strip='1' index_field_lengths='1'
 final class Issue extends Model {
 	public int $id;
 	public int $repo_id;
