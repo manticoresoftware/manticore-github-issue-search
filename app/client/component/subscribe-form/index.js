@@ -11,9 +11,9 @@ export default element => {
 	  const response = await fetch(`${api_url}?email=${encodeURIComponent(email)}`)
 	  const [err, result] = await response.json()
 	  if (err) {
-	  	alert("You entered wrong emeail. Please, double-check it.")
+	  	alert("You entered an incorrect email. Please double-check it.")
 	  } else {
-	  	alert('We will notify once it\'s ready. Thanks!')
+	  	alert('We will notify you once it\'s ready. Thanks!')
 	  }
 
 	  buttonEl.disabled = false
