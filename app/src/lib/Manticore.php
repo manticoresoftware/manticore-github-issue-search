@@ -530,7 +530,7 @@ class Manticore {
 	protected static function highlight(ResultHit $doc, string $body): string {
 		$highlights = array_filter(array_map(trim(...), $doc->getHighlight()['body']));
 		if (!$highlights) {
-			$highlights = [$body];
+			$highlights = [trim($body)];
 		}
 		$text = implode('…', $highlights);
 		if (substr($text, 0, 5) !== substr($body, 0, 5)) {
