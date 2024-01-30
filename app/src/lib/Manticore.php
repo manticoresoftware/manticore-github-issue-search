@@ -532,22 +532,16 @@ class Manticore {
 		if (!$highlights) {
 			$highlights = [$body];
 		}
-		// return implode(' ', $highlights);
-		$lastI = sizeof($highlights) - 1;
-		$result = '';
-		foreach ($highlights as $i => $highlight) {
-			if (substr($highlight, 0, 5) !== substr($body, 0, 5)) {
-				$highlight = "…{$highlight}";
-			}
-
-			if ($i === $lastI && substr($highlight, -5, 5) !== substr($body, -5, 5)) {
-				$highlight = "{$highlight}…";
-			}
-
-			$result .= "$highlight";
+		$text = implode('…', $highlights);
+		if (substr($text, 0, 5) !== substr($body, 0, 5)) {
+			$text = "…{$text}";
 		}
 
-		return $result;
+		if (substr($text, -5, 5) !== substr($body, -5, 5)) {
+			$text = "{$text}…";
+		}
+
+		return $text;
 	}
 
 	/**
