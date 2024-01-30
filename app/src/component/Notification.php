@@ -49,26 +49,26 @@ final class Notification {
 			$og_image_html = '';
 			if (!$ImageRes->err) {
 				$image_url = result($ImageRes);
-				$og_image_html = "<img src='{$image_url}' alt='{$project}'/><br/>";
+				$og_image_html = "<a href='{$host}/{$project}'><img src='{$image_url}' alt='{$project}'/></a><br/>";
 			}
 			$Mailer->Subject = "github.manticoresearch.com/{$project} is ready";
 			$Mailer->Body = "Hey there
 <br/><br/>
-Your repo <a href='https://github.com/{$project}'>{$project}</a> is now searchable at <a href='{$host}/{$project}'>{$host}</a><br/>
+Your repo <a href='https://github.com/{$project}'>{$project}</a> is now searchable at <a href='{$host}/{$project}'>{$host}/{$project}</a>.<br/>
 {$og_image_html}
 Interested in the magic behind it? Remember, <a href='{$host}'>{$host}</a> is a demo of <a href='https://manticoresearch.com'>Manticore Search</a>.
 <br/>
-The code is open for you to explore and contribute. Find it <a href='https://github.com/manticoresoftware/manticore-github-issue-search'>here</a>
+The code is open for you to explore and contribute. Find it <a href='https://github.com/manticoresoftware/manticore-github-issue-search'>here</a>.
 <br/><br/>
 Best wishes,<br/>
 Manticore team";
 			$Mailer->AltBody = "Hey there
 
-Your repo https://github.com/{$project} is now searchable at {$host}/{$project}
+Your repo https://github.com/{$project} is now searchable at {$host}/{$project} .
 
 Interested in the magic behind it? Remember, https://github.manticoresearch.com/ is a demo of Manticore Search.
 
-The code is open for you to explore and contribute. Find it here https://github.com/manticoresoftware/manticore-github-issue-search
+The code is open for you to explore and contribute. Find it here https://github.com/manticoresoftware/manticore-github-issue-search .
 
 Best wishes,
 Manticore team";
