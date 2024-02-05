@@ -543,7 +543,7 @@ class Manticore {
 		}
 
 		// TODO: temporarely solution to fix dots issue
-		return str_replace('...…', '', $text);
+		return str_replace('...…', '…', $text);
 	}
 
 	/**
