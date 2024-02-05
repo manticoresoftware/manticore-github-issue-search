@@ -529,8 +529,9 @@ class Manticore {
 	 */
 	protected static function highlight(ResultHit $doc, string $body): string {
 		$highlights = array_filter(array_map(trim(...), $doc->getHighlight()['body']));
+		$body = trim($body);
 		if (!$highlights) {
-			$highlights = [trim($body)];
+			$highlights = [$body];
 		}
 		$text = implode('…', $highlights);
 		if (substr($text, 0, 5) !== substr($body, 0, 5)) {
@@ -541,7 +542,8 @@ class Manticore {
 			$text = "{$text}…";
 		}
 
-		return $text;
+		// TODO: temporarely solution to fix dots issue
+		return str_replace('...…', '', $text);
 	}
 
 	/**
