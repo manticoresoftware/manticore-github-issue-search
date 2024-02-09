@@ -164,6 +164,6 @@ services:
     restart: "always"
     volumes:
       - github-issue-search-manticore-storage:/var/lib/manticore:rw
-      - ./containers/manticore/backup:/docker-entrypoint-initdb.d:rw
+      - $PWD/containers/manticore/backup:/docker-entrypoint-initdb.d:rw
     <<: [*default_dev_networks]
     hostname: manticore
