@@ -16,8 +16,6 @@ Specify your [github token](https://github.com/settings/tokens) ("Generate your 
 
 ```
 docker-compose up
-# Create required structure in Manticore
-docker exec -i manticore-github-issue-search.manticore mysql < dump.sql
 ```
 
 After completing these steps, the project should be accessible at [http://localhost/](http://localhost/).
@@ -39,6 +37,7 @@ You should add the `GITHUB_TOKENS` to the remote server's environment. Usually, 
 ```bash
 export GITHUB_TOKENS=...
 ```
+Remember, if you haven't added any tokens, you're limited to 60 requests per hour. That's really not much for indexing an average repository.
 
 #### Deployment
 
