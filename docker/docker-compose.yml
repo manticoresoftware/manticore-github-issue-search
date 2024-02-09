@@ -160,9 +160,10 @@ services:
       - role=manticore
     environment:
       - EXTRA=1
+      - START_AFTER_RESTORE=1
     restart: "always"
     volumes:
       - github-issue-search-manticore-storage:/var/lib/manticore:rw
-      - ./docker/containers/manticore/backup:/docker-entrypoint-initdb.d:rw
+      - ./containers/manticore/backup:/docker-entrypoint-initdb.d:rw
     <<: [*default_dev_networks]
     hostname: manticore
