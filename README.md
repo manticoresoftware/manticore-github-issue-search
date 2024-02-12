@@ -37,7 +37,7 @@ You should add the `GITHUB_TOKENS` to the remote server's environment. Usually, 
 ```bash
 export GITHUB_TOKENS=...
 ```
-Remember, if you haven't added any tokens, you're limited to 60 requests per hour. That's really not much for indexing an average repository.
+Remember, if you haven't added any tokens, you're limited to 60 requests per hour. That's not a lot for indexing an average repository. If you started the project with Docker Compose before without a token, note that Docker Compose caches it, and you'll need to recreate all containers after making changes by running `docker compose up --force-recreate`.
 
 #### Deployment
 
