@@ -11,7 +11,7 @@ namespace App\Model;
 // created_at timestamp,
 // updated_at timestamp,
 // reactions json
-// ) html_strip='1' index_field_lengths='1'
+// ) html_strip='1' index_field_lengths='1' morphology='lemmatize_en' min_infix_len='2' expand_keywords='1'
 final class Comment extends Model {
 	public int $id;
 	public int $repo_id;
