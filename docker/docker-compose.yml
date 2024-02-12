@@ -21,8 +21,8 @@ networks:
     driver: bridge
 
 volumes:
-  env-storage:
-  manticore-storage:
+  github-issue-search-env-storage:
+  github-issue-search-manticore-storage:
 
 services:
 
@@ -87,7 +87,7 @@ services:
     environment:
       - PROJECT=manticore-github-issue-search
     volumes:
-      - env-storage:/src/env
+      - github-issue-search-env-storage:/src/env
     <<: [*default_dev_networks,*default_dev_restart]
     hostname: nginx
     restart: "always"
@@ -113,7 +113,7 @@ services:
       - GMAIL_ACCOUNT=$GMAIL_ACCOUNT
       - GMAIL_PASSWORD=$GMAIL_PASSWORD
     volumes:
-      - env-storage:/src/env:rw
+      - github-issue-search-env-storage:/src/env:rw
     <<: [*default_dev_networks,*default_dev_restart]
     hostname: php
     restart: "always"
@@ -145,7 +145,7 @@ services:
     cap_drop:
       - ALL
     volumes:
-      - env-storage:/src/env:rw
+      - github-issue-search-env-storage:/src/env:rw
     entrypoint: ["yarn"]
     command:
       - run
@@ -158,8 +158,12 @@ services:
     image: manticoresearch/manticore:dev-6.2.13-b01e9c7
     labels:
       - role=manticore
+    environment:
+      - EXTRA=1
+      - START_AFTER_RESTORE=1
     restart: "always"
     volumes:
-      - manticore-storage:/var/lib/manticore:rw
+      - github-issue-search-manticore-storage:/var/lib/manticore:rw
+      - $PWD/containers/manticore/backup:/docker-entrypoint-initdb.d:rw
     <<: [*default_dev_networks]
     hostname: manticore
