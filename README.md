@@ -2,9 +2,16 @@
 
 This project showcases a fast, efficient, and enhanced search experience for navigating GitHub issues, pull requests, and comments using Manticore Search as a backend. Enjoy features like advanced filtering, sorting by reactions, and a user-friendly interface that mirrors GitHub's own — with the added speed and capabilities of Manticore Search.
 
-Blogpost about this project - https://manticoresearch.com/blog/manticoresearch-github-issue-search-demo/
+[![Try on https://github.manticoresearch.com/](./manticore-search-github-issue-search-demo.png)](http://github.manticoresearch.com/)
 
-## Just run the demo locally
+* 🎬 Demo: https://github.manticoresearch.com/
+* 📝 Blogpost: https://manticoresearch.com/blog/manticoresearch-github-issue-search-demo/
+
+## Online demo
+
+Feel free to explore the demo deployed at https://github.manticoresearch.com/. You might not be able to fetch data from your own repository due to the limitations of our GitHub tokens, but you can still see how it works using repositories that have already been crawled.
+
+## Run the demo locally
 
 To run the project on your local machine, you need to have Docker installed with the compose plugin. Follow these commands to start:
 
@@ -20,13 +27,13 @@ Specify your [github token](https://github.com/settings/tokens) ("Generate your 
 docker-compose up
 ```
 
-After completing these steps, the project should be accessible at [http://localhost/](http://localhost/).
+After completing these steps, the project should be accessible at [http://localhost/](http://localhost/) in a while.
 
 The default port for the server is 80, so if you need to change it, update the `nginx` section in `app/config/app.ini.tpl`.
 
 Remember to set up the necessary variables in the `.env` file before starting. This is where you can add your GITHUB tokens.
 
-## Running Locally Using Backup Data
+## Run locally
 
 You can also restore data to search locally using our prepared backup. Download it from [here](https://repo.manticoresearch.com/repository/demo/github-issue-search/backup.tar.gz) and save it to the `docker/containers/manticore` directory. Then, execute the following commands while you're in the `docker` folder:
 
