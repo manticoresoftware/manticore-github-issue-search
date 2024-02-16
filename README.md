@@ -1,4 +1,6 @@
-# Manticore-GitHub-Issue-Search
+# Manticore GitHub Issue Search
+
+This project showcases a fast, efficient, and enhanced search experience for navigating GitHub issues, pull requests, and comments using Manticore Search as a backend. Enjoy features like advanced filtering, sorting by reactions, and a user-friendly interface that mirrors GitHub's own — with the added speed and capabilities of Manticore Search.
 
 Blogpost about this project - https://manticoresearch.com/blog/manticoresearch-github-issue-search-demo/
 
