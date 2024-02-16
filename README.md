@@ -26,7 +26,7 @@ Remember to set up the necessary variables in the `.env` file before starting. T
 
 ## Running Locally Using Backup Data
 
-You can also restore data to search locally using our prepared backup. Download it from [here](https://repo.manticoresearch.com/demo/github-issue-search/backup.tar.gz) and save it to the `docker/containers/manticore` directory. Then, execute the following commands while you're in the `docker` folder:
+You can also restore data to search locally using our prepared backup. Download it from [here](https://repo.manticoresearch.com/repository/demo/github-issue-search/backup.tar.gz) and save it to the `docker/containers/manticore` directory. Then, execute the following commands while you're in the `docker` folder:
 
 ```bash
 pushd containers/manticore
