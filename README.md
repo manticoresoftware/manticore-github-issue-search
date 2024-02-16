@@ -24,6 +24,20 @@ The default port for the server is 80, so if you need to change it, update the `
 
 Remember to set up the necessary variables in the `.env` file before starting. This is where you can add your GITHUB tokens.
 
+## Running Locally Using Backup Data
+
+You can also restore data to search locally using our prepared backup. Download it from [here](https://repo.manticoresearch.com/demo/github-issue-search/backup.tar.gz) and save it to the `docker/containers/manticore` directory. Then, execute the following commands while you're in the `docker` folder:
+
+```bash
+pushd containers/manticore
+rm -fr backup
+tar xzf backup.tar.gz
+popd
+docker compose down -v
+docker compose up
+```
+This process involves navigating to the directory where the backup is stored, unzipping it after removing any existing backup structures, and then restarting the project with Docker Compose while removing all volumes on shutdown.
+
 ## Preparing for Deployment
 
 If you aim to use this project beyond a Manticore Search demo, such as an alternative to GitHub's issue search, there's a method for deploying it on a remote server. First, install [yoda](https://github.com/Muvon/yoda) on your machine and familiarize yourself with its documentation.
