@@ -33,7 +33,10 @@ export default element => {
       percentage = result.indexed_percentage
       updateProgressBar(percentage, duration)
       if (result.is_indexing) {
-      	element.classList.add('show-preload')
+      	if (result.issues === 0 && result.comments === 0) {
+      		element.classList.add('show-preload')
+      	}
+
       	element.classList.add('progress-bar')
       } else {
     		element.classList.remove('progress-bar')
