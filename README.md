@@ -9,7 +9,7 @@ To run the project on your local machine, you need to have Docker installed with
 ```
 git clone https://github.com/manticoresoftware/manticore-github-issue-search.git
 cd manticore-github-issue-search/docker
-cp .env.example .env # skip this step if you prefer not to crawl your repositories, or if your repository is small and the minimal GitHub limit suffices
+cp .env.example .env
 ```
 
 If you want to be able to crawl your github repositores, specify your [github token](https://github.com/settings/tokens) ("Generate your token" -> "classic" -> specify name -> no checkboxes -> "Generate token") in `GITHUB_TOKENS=""` in the `.env` file.
