@@ -6,38 +6,34 @@ Blogpost about this project - https://manticoresearch.com/blog/manticoresearch-g
 
 To run the project on your local machine, you need to have Docker installed with the compose plugin. Follow these commands to start:
 
-```bash
+```
 git clone https://github.com/manticoresoftware/manticore-github-issue-search.git
 cd manticore-github-issue-search/docker
-cp .env.example .env
+cp .env.example .env # skip this step if you prefer not to crawl your repositories, or if your repository is small and the minimal GitHub limit suffices
 ```
 
-Specify your [github token](https://github.com/settings/tokens) ("Generate your token" -> "classic" -> specify name -> no checkboxes -> "Generate token") in `GITHUB_TOKENS=""` in the `.env` file.
+If you want to be able to crawl your github repositores, specify your [github token](https://github.com/settings/tokens) ("Generate your token" -> "classic" -> specify name -> no checkboxes -> "Generate token") in `GITHUB_TOKENS=""` in the `.env` file.
 
 ```
-docker-compose up
-```
-
-After completing these steps, the project should be accessible at [http://localhost/](http://localhost/).
-
-The default port for the server is 80, so if you need to change it, update the `nginx` section in `app/config/app.ini.tpl`.
-
-Remember to set up the necessary variables in the `.env` file before starting. This is where you can add your GITHUB tokens.
-
-## Running Locally Using Backup Data
-
-You can also restore data to search locally using our prepared backup. Download it from [here](https://repo.manticoresearch.com/repository/demo/github-issue-search/backup.tar.gz) and save it to the `docker/containers/manticore` directory. Then, execute the following commands while you're in the `docker` folder:
-
-```bash
 cd containers/manticore
-wget https://repo.manticoresearch.com/repository/demo/github-issue-search/backup.tar.gz
+wget https://github.com/manticoresoftware/manticore-github-issue-search/releases/download/240224/backup.tar.gz # skip this if you want to crawl your own repositories instead
 rm -fr backup
 tar xzf backup.tar.gz
 cd ../..
 docker compose down -v
 docker compose up
 ```
-This process involves navigating to the directory where the backup is stored, unzipping it after removing any existing backup structures, and then restarting the project with Docker Compose while removing all volumes on shutdown.
+
+After completing these steps, the project should be accessible at [http://localhost/](http://localhost/). If you have restored from a backup, you can open one of the crawled repositories, for example, [http://localhost/manticoresoftware/manticoresearch/](http://localhost/manticoresoftware/manticoresearch/).
+
+## Further configuration
+
+The default port for the server is 80, so if you need to change it, update the `nginx` section in `app/config/app.ini.tpl`.
+
+In the `.env` file, you can set up the other variables:
+- `GITHUB_TOKENS` - GitHub tokens to use for crawling
+- `GMAIL_ACCOUNT` / `GMAIL_PASSWORD` - to send notifications through
+- `SSL_CERT_PEM` / `SSL_CERT_KEY` - for HTTPS
 
 ## Preparing for Deployment
 
