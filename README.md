@@ -1,4 +1,6 @@
-# Manticore-GitHub-Issue-Search
+# Demo: GitHub search with Manticore Search
+
+**Publicly available demo - https://github.manticoresearch.com/**
 
 Blogpost about this project - https://manticoresearch.com/blog/manticoresearch-github-issue-search-demo/
 
@@ -16,9 +18,10 @@ If you want to be able to crawl your github repositores, specify your [github to
 
 ```
 cd containers/manticore
-wget https://github.com/manticoresoftware/manticore-github-issue-search/releases/download/240224/backup.tar.gz # skip this if you want to crawl your own repositories instead
-rm -fr backup
-tar xzf backup.tar.gz
+
+# skip the following line if you just want to crawl your own repositories instead and don't need any ready data
+wget https://github.com/manticoresoftware/manticore-github-issue-search/releases/download/240224/backup.tar.gz && rm -fr backup && tar xzf backup.tar.gz
+
 cd ../..
 docker compose down -v
 docker compose up
