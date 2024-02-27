@@ -137,7 +137,7 @@ services:
       dockerfile: ./docker/images/Dockerfile-webpack
       context: ..
     container_name: manticore-github-issue-search.bundle
-    image: manticore-github-issue-search/webpack:1.0.0
+    image: manticore-github-issue-search/webpack:1.0.5
     labels:
       - role=bundle
     working_dir: /src
