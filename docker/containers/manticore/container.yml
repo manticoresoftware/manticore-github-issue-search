@@ -1,10 +1,9 @@
-image: manticoresearch/manticore:dev-6.2.13-d6f2c7d
+image: manticoresearch/manticore:dev-6.2.13-a490339
 labels:
   - role=manticore
 restart: "always"
 environment:
   - EXTRA=1
-  - START_AFTER_RESTORE=1
 volumes:
   - manticore-storage:/var/lib/manticore:rw
   - $DOCKER_ROOT/containers/manticore/backup:/docker-entrypoint-initdb.d:rw

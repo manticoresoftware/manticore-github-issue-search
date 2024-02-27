@@ -155,12 +155,11 @@ services:
 
   manticore:
     container_name: manticore-github-issue-search.manticore
-    image: manticoresearch/manticore:dev-6.2.13-d6f2c7d
+    image: manticoresearch/manticore:dev-6.2.13-a490339
     labels:
       - role=manticore
     environment:
       - EXTRA=1
-      - START_AFTER_RESTORE=1
     restart: "always"
     volumes:
       - github-issue-search-manticore-storage:/var/lib/manticore:rw
