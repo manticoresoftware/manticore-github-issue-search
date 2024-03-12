@@ -63,18 +63,28 @@ yoda deploy --env=production
 
 #### Setting Up a New Server in 5 Steps
 
-1. Initialize a new server with Rocky Linux 9 as the base OS.
-2. Add your server's IP address to the `Envfile`.
-3. Run the following command to set up the server:
+Please remember, deployment happens from the default branch to the server from the local machine. You can use the `--branch` flag with the `yoda` command to deploy from a different branch.
+
+Place your public keys in the `docker/.ssh/authorized_keys` folder on the local machine.
+
+1. Start by initializing a new server using Rocky Linux 9 as the base operating system.
+2. Enter your server's IP address in the `Envfile` file on your local machine.
+3. Execute the following command to prepare the server and also set up SSH keys for you:
 
     ```bash
     yoda setup --host=server-ip
     ```
 
-4. Begin the deployment process with:
+4. Kick off the deployment process with the next command:
 
     ```bash
     yoda deploy --host=server-ip
     ```
 
-5. You're all set!
+    or
+
+    ```bash
+    yoda deploy --env=production --branch=main
+    ```
+
+5. Wait for it to finish, and then you're good to go!
