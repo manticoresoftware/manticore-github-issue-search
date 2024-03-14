@@ -4,8 +4,52 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c54912f19f1dfc270ea23a065bc88990",
+    "content-hash": "e5b84a60ddbd6a2ff13730d2be61a09b",
     "packages": [
+        {
+            "name": "ankane/onnxruntime",
+            "version": "v0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ankane/onnxruntime-php.git",
+                "reference": "772f8f6677868bf8a4ac5dbd4a52bc99724884c4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ankane/onnxruntime-php/zipball/772f8f6677868bf8a4ac5dbd4a52bc99724884c4",
+                "reference": "772f8f6677868bf8a4ac5dbd4a52bc99724884c4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ffi": ">= 8.1",
+                "php": ">= 8.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "OnnxRuntime\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andrew Kane",
+                    "email": "andrew@ankane.org"
+                }
+            ],
+            "description": "Run ONNX models in PHP",
+            "support": {
+                "issues": "https://github.com/ankane/onnxruntime-php/issues",
+                "source": "https://github.com/ankane/onnxruntime-php"
+            },
+            "time": "2024-02-07T19:23:25+00:00"
+        },
         {
             "name": "clue/stream-filter",
             "version": "v1.7.0",
