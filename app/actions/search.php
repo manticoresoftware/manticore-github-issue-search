@@ -13,18 +13,23 @@
  */
 
 use App\Component\Search;
-use App\Model\Repo;
 
 $url = "https://github.com/{$org}/{$repo}";
-/** @var array{count:array{total:int,issue:int,total_more:bool,issue_more:bool,comment_more:bool,comment:int}} $list */
 [$org, $repo] = result(Search::fetchIssues($url));
-/** @var Repo $repo */
-$project = "{$org->name}/{$repo->name}";
 $search_query = Search::sanitizeQuery($query);
 if ($query !== $search_query) {
 	$show_query = true;
 }
-$filters = Search::prepareFilters($repo, $search_query, $filters);
+if (!isset($filters['repos'])) {
+	$filters['repos'] = $repo
+	? [$repo->id]
+	: array_map(
+		fn($repo) => $repo['id'],
+		result(Search::getRepos($org))
+	);
+}
+$multiple_repos = sizeof($filters['repos']) > 1;
+$filters = Search::prepareFilters($filters);
 $list = result(Search::process($search_query, $filters, $sort, $offset));
 
 $search_in = $filters['index'] ?? 'everywhere';
@@ -110,8 +115,10 @@ foreach ($sort_list as &$item) {
 	$item['selected'] = true;
 }
 
-$getUrlFn = function (array $config) use ($org, $repo, $query, $filters, $sort) {
-	return "/{$org->name}/{$repo->name}?" . http_build_query(
+$suffix = $repo ? "/{$repo->name}" : '';
+$page_url = "/{$org->name}{$suffix}";
+$getUrlFn = function (array $config) use ($page_url, $query, $filters, $sort) {
+	return "{$page_url}?" . http_build_query(
 		[
 		'query' => $query,
 		'filters' => array_merge($filters, $config),
@@ -128,7 +135,7 @@ $filter_urls = [
 	'open' => $getUrlFn(['state' => 'open']),
 	'closed' => $getUrlFn(['state' => 'closed']),
 ];
-$url = "/{$org->name}/{$repo->name}?" . http_build_query(['query' => $query]);
+$url = "{$page_url}?" . http_build_query(['query' => $query]);
 
 // For template active filters
 $form_vars = array_map(
@@ -165,13 +172,14 @@ $form_vars[] = [
 	'name' => 'sort',
 	'value' => $sort,
 ];
-
-$authors = result(Search::getAuthors($repo));
-$assignees = result(Search::getAssignees($repo));
-$labels = result(Search::getLabels($repo));
-$comment_ranges = result(Search::getCommentRanges($repo));
+$repos = result(Search::getRepos($org));
+$repo_ids = array_map(fn($repo) => $repo->id, $repos);
+$authors = result(Search::getAuthors($repo_ids));
+$assignees = result(Search::getAssignees($repo_ids));
+$labels = result(Search::getLabels($repo_ids));
+$comment_ranges = result(Search::getCommentRanges($repo_ids));
 // If we requested with navigation, return results only
 if (Request::current()->getHeader('x-requested-with') === 'navigation') {
 	return View::create('base/results');
 }
-$showcase = result(Search::getRepos(10));
+$showcase = result(Search::getShowcaseRepos(10));

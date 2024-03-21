@@ -21,12 +21,22 @@ use function ok;
 
 final class Search {
 	/**
+	 * Get repos for organization
+	 * @param  Org    $org
+	 * @return Result<Repo>
+	 */
+	public static function getRepos(Org $org): Result {
+		$repos = result(Manticore::getRepos($org->id));
+		return ok(array_map(Repo::fromArray(...), $repos));
+	}
+
+	/**
 	 * Get most popular repositories for showcase
 	 * @param  int $limit
 	 * @return Result
 	 */
-	public static function getRepos(int $limit = 10): Result {
-		return Manticore::getRepos($limit);
+	public static function getShowcaseRepos(int $limit = 10): Result {
+		return Manticore::getShowcaseRepos($limit);
 	}
 
 	/**
@@ -62,13 +72,23 @@ final class Search {
 	/**
 	 * Pass the url to the github repo and fetch issue in th equeu
 	 * @param  string $url
-	 * @return Result<array{0:Org,1:Repo}>
+	 * @return Result<array{0:Org,1:?Repo}>
 	 */
 	public static function fetchIssues(string $url): Result {
 		if (str_starts_with($url, 'https://github.com/')) {
 			$url = substr($url, 19);
 		}
 		[$org, $repo] = array_map(trim(...), explode('/', $url));
+		// If org only, return null
+		if (!$repo) {
+			$orgResult = Manticore::findOrg($org);
+			if ($orgResult->err) {
+				return $orgResult;
+			}
+			$org = result($orgResult);
+			return ok([$org, null]);
+		}
+
 		$repoResult = static::getOrgAndRepo($org, $repo);
 		$issue_count = 0;
 		if ($repoResult->err) {
@@ -281,13 +301,11 @@ final class Search {
 
 	/**
 	 * Prepare filters
-	 * @param  Repo   $repo
-	 * @param  string $query
 	 * @param array<string,mixed> $filters
 	 * @return array<string,mixed>
 
 	 */
-	public static function prepareFilters(Repo $repo, string $query = '', array $filters = []): array {
+	public static function prepareFilters(array $filters = []): array {
 		$filtered = [];
 		foreach ([Issue::class, Comment::class] as $modelClass) {
 			$reflectionClass = new ReflectionClass($modelClass);
@@ -312,11 +330,16 @@ final class Search {
 			$filtered['state'] = $filters['state'];
 		}
 
+		$repos = [];
+		if (isset($filters['repos'])) {
+			$repos = array_values(array_filter(array_unique(array_map('intval', $filters['repos']))));
+		}
+
 		// TODO: think about better implementation
 		if (isset($filters['comment_ranges'])) {
 			$filtered['comment_ranges'] = [];
 			$range_ids = array_map('intval', $filters['comment_ranges']);
-			$ranges = result(static::getCommentRanges($repo));
+			$ranges = result(static::getCommentRanges($repos));
 			foreach ($ranges as $range) {
 				if (!in_array($range['id'], $range_ids)) {
 					continue;
@@ -337,6 +360,7 @@ final class Search {
 		if (isset($filters['authors'])) {
 			$users = array_values(array_filter(array_unique(array_map('intval', $filters['authors']))));
 		}
+
 		$filtered['issue'] = [];
 		if (isset($filters['assignees'])) {
 			$filtered['issue']['assignee_ids'] = array_values(array_filter(array_unique(array_map('intval', $filters['assignees']))));
@@ -356,12 +380,13 @@ final class Search {
 		$filtered['issues'] = $issues;
 		$filtered['pull_requests'] = $pull_requests;
 		$filtered['comments'] = $filtered['issue'] ? false : $comments;
-		$filtered['common'] = [
-			'repo_id' => $repo->id,
-		];
 
 		if ($users) {
 			$filtered['common']['user_id'] = $users;
+		}
+
+		if ($repos) {
+			$filtered['common']['repo_id'] = $repos;
 		}
 
 		return $filtered;
@@ -369,38 +394,38 @@ final class Search {
 
 	/**
 	 * Get authors for given repo to use filtering
-	 * @param  Repo   $repo
+	 * @param  array<int> $repo_ids
 	 * @return Result<array<User>>
 	 */
-	public static function getAuthors(Repo $repo): Result {
-		return Manticore::getUsers($repo->id, 'user_id');
+	public static function getAuthors(array $repo_ids): Result {
+		return Manticore::getUsers($repo_ids, 'user_id');
 	}
 
 	/**
 	 * Get all assignees for the repo
-	 * @param  Repo   $repo
+	 * @param  array<int> $repo_ids
 	 * @return Result<array<User>>
 	 */
-	public static function getAssignees(Repo $repo): Result {
-		return Manticore::getUsers($repo->id, 'assignee_id');
+	public static function getAssignees(array $repo_ids): Result {
+		return Manticore::getUsers($repo_ids, 'assignee_id');
 	}
 
 	/**
 	 * Get all labels for repo
-	 * @param Repo $repo
+	 * @param array<int> $repo_ids
 	 * @return Result<array<Label>>
 	 */
-	public static function getLabels(Repo $repo): Result {
-		return Manticore::getLabels($repo->id);
+	public static function getLabels(array $repo_ids): Result {
+		return Manticore::getLabels($repo_ids);
 	}
 
 	/**
 	 * This method returns comment ranges used for the filter
-	 * @param  Repo   $repo
+	 * @param  array<int> $repo_ids
 	 * @return Result<array<mixed>>
 	 */
-	public static function getCommentRanges(Repo $repo): Result {
-		return Manticore::getCommentRanges($repo->id, [3, 5, 10, 15, 20, 30, 50]);
+	public static function getCommentRanges(array $repo_ids): Result {
+		return Manticore::getCommentRanges($repo_ids, [3, 5, 10, 15, 20, 30, 50]);
 	}
 
 

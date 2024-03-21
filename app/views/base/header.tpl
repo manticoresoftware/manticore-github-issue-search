@@ -1,4 +1,4 @@
-<header data-component="progress-bar" class="progress-bar" data-api-url="/api/repo/{project}">
+<header data-component="progress-bar" class="progress-bar" data-api-url="/api/repo{page_url}">
   <container>
     <grid>
       <cell class="logo" span="2">
@@ -6,7 +6,7 @@
         <span>Demo by <a href="https://manticoresearch.com" target="_blank" rel="noopener noreferrer">Manticore Search</a></span>
       </cell>
       <cell span="8">
-      	<form action="/{project}" method="get" data-component="search-form">
+      	<form action="{page_url}" method="get" data-component="search-form">
       		<grid>
       			<row>
       				<div class="input-wrapper">

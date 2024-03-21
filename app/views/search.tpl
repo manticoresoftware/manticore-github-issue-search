@@ -3,11 +3,11 @@
 	<p>👀 While it's loading, feel free to check out the other repositories:</p>
 	<ul>
 		{showcase}
-			<li><a href="/{project}">{project}</a></li>
+			<li><a href="{page_url}">{project}</a></li>
 		{/showcase}
 	</ul>
 	<p>🔔 To get a notification when it's ready, leave your email here:</p>
-	<form action="#" method="get" class="input-wrapper" data-component="subscribe-form" data-api-url="/api/subscribe/{project}">
+	<form action="#" method="get" class="input-wrapper" data-component="subscribe-form" data-api-url="/api/subscribe{page_url}">
 		<span class="icon">{>icon/email}</span>
 		<input class="unstyled" type="text" name="email" placeholder="Your email"/>
 		<button class="unstyled icon" type="submit">{>icon/search}</button>

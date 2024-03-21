@@ -196,6 +196,7 @@ class Manticore {
 		// Collect user_ids for appending to resulting by using single query to the manticore
 		$user_ids = [];
 		$label_ids = [];
+		$repo_ids = [];
 
 		$issue_count = 0;
 		$issue_relation = 'eq';
@@ -230,6 +231,7 @@ class Manticore {
 			foreach ($docs as $n => $doc) {
 				$row = ['id' => (int)$doc->getId(), ...$doc->getData()];
 				$row['highlight'] = static::highlight($doc, strip_tags($row['body']));
+				$repo_ids[] = $row['repo_id'];
 				$user_ids[] = $row['user_id'];
 				if ($row['label_ids']) {
 					$label_ids = array_merge($label_ids, $row['label_ids']);
@@ -267,6 +269,7 @@ class Manticore {
 			foreach ($docs as $n => $doc) {
 				$row = ['id' => (int)$doc->getId(), ...$doc->getData()];
 				$row['highlight'] = static::highlight($doc, strip_tags($row['body']));
+				$repo_ids[] = $row['repo_id'];
 				$user_ids[] = $row['user_id'];
 				$rbp_score = pow(static::PERSISTENCE_FACTOR, $n) * $doc->getScore();
 				$issue_ids[] = $row['issue_id'];
@@ -289,11 +292,13 @@ class Manticore {
 			unset($issue_ids, $issue_map);
 		}
 
-		// Append users and labels to all entities
+		// Append repos, users and labels to all entities
 		$user_map = static::getDocMap('user', $user_ids);
+		$repo_map = static::getDocMap('repo', $repo_ids);
 		$label_map = $label_ids ? static::getDocMap('label', $label_ids) : [];
 		foreach ($items as &$item) {
 			if ($item['issue']) {
+				$item['issue']['repo'] = $repo_map[$item['issue']['repo_id']];
 				$item['issue']['user'] = $user_map[$item['issue']['user_id']];
 				$item['issue']['labels'] = array_map(
 					fn ($id) => $label_map[$id],
@@ -303,9 +308,10 @@ class Manticore {
 			if (!$item['comment']) {
 				continue;
 			}
-
+			$item['comment']['repo'] = $repo_map[$item['comment']['repo_id']];
 			$item['comment']['user'] = $user_map[$item['comment']['user_id']];
 		}
+
 
 		// Sort by score
 		usort(
@@ -315,7 +321,7 @@ class Manticore {
 		);
 
 		/** @var array{open:int,closed:int} */
-		$issueCounters = result(Manticore::getIssueCounters($filters['common']['repo_id'], $query, $filters));
+		$issueCounters = result(Manticore::getIssueCounters($query, $filters));
 		$counters = array_merge(
 			[
 			'total' => $issue_count + $pull_request_count + $comment_count,
@@ -347,12 +353,11 @@ class Manticore {
 
 	/**
 	 * Get counters for issues in given repository
-	 * @param  int    $repoId
 	 * @param string $query
 	 * @param array<string,mixed> $filters
 	 * @return Result<array{open:int,closed:int}>
 	 */
-	public static function getIssueCounters(int $repoId, string $query = '', array $filters = []): Result {
+	public static function getIssueCounters(string $query = '', array $filters = []): Result {
 		$client = static::client();
 		$index = $client->index('issue');
 		$search = $index->search($query);
@@ -360,7 +365,6 @@ class Manticore {
 		static::applyFilters($search, $filters, 'issues');
 		$facets = $search
 			->limit(0)
-			->filter('repo_id', $repoId)
 			->expression('open', 'if(closed_at=0,1,0)')
 			->facet('open', 'counters', 2)
 			->get()
@@ -429,28 +433,33 @@ class Manticore {
 		static::applyFilters($search, $filters, 'comments');
 		$facets = $search
 			->limit(0)
-			->facet('repo_id', 'counters', 1)
+			->facet('repo_id', 'counters', sizeof($filters['common']['repo_id'] ?? []))
 			->get()
 			->getFacets();
-		$counters['comment'] = $facets['counters']['buckets'][0]['doc_count'] ?? 0;
+		$counters['comment'] = array_sum(
+			array_map(
+				fn ($doc) => $doc['doc_count'],
+				$facets['counters']['buckets'] ?? ['doc_count' => 0]
+			)
+		);
 		$counters['total'] += $counters['comment'];
 		return ok($counters);
 	}
 
 	/**
 	 * Fetch unique users by given field from the issues
-	 * @param  int         $repoId
+	 * @param  array<int>         $repo_ids
 	 * @param  string      $field
 	 * @param  int $max
 	 * @return Result<array<User>>
 	 */
-	public static function getUsers(int $repoId, string $field, int $max = 1000): Result {
+	public static function getUsers(array $repo_ids, string $field, int $max = 1000): Result {
 		$client = static::client();
 		$index = $client->index('issue');
 		$search = $index->search('');
 		$facets = $search
 			->limit(0)
-			->filter('repo_id', $repoId)
+			->filter('repo_id', 'in', $repo_ids)
 			->facet($field, 'users', $max, 'COUNT(*)')
 			->get()
 			->getFacets();
@@ -474,11 +483,37 @@ class Manticore {
 		return ok(array_values($users));
 	}
 
+
+	/**
+	 * Fetch repositories that we have for given org
+	 * @param  int         $org_id
+	 * @param  int $max
+	 * @return Result<array<Repo>>
+	 */
+	public static function getRepos(int $org_id, int $max = 1000): Result {
+		$client = static::client();
+		$index = $client->index('repo');
+		$search = $index->search('');
+		$docs = $search
+			->limit($max)
+			->filter('org_id', $org_id)
+			->get();
+		$repos = [];
+		foreach ($docs as $doc) {
+			$id = (int)$doc->getId();
+			$repos[] = [
+				'id' => $id,
+				...$doc->getData(),
+			];
+		}
+		return ok($repos);
+	}
+
 	/**
 	 * @param  int $limit
 	 * @return Result<array<Repo>>
 	 */
-	public static function getRepos(int $limit = 1000): Result {
+	public static function getShowcaseRepos(int $limit = 1000): Result {
 		$client = static::client();
 		$index = $client->index('repo');
 		$search = $index->search('');
@@ -507,17 +542,17 @@ class Manticore {
 
 	/**
 	 * Fetch unique labels by given field from the issues
-	 * @param  int         $repoId
+	 * @param  array<int>         $repo_ids
 	 * @param  int $max
 	 * @return Result<array<User>>
 	 */
-	public static function getLabels(int $repoId, int $max = 1000): Result {
+	public static function getLabels(array $repo_ids, int $max = 1000): Result {
 		$client = static::client();
 		$index = $client->index('issue');
 		$search = $index->search('');
 		$facets = $search
 			->limit(0)
-			->filter('repo_id', $repoId)
+			->filter('repo_id', 'in', $repo_ids)
 			->facet('label_ids', 'labels', $max, 'COUNT(*)')
 			->get()
 			->getFacets();
@@ -541,18 +576,18 @@ class Manticore {
 
 	/**
 	 * Get comment ranges for the repo with counts for each
-	 * @param  int    $repoId
+	 * @param  array<int>    $repo_ids
 	 * @param  array<int>  $values List of values to use for aggregation
 	 * @return Result<array<mixed>>
 	 */
-	public static function getCommentRanges(int $repoId, array $values): Result {
+	public static function getCommentRanges(array $repo_ids, array $values): Result {
 		$client = static::client();
 		$index = $client->index('issue');
 		$search = $index->search('');
 		$range = implode(',', $values);
 		$facets = $search
 			->limit(0)
-			->filter('repo_id', $repoId)
+			->filter('repo_id', 'in', $repo_ids)
 			->expression('range', "INTERVAL(comments, $range)")
 			->facet('range', 'counters', sizeof($values) + 1)
 			->get()
