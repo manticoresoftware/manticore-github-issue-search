@@ -3,15 +3,18 @@
 
 use App\Component\Notification;
 use App\Lib\Queue;
+use App\Model\Org;
 use App\Model\Repo;
 
 $ns = 'notification-send';
 Cli::print("Queue NS: $ns");
 
-Queue::process($ns, function (array $repo) {
-	$repo = Repo::fromArray($repo);
-	Cli::print("Notification for {$repo->org}/{$repo->name}");
-	Notification::notify($repo);
+Queue::process($ns, function (array $job) {
+	/** @var Org $org */
+	/** @var Repo $repo */
+	[$org, $repo] = $job;
+	Cli::print("Notification for {$org->name}/{$repo->name}");
+	Notification::notify($org, $repo);
 	Cli::print(' done');
 	return true;
 });

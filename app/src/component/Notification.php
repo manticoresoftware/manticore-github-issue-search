@@ -3,6 +3,7 @@
 namespace App\Component;
 
 use App\Lib\Manticore;
+use App\Model\Org;
 use App\Model\Repo;
 use Cli;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -25,10 +26,11 @@ final class Notification {
 
 	/**
 	 * Notify all subscribers to the repo id
+	 * @param Org $org
 	 * @param Repo $repo
 	 * @return Result<bool>
 	 */
-	public static function notify(Repo $repo): Result {
+	public static function notify(Org $org, Repo $repo): Result {
 		$gmail_account = getenv('GMAIL_ACCOUNT');
 		$gmail_password = getenv('GMAIL_PASSWORD');
 		$emails = Manticore::getRepoSubscribers($repo->id);
@@ -44,8 +46,8 @@ final class Notification {
 			$Mailer->SMTPSecure = 'tls';
 			$Mailer->Port = 587;
 			$Mailer->isHTML(true);
-			$project = $repo->org . '/' . $repo->name;
-			$ImageRes = static::getGithubOpengraphImage($repo);
+			$project = $org->name . '/' . $repo->name;
+			$ImageRes = static::getGithubOpengraphImage($org, $repo);
 			$og_image_html = '';
 			if (!$ImageRes->err) {
 				$image_url = result($ImageRes);
@@ -81,11 +83,12 @@ Manticore team";
 
 	/**
 	 * Get the image URL for opengraph of request repository
+	 * @param Org $org
 	 * @param  Repo   $repo
 	 * @return Result<string>
 	 */
-	public static function getGithubOpengraphImage(Repo $repo): Result {
-		$url = "https://github.com/{$repo->org}/{$repo->name}";
+	public static function getGithubOpengraphImage(Org $org, Repo $repo): Result {
+		$url = "https://github.com/{$org->name}/{$repo->name}";
 		$html = @file_get_contents($url) ?: '';
 
 		preg_match('/property="og:image" content="(.*?)"/ius', $html, $matches);

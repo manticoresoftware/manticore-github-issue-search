@@ -3,6 +3,7 @@
 
 use App\Component\Search;
 use App\Lib\Queue;
+use App\Model\Org;
 use App\Model\Repo;
 
 $hostname = gethostname();
@@ -16,11 +17,13 @@ putenv('GITHUB_TOKEN=' . $tokens[$no]);
 $ns = 'github-issue-fetch';
 Cli::print("Queue NS: $ns");
 
-Queue::process($ns, function (array $repo) {
-	$repo = Repo::fromArray($repo);
-	Cli::print("Indexing #{$repo->id}: https://github.com/{$repo->org}/{$repo->name}");
-	Search::index($repo);
-	Queue::add('notification-send', $repo->toArray());
+Queue::process($ns, function (array $job) {
+	/** @var Org $org */
+	/** @var Repo $repo */
+	[$org, $repo] = $job;
+	Cli::print("Indexing #{$repo->id}: https://github.com/{$org->name}/{$repo->name}");
+	Search::index($org, $repo);
+	Queue::add('notification-send', [$org, $repo]);
 	Cli::print(' done');
 	return true;
 });

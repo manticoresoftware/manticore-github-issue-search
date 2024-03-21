@@ -1,6 +1,6 @@
 <form class="header" action="{url}" method="get" data-component="filterable" data-url="/{project}" data-key="sort" data-counters-json='{counters:json}'>
 	<span class="info-wrapper">
-		<b>{list.count.found}{list.count.found_more}+{/list.count.found_more} results</b> <counter>{list.time} ms</counter> in <a href="https://github.com/{repo.org}/{repo.name}" target="_blank" rel="noopener noreferrer">{repo.org}/{repo.name}</a>{show_query} for <span title="Your query had a syntax error, so we corrected it to conduct the search for you.">{search_query:html}</span>{/show_query}
+		<b>{list.count.found}{list.count.found_more}+{/list.count.found_more} results</b> <counter>{list.time} ms</counter> in <a href="{url}" target="_blank" rel="noopener noreferrer">{project}</a>{show_query} for <span title="Your query had a syntax error, so we corrected it to conduct the search for you.">{search_query:html}</span>{/show_query}
 	</span>
 	<span class="select-wrapper">
 		<label for="sort-by">Sort by:</label>

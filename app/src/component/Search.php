@@ -8,6 +8,7 @@ use App\Lib\Queue;
 use App\Model\Comment;
 use App\Model\Issue;
 use App\Model\Label;
+use App\Model\Org;
 use App\Model\Repo;
 use App\Model\User;
 use Cli;
@@ -29,31 +30,52 @@ final class Search {
 	}
 
 	/**
+	 * Wrapper to get the organization inf
+	 * @param  string $name
+	 * @return Result<Repo>
+	 */
+	public static function getOrg(string $name): Result {
+		return Manticore::findOrg($name);
+	}
+
+	/**
 	 * Wrapper to get the repository
 	 * @param  string $org
 	 * @param  string $name
 	 * @return Result<Repo>
 	 */
-	public static function getRepo(string $org, string $name): Result {
-		return Manticore::findRepo($org, $name);
+	public static function getOrgAndRepo(string $org, string $name): Result {
+		$orgResult = static::getOrg($org);
+		if ($orgResult->err) {
+			return $orgResult;
+		}
+		$org = result($orgResult);
+
+		$repoResult = Manticore::findRepo($org->id, $name);
+		if ($repoResult->err) {
+			return $repoResult;
+		}
+		$repo = result($repoResult);
+		return ok([$org, $repo]);
 	}
 
 	/**
 	 * Pass the url to the github repo and fetch issue in th equeu
 	 * @param  string $url
-	 * @return Result<Repo>
+	 * @return Result<array{0:Org,1:Repo}>
 	 */
 	public static function fetchIssues(string $url): Result {
 		if (str_starts_with($url, 'https://github.com/')) {
 			$url = substr($url, 19);
 		}
 		[$org, $repo] = array_map(trim(...), explode('/', $url));
-		$repoResult = static::getRepo($org, $repo);
+		$repoResult = static::getOrgAndRepo($org, $repo);
 		$issue_count = 0;
 		if ($repoResult->err) {
 			try {
-				$info = Github::getRepo($org, $repo);
-				if ($info['visibility'] !== 'public' || !$info['has_issues']) {
+				$orgInfo = Github::getOrg($org);
+				$repoInfo = Github::getRepo($org, $repo);
+				if ($repoInfo['visibility'] !== 'public' || !$repoInfo['has_issues']) {
 					return err('e_repo_not_indexable');
 				}
 
@@ -62,35 +84,50 @@ final class Search {
 				return err('e_repo_not_found');
 			}
 
+			$orgResult = Manticore::findOrCreateOrg(
+				$orgInfo['login'], [
+				'id' => $orgInfo['id'],
+				'public_repos' => $orgInfo['public_repos'],
+				'description' => $orgInfo['description'],
+				'followers' => $orgInfo['followers'],
+				'following' => $orgInfo['following'],
+				]
+			);
+			if ($orgResult->err) {
+				return $orgResult;
+			}
+			$org = result($orgResult);
 			$repoResult = Manticore::findOrCreateRepo(
-				$org, $repo, [
-				'expected_issues' => $issue_count,
+				$org->id, $repo, [
+					'id' => $repoInfo['id'],
+					'expected_issues' => $issue_count,
 				]
 			);
 			if ($repoResult->err) {
 				return $repoResult;
 			}
+			$repo = result($repoResult);
+		} else {
+			[$org, $repo] = result($repoResult);
 		}
-		/** @var Repo $repo */
-		$repo = result($repoResult);
 
 		// Index only we have something to index in gap of 1 min
 		if ((!$repo->is_indexing || $repo->updated_at === 0) && (time() - $repo->updated_at) >= 60) {
 			$repo->is_indexing = true;
 			Manticore::add([$repo]);
-			Queue::add('github-issue-fetch', $repo->toArray());
+			Queue::add('github-issue-fetch', [$org, $repo]);
 		}
-
-		return ok($repo);
+		return ok([$org, $repo]);
 	}
 
 	/**
 	 * This method helps us to load the issues from the repository
 	 * and store it in manticore
+	 * @param Org $org
 	 * @param  Repo   $repo
 	 * @return Result
 	 */
-	public static function index(Repo $repo): Result {
+	public static function index(Org $org, Repo $repo): Result {
 		$converter = new GithubFlavoredMarkdownConverter(
 			[
 			'html_input' => 'strip',
@@ -99,8 +136,8 @@ final class Search {
 		);
 		// Refetch repo to make sure that we are not in race condition situations
 		/** @var Repo $repo */
-		$repo = result(static::getRepo($repo->org, $repo->name));
-		$repo->expected_issues = Github::getIssueCount($repo->org, $repo->name);
+		[$org, $repo] = result(static::getOrgAndRepo($org->name, $repo->name));
+		$repo->expected_issues = Github::getIssueCount($org->name, $repo->name);
 		$since = $repo->updated_at;
 		$users = [];
 		/** @var string $since_date */
@@ -108,7 +145,7 @@ final class Search {
 			$since_date = gmdate('Y-m-d\TH:i:s\Z', $since + 1);
 			$issue_count = 0;
 			$pull_request_count = 0;
-			$issues = Github::getIssues($repo->org, $repo->name, $since_date);
+			$issues = Github::getIssues($org->name, $repo->name, $since_date);
 			$comments = [];
 			Cli::print("Since: $since_date");
 			Cli::print('Issues: ' . sizeof($issues));
@@ -156,7 +193,7 @@ final class Search {
 				$issue['user_id'] = $issue['user']['id'];
 				Cli::print("Comments: {$issue['comments']}");
 				if ($issue['comments'] > 0) {
-					$issueComments = Github::getIssueComments($repo->org, $repo->name, $issue['number']);
+					$issueComments = Github::getIssueComments($org->name, $repo->name, $issue['number']);
 					foreach ($issueComments as &$comment) {
 						$comment['repo_id'] = $repo->id;
 						$comment['issue_id'] = $issue['id'];

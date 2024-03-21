@@ -14,3 +14,6 @@ function htmlspecialchars_without_span(string $string): string {
 
 	return $string;
 }
+
+$tokens = array_map('trim', explode(' ', getenv('GITHUB_TOKENS') ?: ''));
+putenv('GITHUB_TOKEN=' . ($tokens[0] ?? ''));

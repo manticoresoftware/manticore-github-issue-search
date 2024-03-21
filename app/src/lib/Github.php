@@ -27,6 +27,19 @@ class Github {
 	/**
 	 * Get repo information
 	 * @param string $org
+	 * @return array{has_issues:bool,open_issues:int,visibility:string}
+	 */
+	public static function getOrg(
+		string $org
+	): array {
+		/** @var \Github\Api\Organization */
+		$api = static::client()->api('organization');
+		return $api->show($org);
+	}
+
+	/**
+	 * Get repo information
+	 * @param string $org
 	 * @param string $repo
 	 * @return array{has_issues:bool,open_issues:int,visibility:string}
 	 */

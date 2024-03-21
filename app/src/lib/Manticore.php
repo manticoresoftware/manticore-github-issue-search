@@ -5,6 +5,7 @@ namespace App\Lib;
 use App\Model\Comment;
 use App\Model\Issue;
 use App\Model\Notification;
+use App\Model\Org;
 use App\Model\Repo;
 use App\Model\User;
 use Generator;
@@ -56,43 +57,105 @@ class Manticore {
 			$index->replaceDocuments($docs);
 			return ok();
 		} catch (Throwable $t) {
+			var_dump($list);
 			return err('e_add_issue_failed');
 		}
 	}
 
+
 	/**
 	 * Get repo by org and name
 	 * @param string $org
+	 * @return Result<Org>
+	 */
+	public static function findOrg(string $org): Result {
+		$client = static::client();
+		$index = $client->index('org');
+		$result = $index->search('')->filter('name', $org)->get();
+		$doc = iterator_to_array($result)[0] ?? null;
+		if (!$doc) {
+			return err('e_org_not_found');
+		}
+		$org = new Org(
+			array_merge(
+				$doc->getData(), [
+				'id' => (int)$doc->getId(),
+				]
+			)
+		);
+		return ok($org);
+	}
+
+	/**
+	 * Get repo by org and name
+	 * @param int $org_id
 	 * @param string $name
 	 * @return Result<Repo>
 	 */
-	public static function findRepo(string $org, string $name): Result {
+	public static function findRepo(int $org_id, string $name): Result {
 		$client = static::client();
 		$index = $client->index('repo');
-		$result = $index->search('')->filter('org', $org)->filter('name', $name)->get();
-		foreach ($result as $doc) {
-			return ok(new Repo($doc->getData()));
+		$result = $index->search('')->filter('org_id', $org_id)->filter('name', $name)->get();
+		$doc = iterator_to_array($result)[0] ?? null;
+		if (!$doc) {
+			return err('e_repo_not_found');
+		}
+		$repo = new Repo(
+			array_merge(
+				$doc->getData(), [
+				'id' => (int)$doc->getId(),
+				]
+			)
+		);
+		return ok($repo);
+	}
+
+
+	/**
+	 * Find id by org
+	 * @param  string $org
+	 * @param array<string,mixed> $data
+	 * @return Result<int>
+	 */
+	public static function findOrCreateOrg(string $org, array $data = []): Result {
+		$orgResult = static::findOrg($org);
+		if (!$orgResult->err) {
+			return $orgResult;
 		}
 
-		return err('e_repo_not_found');
+		$data = array_replace(
+			[
+			'name' => $org,
+			'public_repos' => 0,
+			'followers' => 0,
+			'following' => 0,
+			'updated_at' => 0,
+			], $data
+		);
+		$org = new Org($data);
+		$result = static::add([$org]);
+		if ($result->err) {
+			return $result;
+		}
+		return ok($org);
 	}
 
 	/**
 	 * Find repo id by organization and name
-	 * @param  string $org
+	 * @param  int $org_id
 	 * @param  string $name
 	 * @param array<string,mixed> $data
 	 * @return Result<int>
 	 */
-	public static function findOrCreateRepo(string $org, string $name, array $data = []): Result {
-		$repoResult = static::findRepo($org, $name);
+	public static function findOrCreateRepo(int $org_id, string $name, array $data = []): Result {
+		$repoResult = static::findRepo($org_id, $name);
 		if (!$repoResult->err) {
 			return $repoResult;
 		}
 
 		$data = array_replace(
 			[
-			'org' => $org,
+			'org_id' => $org_id,
 			'name' => $name,
 			'is_indexing' => true,
 			'expected_issues' => 0,
@@ -420,9 +483,10 @@ class Manticore {
 		$index = $client->index('repo');
 		$search = $index->search('');
 		$organizations = config('github.organizations');
-		foreach ($organizations as $org) {
-			$search->filter('org', $org);
-		}
+		$orgIndex = $client->index('org');
+		$results = $orgIndex->search('')->filter('name', $organizations)->get();
+		$org_ids = array_map(fn ($doc) => (int)$doc->getId(), iterator_to_array($results));
+		$search->filter('org_id', $org_ids);
 		$docs = $search
 			->limit($limit)
 			->filter('is_indexing', false)

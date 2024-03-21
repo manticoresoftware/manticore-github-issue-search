@@ -38,7 +38,7 @@ class Queue {
 			}
 
 			$client->useTube($ns);
-			$client->put(0, $delay, $ttr, json_encode($job));
+			$client->put(0, $delay, $ttr, serialize($job));
 			return true;
 		};
 
@@ -86,7 +86,7 @@ class Queue {
 		if ($job === false) {
 			return false;
 		}
-		$payload = json_decode($job['body'], true);
+		$payload = unserialize($job['body']);
 		$result = $func($payload);
 
 		if (false === $result) {

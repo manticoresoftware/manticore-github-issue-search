@@ -2,6 +2,7 @@
 
 // phpcs:disable SlevomatCodingStandard.Variables.UnusedVariable
 /**
+ * @route ([^/\.]+): org
  * @route ([^/\.]+)/([^/\.]+): org, repo
  * @var string $org
  * @var string $repo
@@ -14,11 +15,11 @@
 use App\Component\Search;
 use App\Model\Repo;
 
+$url = "https://github.com/{$org}/{$repo}";
 /** @var array{count:array{total:int,issue:int,total_more:bool,issue_more:bool,comment_more:bool,comment:int}} $list */
-$repo = result(Search::fetchIssues("https://github.com/{$org}/{$repo}"));
+[$org, $repo] = result(Search::fetchIssues($url));
 /** @var Repo $repo */
-$project = $repo->getProject();
-$url = $repo->getUrl();
+$project = "{$org->name}/{$repo->name}";
 $search_query = Search::sanitizeQuery($query);
 if ($query !== $search_query) {
 	$show_query = true;
@@ -109,8 +110,8 @@ foreach ($sort_list as &$item) {
 	$item['selected'] = true;
 }
 
-$getUrlFn = function (array $config) use ($repo, $query, $filters, $sort) {
-	return "/{$repo->org}/{$repo->name}?" . http_build_query(
+$getUrlFn = function (array $config) use ($org, $repo, $query, $filters, $sort) {
+	return "/{$org->name}/{$repo->name}?" . http_build_query(
 		[
 		'query' => $query,
 		'filters' => array_merge($filters, $config),
@@ -127,7 +128,7 @@ $filter_urls = [
 	'open' => $getUrlFn(['state' => 'open']),
 	'closed' => $getUrlFn(['state' => 'closed']),
 ];
-$url = "/{$repo->org}/{$repo->name}?" . http_build_query(['query' => $query]);
+$url = "/{$org->name}/{$repo->name}?" . http_build_query(['query' => $query]);
 
 // For template active filters
 $form_vars = array_map(
