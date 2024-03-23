@@ -78,7 +78,13 @@ final class Search {
 		if (str_starts_with($url, 'https://github.com/')) {
 			$url = substr($url, 19);
 		}
-		[$org, $repo] = array_map(trim(...), explode('/', $url));
+		$parts = array_map(trim(...), explode('/', $url));
+		if (sizeof($parts) > 1) {
+			[$org, $repo] = $parts;
+		} else {
+			[$org] = $parts;
+			$repo = null;
+		}
 		// If org only, return null
 		if (!$repo) {
 			$orgResult = Manticore::findOrg($org);

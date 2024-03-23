@@ -15,5 +15,6 @@ $project = null;
 if ($url) {
 	/** @var Repo $repo */
 	[$org, $repo] = result(Search::fetchIssues(rtrim($url, '/')));
-	return Response::redirect("/{$org->name}/{$repo->name}/");
+	$suffix = $repo ? "{$repo->name}/" : '';
+	return Response::redirect("/{$org->name}/$suffix");
 }
