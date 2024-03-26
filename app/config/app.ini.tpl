@@ -87,3 +87,8 @@ port = 9308
 
 [github]
 organizations[] = 'manticoresoftware'
+
+[vectorsearch]
+model_id = 'sentence-transformers/all-MiniLM-L6-v2'
+model_rev = 'main'
+use_pth = true

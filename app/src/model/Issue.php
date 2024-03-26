@@ -17,7 +17,8 @@ namespace App\Model;
 // updated_at timestamp,
 // closed_at timestamp,
 // reactions json,
-// assignee_ids multi64
+// assignee_ids multi64,
+// embeddings float_vector knn_type='hnsw' knn_dims='384' hnsw_similarity='cosine'
 // ) html_strip='1' index_field_lengths='1' morphology='lemmatize_en' min_infix_len='2' expand_keywords='1'
 final class Issue extends Model {
 	public int $id;
@@ -41,6 +42,11 @@ final class Issue extends Model {
 	 * @var array<string,int>
 	 */
 	public array $reactions;
+	/**
+	 * @var array<float>
+	 */
+	public array $embeddings;
+
 	// public int $assignee;
 	// public array $assignees;
 	public int $created_at;

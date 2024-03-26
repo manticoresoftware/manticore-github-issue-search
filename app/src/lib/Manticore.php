@@ -10,6 +10,9 @@ use App\Model\Repo;
 use App\Model\User;
 use Generator;
 use Manticoresearch\Client;
+use Manticoresearch\Query\BoolQuery;
+use Manticoresearch\Query\KnnQuery;
+use Manticoresearch\Query\QueryString;
 use Manticoresearch\ResultHit;
 use Manticoresearch\Search;
 use ReflectionClass;
@@ -185,9 +188,6 @@ class Manticore {
 	 * @return Result<array{time:int,list:array<Issue>}>
 	 */
 	public static function search(string $query = '', array $filters = [], string $sort = 'best-match', int $offset = 0): Result {
-		$client = static::client();
-		$IssueIndex = $client->index('issue');
-		$CommentIndex = $client->index('comment');
 		$search_issues = $filters['issues'] ?? true;
 		$search_pull_requests = $filters['pull_requests'] ?? true;
 		$search_comments = $filters['comments'] ?? true;
@@ -203,8 +203,8 @@ class Manticore {
 		$pull_request_count = 0;
 		$items = [];
 		if ($search_issues || $search_pull_requests) {
-			$search = $IssueIndex
-				->search($query)
+			$search = static::getSearch('issue', $query, $filters)
+				->search(isset($filters['vector_search_only']) ? '' : $query)
 				->offset($offset)
 				->highlight(
 					['title', 'body'],
@@ -246,8 +246,7 @@ class Manticore {
 		$comment_count = 0;
 		$comment_relation = 'eq';
 		if ($search_comments) {
-			$search = $CommentIndex
-				->search($query)
+			$search = static::getSearch('comment', $query, $filters)
 				->offset($offset)
 				->highlight(
 					['body'],
@@ -835,5 +834,30 @@ class Manticore {
 		$Index->replaceDocument($Notification->toArray(), $id);
 
 		return ok($Notification);
+	}
+
+	/**
+	 * Get the search object by table name
+	 * @param  string $table
+	 * @param  string $query
+	 * @param  array  $filters
+	 * @return Search
+	 */
+	protected static function getSearch(string $table, string $query, array $filters): Search {
+		$client = static::client();
+		$Index = $client->index($table);
+		$vector_search_only = $filters['vector_search_only'] ?? false;
+		$query = $vector_search_only ? '' : $query;
+		$Query = new BoolQuery();
+		if (isset($filters['embeddings'])) {
+			$Query = new KnnQuery('embeddings', $filters['embeddings'], 20);
+		}
+
+		if ($query) {
+			$QueryString = new QueryString($query);
+			$Query->must($QueryString);
+		}
+
+		return $Index->search($Query);
 	}
 }

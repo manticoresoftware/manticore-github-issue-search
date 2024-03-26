@@ -5,6 +5,7 @@ namespace App\Component;
 use App\Lib\Github;
 use App\Lib\Manticore;
 use App\Lib\Queue;
+use App\Lib\TextEmbeddings;
 use App\Model\Comment;
 use App\Model\Issue;
 use App\Model\Label;
@@ -12,6 +13,7 @@ use App\Model\Org;
 use App\Model\Repo;
 use App\Model\User;
 use Cli;
+use Github\Exception\ApiLimitExceedException;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
 use ReflectionClass;
 use Result;
@@ -106,6 +108,8 @@ final class Search {
 				}
 
 				$issue_count = Github::getIssueCount($org, $repo);
+			} catch (ApiLimitExceedException) {
+				return err('e_github_token_limit_exceed');
 			} catch (Throwable) {
 				return err('e_repo_not_found');
 			}
@@ -186,7 +190,10 @@ final class Search {
 				$issue['closed_at'] = $issue['closed_at'] ? strtotime($issue['closed_at']) : 0;
 				$issue['created_at'] = strtotime($issue['created_at']);
 				$issue['updated_at'] = strtotime($issue['updated_at']);
-				$issue['body'] = (string)$converter->convert((string)$issue['body']);
+				$body = (string)$issue['body'];
+				$issue['body'] = (string)$converter->convert($body);
+				$text = "{$issue['title']}\n{$body}";
+				$issue['embeddings'] = result(TextEmbeddings::get($text));
 				$issue['assignee_id'] = $issue['assignee']['id'] ?? 0;
 				$issue['assignee_ids'] = array_column($issue['assignees'], 'id');
 				$issue['label_ids'] = array_column($issue['labels'], 'id');
@@ -226,7 +233,9 @@ final class Search {
 						$comment['user_id'] = $comment['user']['id'];
 						$comment['created_at'] = strtotime($comment['created_at']);
 						$comment['updated_at'] = strtotime($comment['updated_at']);
-						$comment['body'] = (string)$converter->convert((string)$comment['body']);
+						$body = (string)$comment['body'];
+						$comment['body'] = (string)$converter->convert($body);
+						$comment['embeddings'] = result(TextEmbeddings::get($body));
 						$users[] = $comment['user'];
 						unset($comment);
 					}

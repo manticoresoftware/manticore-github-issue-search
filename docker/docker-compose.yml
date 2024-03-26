@@ -97,7 +97,7 @@ services:
       dockerfile: ./docker/images/Dockerfile-php
       context: ..
     container_name: manticore-github-issue-search.php
-    image: manticore-github-issue-search/php:1.0.0
+    image: manticore-github-issue-search/php:1.0.1
     labels:
       - role=php
     working_dir: /src
@@ -137,7 +137,7 @@ services:
       dockerfile: ./docker/images/Dockerfile-webpack
       context: ..
     container_name: manticore-github-issue-search.bundle
-    image: manticore-github-issue-search/webpack:1.0.5
+    image: manticore-github-issue-search/webpack:1.0.6
     labels:
       - role=bundle
     working_dir: /src

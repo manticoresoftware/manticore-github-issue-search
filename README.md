@@ -20,7 +20,7 @@ If you want to be able to crawl your github repositores, specify your [github to
 cd containers/manticore
 
 # skip the following line if you just want to crawl your own repositories instead and don't need any ready data
-wget https://github.com/manticoresoftware/manticore-github-issue-search/releases/download/240224/backup.tar.gz && rm -fr backup && tar xzf backup.tar.gz
+wget https://github.com/manticoresoftware/manticore-github-issue-search/releases/download/240327/backup.tar.gz && rm -fr backup && tar xzf backup.tar.gz
 
 cd ../..
 docker compose down -v

@@ -1,16 +1,14 @@
-FROM muvon/php:8.2.10-fpm
+FROM muvon/php:8.3.4-fpm-centos
 LABEL maintainer="Manticore Software Co. Ltd <contact@manticoresearch.com>"
 
-RUN apk add --update curl bash openssl && \
-  rm -fr /var/cache/apk/* && \
-  rm -fr /tmp/*
-
+RUN dnf update -y && dnf install -y git && dnf clean all
 COPY . /src
 RUN ln -fs /src/docker/containers/php/config/php.ini /etc/php/php.ini && \
   ln -fs /src/docker/containers/php/config/conf.d /etc/php/conf.d && \
 	cd /src/app && \
 	composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-simplexml \
-		--ignore-platform-req=ext-zip
+		--ignore-platform-req=ext-zip && \
+	curl -sSL https://github.com/manticoresoftware/php-ext-model/releases/download/0.1.0/rhel9-libphp-ext-model-v0.1.0.so > $(php-config --extension-dir)/rhel9-libphp-ext-model-v0.1.0.so
 WORKDIR /src
 
 ENTRYPOINT ["/src/docker/containers/php/entrypoint"]

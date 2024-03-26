@@ -9,10 +9,12 @@
  * @var string $query
  * @var array $filters
  * @var string $sort
+ * @var string $search
  * @var int $offset
  */
 
 use App\Component\Search;
+use App\Lib\TextEmbeddings;
 
 $url = "https://github.com/{$org}/{$repo}";
 [$org, $repo] = result(Search::fetchIssues($url));
@@ -30,6 +32,18 @@ if (!isset($filters['repos'])) {
 }
 $multiple_repos = sizeof($filters['repos']) > 1;
 $filters = Search::prepareFilters($filters);
+
+// Add vector search embeddings if we have query
+if ($search_query) {
+	if ($search !== 'semantic-search') {
+		$embeddings = result(TextEmbeddings::get($query));
+		$filters['embeddings'] = $embeddings;
+	}
+	if ($search === 'vector-search') {
+		$filters['vector_search_only'] = true;
+	}
+}
+
 $list = result(Search::process($search_query, $filters, $sort, $offset));
 
 $search_in = $filters['index'] ?? 'everywhere';
@@ -63,6 +77,28 @@ $counters = [
 	'closed_issues' => $list['count']['closed'],
 	'any_issues' => $list['count']['any'],
 ];
+
+$search_list = [
+  [
+	'value' => 'hybrid-search',
+	'name' => 'Hybrid Search',
+  ],
+  [
+	'value' => 'semantic-search',
+	'name' => 'Semantic Search',
+  ],
+  [
+	'value' => 'vector-search',
+	'name' => 'Vector Search',
+  ],
+];
+foreach ($search_list as &$item) {
+	if ($item['value'] !== $search) {
+		continue;
+	}
+
+	$item['selected'] = true;
+}
 
 // Sorting list with some dynamic logic
 $sort_list = [
@@ -171,6 +207,11 @@ $form_vars[] = [
 	'is_sort' => true,
 	'name' => 'sort',
 	'value' => $sort,
+];
+$form_vars[] = [
+	'is_search' => true,
+	'name' => 'search',
+	'value' => $search,
 ];
 $repos = result(Search::getRepos($org));
 $repo_ids = array_map(fn($repo) => $repo->id, $repos);

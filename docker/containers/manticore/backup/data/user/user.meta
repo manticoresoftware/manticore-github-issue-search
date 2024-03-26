@@ -1,9 +1,9 @@
 {
-"meta_created_time_utc":"2024-02-09T09:22:12.959",
+"meta_created_time_utc":"2024-03-26T07:59:53.584",
 "meta_version":21,
 "total_documents":0,
 "total_bytes":0,
-"tid":0,
+"tid":4425,
 "schema":{
 "attributes":[
 {"name":"id","type":6,"locator":{"pos":0,"bits":64}},
@@ -27,5 +27,5 @@
 "max_codepoint_length":3,
 "chunk_names":[],
 "soft_ram_limit":134217728,
-"index_id":1659854692294852612
+"index_id":3
 }
