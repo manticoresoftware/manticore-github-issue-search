@@ -35,7 +35,7 @@ $filters = Search::prepareFilters($filters);
 
 // Add vector search embeddings if we have query
 if ($search_query) {
-	if ($search !== 'semantic-search') {
+	if ($search !== 'keyword-search') {
 		$embeddings = result(TextEmbeddings::get($query));
 		$filters['embeddings'] = $embeddings;
 	}
@@ -84,8 +84,8 @@ $search_list = [
 	'name' => 'Hybrid Search',
   ],
   [
-	'value' => 'semantic-search',
-	'name' => 'Semantic Search',
+	'value' => 'keyword-search',
+	'name' => 'Keyword Search',
   ],
   [
 	'value' => 'vector-search',
