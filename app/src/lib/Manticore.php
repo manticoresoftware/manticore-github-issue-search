@@ -55,12 +55,14 @@ class Manticore {
 		try {
 			$reflection = new ReflectionClass($list[0]);
 			$client = static::client();
-			$index = $client->index(strtolower($reflection->getShortName()));
+			$table = strtolower($reflection->getShortName());
+			$index = $client->index($table);
 			$docs = array_map(fn ($v) => (array)$v, $list);
 			$index->replaceDocuments($docs);
+			// TODO: remove after fix in https://github.com/manticoresoftware/manticoresearch/issues/2004
+			$client->sql("FLUSH RAMCHUNK $table");
 			return ok();
-		} catch (Throwable $t) {
-			var_dump($list);
+		} catch (Throwable) {
 			return err('e_add_issue_failed');
 		}
 	}
@@ -204,7 +206,6 @@ class Manticore {
 		$items = [];
 		if ($search_issues || $search_pull_requests) {
 			$search = static::getSearch('issue', $query, $filters)
-				->search(isset($filters['vector_search_only']) ? '' : $query)
 				->offset($offset)
 				->highlight(
 					['title', 'body'],
@@ -357,9 +358,7 @@ class Manticore {
 	 * @return Result<array{open:int,closed:int}>
 	 */
 	public static function getIssueCounters(string $query = '', array $filters = []): Result {
-		$client = static::client();
-		$index = $client->index('issue');
-		$search = $index->search($query);
+		$search = static::getSearch('issue', $query, $filters);
 		unset($filters['state']);
 		static::applyFilters($search, $filters, 'issues');
 		$facets = $search
@@ -406,8 +405,7 @@ class Manticore {
 		];
 
 		// Get issues first
-		$index = $client->index('issue');
-		$search = $index->search($query);
+		$search = static::getSearch('issue', $query, $filters);
 		unset($filters['pull_requests'], $filters['comments'], $filters['issues']);
 		unset($filters['state']);
 		static::applyFilters($search, $filters, 'issues');
@@ -427,8 +425,7 @@ class Manticore {
 		}
 
 		// Get comments now=
-		$index = $client->index('comment');
-		$search = $index->search($query);
+		$search = static::getSearch('comment', $query, $filters);
 		static::applyFilters($search, $filters, 'comments');
 		$facets = $search
 			->limit(0)

@@ -299,7 +299,6 @@ final class Search {
 		$repo->is_indexing = false;
 		Manticore::add([$repo]);
 		// We have deferred function that will update it all
-
 		return ok();
 	}
 
