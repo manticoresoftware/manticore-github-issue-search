@@ -9,7 +9,7 @@
  * @var string $query
  * @var array $filters
  * @var string $sort
- * @var string $search
+ * @var string $search keyword-search
  * @var int $offset
  */
 
@@ -80,16 +80,16 @@ $counters = [
 
 $search_list = [
   [
-	'value' => 'hybrid-search',
-	'name' => 'Hybrid Search',
-  ],
-  [
 	'value' => 'keyword-search',
 	'name' => 'Keyword Search',
   ],
   [
 	'value' => 'vector-search',
 	'name' => 'Vector Search',
+  ],
+  [
+	'value' => 'hybrid-search',
+	'name' => 'Hybrid Search',
   ],
 ];
 foreach ($search_list as &$item) {
