@@ -847,7 +847,7 @@ class Manticore {
 		$query = $vector_search_only ? '' : $query;
 		$Query = new BoolQuery();
 		if (isset($filters['embeddings'])) {
-			$Query = new KnnQuery('embeddings', $filters['embeddings'], 20);
+			$Query = new KnnQuery('embeddings', $filters['embeddings'], 1000);
 		}
 
 		if ($query) {
