@@ -118,7 +118,7 @@ final class Search {
 				$orgInfo['login'], [
 				'id' => $orgInfo['id'],
 				'public_repos' => $orgInfo['public_repos'],
-				'description' => $orgInfo['description'],
+				'description' => $orgInfo['description'] ?? '',
 				'followers' => $orgInfo['followers'],
 				'following' => $orgInfo['following'],
 				]
