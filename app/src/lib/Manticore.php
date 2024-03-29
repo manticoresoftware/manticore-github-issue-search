@@ -52,6 +52,7 @@ class Manticore {
 			return ok();
 		}
 
+		$table = 'doc';
 		try {
 			$reflection = new ReflectionClass($list[0]);
 			$client = static::client();
@@ -59,11 +60,9 @@ class Manticore {
 			$index = $client->index($table);
 			$docs = array_map(fn ($v) => (array)$v, $list);
 			$index->replaceDocuments($docs);
-			// TODO: remove after fix in https://github.com/manticoresoftware/manticoresearch/issues/2004
-			$client->sql("FLUSH RAMCHUNK $table");
 			return ok();
 		} catch (Throwable) {
-			return err('e_add_issue_failed');
+			return err("e_add_{$table}_failed");
 		}
 	}
 
