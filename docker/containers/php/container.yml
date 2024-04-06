@@ -8,6 +8,7 @@ cap_add:
   - CHOWN
 volumes:
   - env-storage:/src/env:rw
+  - huggingface-storage:/root/.cache:rw
 environment:
   - PROJECT=$COMPOSE_PROJECT_NAME
   - PROJECT_ENV=$ENV

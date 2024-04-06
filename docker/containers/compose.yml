@@ -21,3 +21,5 @@ networks:
 volumes:
   env-storage:
   manticore-storage:
+  huggingface-storage:
+

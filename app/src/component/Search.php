@@ -192,7 +192,7 @@ final class Search {
 				$issue['updated_at'] = strtotime($issue['updated_at']);
 				$body = (string)$issue['body'];
 				$issue['body'] = (string)$converter->convert($body);
-				$text = "{$issue['title']}\n{$body}";
+				$text = $issue['title'] . "\n" . strip_tags($issue['body']);
 				$issue['embeddings'] = result(TextEmbeddings::get($text));
 				$issue['assignee_id'] = $issue['assignee']['id'] ?? 0;
 				$issue['assignee_ids'] = array_column($issue['assignees'], 'id');
@@ -235,7 +235,7 @@ final class Search {
 						$comment['updated_at'] = strtotime($comment['updated_at']);
 						$body = (string)$comment['body'];
 						$comment['body'] = (string)$converter->convert($body);
-						$comment['embeddings'] = result(TextEmbeddings::get($body));
+						$comment['embeddings'] = result(TextEmbeddings::get(strip_tags($comment['body'])));
 						$users[] = $comment['user'];
 						unset($comment);
 					}
