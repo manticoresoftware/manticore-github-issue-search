@@ -1,4 +1,4 @@
-image: manticoresearch/manticore:dev-6.2.13-fdb0da9
+image: manticoresearch/manticore:dev-6.2.13-83733d1
 labels:
   - role=manticore
 restart: "always"
