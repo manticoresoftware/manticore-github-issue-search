@@ -89,6 +89,6 @@ port = 9308
 organizations[] = 'manticoresoftware'
 
 [vectorsearch]
-model_id = 'sentence-transformers/all-MiniLM-L6-v2'
+model_id = 'sentence-transformers/multi-qa-MiniLM-L6-cos-v1'
 model_rev = 'main'
-use_pth = true
+use_pth = false

@@ -8,7 +8,8 @@ RUN ln -fs /src/docker/containers/php/config/php.ini /etc/php/php.ini && \
 	cd /src/app && \
 	composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-simplexml \
 		--ignore-platform-req=ext-zip && \
-	curl -sSL https://github.com/manticoresoftware/php-ext-model/releases/download/0.1.0/rhel9-libphp-ext-model-v0.1.0.so > $(php-config --extension-dir)/rhel9-libphp-ext-model-v0.1.0.so
+	curl -sSL https://github.com/manticoresoftware/php-ext-model/releases/download/0.2.0/rhel9-libphp-ext-model-v0.2.0.so \
+	> $(php-config --extension-dir)/rhel9-libphp-ext-model-v0.2.0.so
 WORKDIR /src
 
 ENTRYPOINT ["/src/docker/containers/php/entrypoint"]

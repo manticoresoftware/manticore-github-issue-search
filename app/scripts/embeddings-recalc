@@ -1,0 +1,55 @@
+#!/usr/bin/env /src/bin/php-exec-one
+<?php
+use Cli;
+use Manticoresearch\Client;
+use App\Lib\TextEmbeddings;
+
+$client = new Client(config('manticore'));
+Cli::print('Processing issues');
+$id = 0;
+do {
+	$index = $client->index('issue');
+	Cli::print("Start id: $id");
+	$docs = query($client, 'SELECT * FROM issue where id > ' . $id . ' order by id asc limit 100');
+	$docs = $docs['hits']['hits'] ?? [];
+	$count = sizeof($docs);
+	Cli::print("Documents: $count");
+	foreach ($docs as $doc) {
+		$id = $doc['_id'];
+		$doc = $doc['_source'];
+		$title = strip_tags($doc['title']);
+		$body = strip_tags($doc['body']);
+		$text = "{$title}\n{$body}";
+		$embeddings = result(TextEmbeddings::get($text));
+		$doc['embeddings'] = $embeddings;
+		$index->replaceDocument($doc, $id);
+	}
+} while($count > 0);
+
+Cli::print('Processing comments');
+$id = 0;
+do {
+	$index = $client->index('comment');
+	Cli::print("Start id: $id");
+	$docs = query($client, 'SELECT * FROM comment where id > ' . $id . ' order by id asc limit 100');
+	$docs = $docs['hits']['hits'] ?? [];
+	$count = sizeof($docs);
+	Cli::print("Documents: $count");
+	foreach ($docs as $doc) {
+		$id = $doc['_id'];
+		$doc = $doc['_source'];
+		$text = strip_tags($doc['body']);
+		$embeddings = result(TextEmbeddings::get($text));
+		$doc['embeddings'] = $embeddings;
+		$index->replaceDocument($doc, $id);
+	}
+} while($count > 0);
+
+function query(Client $client, string $query) {
+	$params = [
+		'body' => [
+			'query' => $query,
+		]
+	];
+	return $client->sql($params);
+}

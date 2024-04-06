@@ -3,3 +3,4 @@ app/vendor/**
 app/client/node_modules/**
 docker/env.dev.sh
 docker/env.production.sh
+.local-history/**
