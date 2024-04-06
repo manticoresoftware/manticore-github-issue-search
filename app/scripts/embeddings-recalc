@@ -1,49 +1,96 @@
 #!/usr/bin/env /src/bin/php-exec-one
 <?php
-use Cli;
 use Manticoresearch\Client;
 use App\Lib\TextEmbeddings;
 
-$client = new Client(config('manticore'));
+ini_set('memory_limit', '512M');
+define('MANTICORE_CONFIG', array_merge(config('manticore'), [
+	'retries' => 3,
+	'timeout' => 10,
+	'connection_timeout' => 3,
+]));
+
+$limit = 1000;
+$client = new Client(MANTICORE_CONFIG);
+$num_processes = get_number_of_cores(); // Function to get the number of CPU cores
+
+// Process issues
 Cli::print('Processing issues');
 $id = 0;
 do {
 	$index = $client->index('issue');
 	Cli::print("Start id: $id");
-	$docs = query($client, 'SELECT * FROM issue where id > ' . $id . ' order by id asc limit 100');
+	$docs = query($client, 'SELECT * FROM issue where id > ' . $id . ' order by id asc limit ' . $limit);
 	$docs = $docs['hits']['hits'] ?? [];
 	$count = sizeof($docs);
 	Cli::print("Documents: $count");
-	foreach ($docs as $doc) {
-		$id = $doc['_id'];
-		$doc = $doc['_source'];
-		$title = strip_tags($doc['title']);
-		$body = strip_tags($doc['body']);
-		$text = "{$title}\n{$body}";
-		$embeddings = result(TextEmbeddings::get($text));
-		$doc['embeddings'] = $embeddings;
-		$index->replaceDocument($doc, $id);
-	}
-} while($count > 0);
 
+	$chunks = array_chunk($docs, ceil($count / $num_processes));
+	process_chunks($chunks, 'issue');
+
+	$id = end($docs)['_id'];
+} while ($count > 0);
+
+// Process comments
 Cli::print('Processing comments');
 $id = 0;
 do {
 	$index = $client->index('comment');
 	Cli::print("Start id: $id");
-	$docs = query($client, 'SELECT * FROM comment where id > ' . $id . ' order by id asc limit 100');
+	$docs = query($client, 'SELECT * FROM comment where id > ' . $id . ' order by id asc limit' . $limit);
 	$docs = $docs['hits']['hits'] ?? [];
 	$count = sizeof($docs);
 	Cli::print("Documents: $count");
-	foreach ($docs as $doc) {
+
+	$chunks = array_chunk($docs, ceil($count / $num_processes));
+	process_chunks($chunks, 'comment');
+
+	$id = end($docs)['_id'];
+} while ($count > 0);
+
+function process_chunks($chunks, $type) {
+	$process_ids = [];
+	foreach ($chunks as $chunk) {
+		$pid = pcntl_fork();
+		if ($pid == -1) {
+			Cli::print("Failed to fork a new process");
+		} elseif ($pid == 0) {
+			// Child process
+			process_chunk($chunk, $type);
+			exit(0); // Exit the child process
+		} else {
+			// Parent process
+			$process_ids[] = $pid;
+		}
+	}
+
+	// Wait for all child processes to finish
+	foreach ($process_ids as $process_id) {
+		pcntl_waitpid($process_id, $status);
+	}
+}
+
+function process_chunk($chunk, $type) {
+	$Client = new Client(MANTICORE_CONFIG);
+	$index = $Client->index($type);
+	$new_docs = [];
+	foreach ($chunk as $doc) {
 		$id = $doc['_id'];
 		$doc = $doc['_source'];
-		$text = strip_tags($doc['body']);
+		$doc['id'] = $id;
+		if ($type === 'issue') {
+			$title = strip_tags($doc['title']);
+			$body = strip_tags($doc['body']);
+			$text = "{$title}\n{$body}";
+		} else {
+			$text = strip_tags($doc['body']);
+		}
 		$embeddings = result(TextEmbeddings::get($text));
 		$doc['embeddings'] = $embeddings;
-		$index->replaceDocument($doc, $id);
+		$new_docs[] = $doc;
 	}
-} while($count > 0);
+	$index->replaceDocuments($new_docs);
+}
 
 function query(Client $client, string $query) {
 	$params = [
@@ -52,4 +99,9 @@ function query(Client $client, string $query) {
 		]
 	];
 	return $client->sql($params);
+}
+
+function get_number_of_cores() {
+	$core_count = trim(shell_exec('nproc'));
+	return $core_count ? (int)$core_count : 1; // Fallback to 1 core if unable to determine
 }
