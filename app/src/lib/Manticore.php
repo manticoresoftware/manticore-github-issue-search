@@ -842,8 +842,8 @@ class Manticore {
 	protected static function getSearch(string $table, string $query, array $filters): Search {
 		$client = static::client();
 		$Index = $client->index($table);
-		$vector_search_only = $filters['vector_search_only'] ?? false;
-		$query = $vector_search_only ? '' : $query;
+		$semantic_search_only = $filters['semantic_search_only'] ?? false;
+		$query = $semantic_search_only ? '' : $query;
 		$Query = new BoolQuery();
 		if (isset($filters['embeddings'])) {
 			$Query = new KnnQuery('embeddings', $filters['embeddings'], 1000);

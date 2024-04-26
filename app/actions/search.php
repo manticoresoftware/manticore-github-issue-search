@@ -39,8 +39,8 @@ if ($search_query) {
 		$embeddings = result(TextEmbeddings::get($query));
 		$filters['embeddings'] = $embeddings;
 	}
-	if ($search === 'vector-search') {
-		$filters['vector_search_only'] = true;
+	if ($search === 'semantic-search') {
+		$filters['semantic_search_only'] = true;
 	}
 }
 
@@ -84,8 +84,8 @@ $search_list = [
 	'name' => 'Keyword Search',
   ],
   [
-	'value' => 'vector-search',
-	'name' => 'Vector Search',
+	'value' => 'semantic-search',
+	'name' => 'Semantic Search',
   ],
   [
 	'value' => 'hybrid-search',
