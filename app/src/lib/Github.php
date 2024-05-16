@@ -25,16 +25,22 @@ class Github {
 	}
 
 	/**
-	 * Get repo information
-	 * @param string $org
+	 * Get org or user information
+	 * @param string $handle
 	 * @return array{has_issues:bool,open_issues:int,visibility:string}
 	 */
-	public static function getOrg(
-		string $org
+	public static function getOrgOrUser(
+		string $handle
 	): array {
-		/** @var \Github\Api\Organization */
-		$api = static::client()->api('organization');
-		return $api->show($org);
+		try {
+			/** @var \Github\Api\Organization */
+			$api = static::client()->api('organization');
+			return $api->show($handle);
+		} catch (\Throwable) {
+			/** @var \Github\Api\User */
+			$api = static::client()->api('user');
+			return $api->show($handle);
+		}
 	}
 
 	/**
