@@ -103,7 +103,7 @@ final class Search {
 		$issue_count = 0;
 		if ($repoResult->err) {
 			try {
-				$orgInfo = Github::getOrg($org);
+				$orgInfo = Github::getOrgOrUser($org);
 				$repoInfo = Github::getRepo($org, $repo);
 				if ($repoInfo['visibility'] !== 'public') {
 					return err('e_repo_not_public');
