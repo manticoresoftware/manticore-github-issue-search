@@ -22,8 +22,8 @@ static::setExceptionHandler(
 	Throwable::class, static function (Throwable $t) {
 		[$code, $text] = match ($t->getMessage()) {
 			'e_org_not_found' => [404, "We cant't find organization."],
-			'e_repo_not_public' => [403, 'You try to add a repository that is not public.'],
-			'e_repo_no_issues' => [403, "You try to add a repository that doesn't have issues."],
+			'e_repo_not_public' => [403, 'You are trying to add a repository that is not public.'],
+			'e_repo_no_issues' => [403, "You are trying to add a repository that doesn't have issues"],
 			'e_repo_not_found' => [404, "We can't find the GitHub repository you're looking for."],
 			'e_github_token_limit_exceed' => [500, 'Your GitHub token limit has been exceeded. Please update it or wait.'],
 			default => [500, 'Something went wrong'],
