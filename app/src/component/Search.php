@@ -103,8 +103,12 @@ final class Search {
 			try {
 				$orgInfo = Github::getOrg($org);
 				$repoInfo = Github::getRepo($org, $repo);
-				if ($repoInfo['visibility'] !== 'public' || !$repoInfo['has_issues']) {
-					return err('e_repo_not_indexable');
+				if ($repoInfo['visibility'] !== 'public') {
+					return err('e_repo_not_public');
+				}
+
+				if (!$repoInfo['has_issues']) {
+					return err('e_repo_no_issues');
 				}
 
 				$issue_count = Github::getIssueCount($org, $repo);
