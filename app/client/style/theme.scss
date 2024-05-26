@@ -1,15 +1,15 @@
 :root {
-  --button-base: #{$button-base-color};
-  --background: #{$background};
-  --background-body: #{$background-color};
-  --background-alt: #{$background-alt-color};
-  --text-main: #{$text-color};
-  --text-bright: #{$text-color};
-  --selection: #{$selection-color};
-  --links: #{$link-color};
-  --highlight: #{$primary-color};
-  --focus: #{$primary-color};
-  --border: #{$primary-color};
-  --form-text: #{$secondary-color};
-  --form-placeholder: #{$placeholder-color};
+	--button-base: #{$button-base-color};
+	--background: #{$background};
+	--background-body: #{$background-color};
+	--background-alt: #{$background-alt-color};
+	--text-main: #{$text-color};
+	--text-bright: #{$text-color};
+	--selection: #{$selection-color};
+	--links: #{$link-color};
+	--highlight: #{$primary-color};
+	--focus: #{$primary-color};
+	--border: #{$primary-color};
+	--form-text: #{$secondary-color};
+	--form-placeholder: #{$placeholder-color};
 }

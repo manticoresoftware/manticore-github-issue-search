@@ -445,13 +445,18 @@ class Manticore {
 	 * Fetch unique users by given field from the issues
 	 * @param  array<int>         $repo_ids
 	 * @param  string      $field
+	 * @param  string      $query
+	 * @param  array<string,mixed> $filters
 	 * @param  int $max
 	 * @return Result<array<User>>
 	 */
-	public static function getUsers(array $repo_ids, string $field, int $max = 1000): Result {
+	public static function getUsers(array $repo_ids, string $field, string $query = '', array $filters = [], int $max = 1000): Result {
 		$client = static::client();
 		$index = $client->index('issue');
-		$search = $index->search('');
+		$search = $index->search($query);
+		if ($filters) {
+			static::applyFilters($search, $filters, 'issues');
+		}
 		$facets = $search
 			->limit(0)
 			->filter('repo_id', 'in', $repo_ids)
@@ -538,13 +543,18 @@ class Manticore {
 	/**
 	 * Fetch unique labels by given field from the issues
 	 * @param  array<int>         $repo_ids
+	 * @param  string      $query
+	 * @param  array<string,mixed> $filters
 	 * @param  int $max
 	 * @return Result<array<User>>
 	 */
-	public static function getLabels(array $repo_ids, int $max = 1000): Result {
+	public static function getLabels(array $repo_ids, string $query = '', array $filters = [], int $max = 1000): Result {
 		$client = static::client();
 		$index = $client->index('issue');
-		$search = $index->search('');
+		$search = $index->search($query);
+		if ($filters) {
+			static::applyFilters($search, $filters, 'issues');
+		}
 		$facets = $search
 			->limit(0)
 			->filter('repo_id', 'in', $repo_ids)

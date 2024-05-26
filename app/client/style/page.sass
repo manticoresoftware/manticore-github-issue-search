@@ -11,7 +11,7 @@
 	height: 42px
 	padding: 0 12px
 	background-repeat: no-repeat
-  background-position: right 8px center
+	background-position: right 8px center
 	input
 		width: 100%
 		height: 100%
@@ -31,7 +31,7 @@ input.unstyled, button.unstyled
 	margin-right: 8px
 	align-self: center
 	color: rgb(101, 109, 118)
-  flex-shrink: 0
+	flex-shrink: 0
 
 button.icon
 	margin-top: 3px
@@ -59,17 +59,17 @@ $progress-height: 4px
 @keyframes progress-animation
 	to
 		transform: scaleX(1)
-  0%
-    width: 0
-  30%
-    width: 30%
-    ease-out
-  60%
-    width: 60%
-    linear
-  100%
-    width: 100%
-    ease-in
+	0%
+		width: 0
+	30%
+		width: 30%
+		ease-out
+	60%
+		width: 60%
+		linear
+	100%
+		width: 100%
+		ease-in
 
 body > header
 	position: relative
@@ -332,12 +332,12 @@ label
 	color: #24292e
 
 	&:hover
-	  border-color: $select-hover-border-color
+		border-color: $select-hover-border-color
 
 	&:focus
-	  border-color: $select-focus-border-color
-	  outline: none
-	  box-shadow: 0 0 0 3px rgba(3,102,214,0.3)
+		border-color: $select-focus-border-color
+		outline: none
+		box-shadow: 0 0 0 3px rgba(3,102,214,0.3)
 .open
 	color: rgb(9, 105, 218)
 .closed
@@ -349,49 +349,52 @@ label
 	background-color: rgba(175, 184, 193, 0.2)
 
 .toggle-checkbox
-  display: none
+	display: none
 
 .toggle-form
-  position: relative
-  margin: 0
-  width: 100%
-  overflow-x: hidden
-  overflow-y: auto
-  max-height: 0
-  transition: max-height 0.3s ease-in-out
-  will-change: max-height
-  input[type="text"]
-  	margin-top: 6px
-  	width: 100%
-  	border: none
-  	background: none
-  	border-bottom: 1px solid rgba(175, 184, 193, 0.2)
-  	border-radius: 0
-  	padding: 0
-  	font-size: 12px
+	position: relative
+	margin: 0
+	width: 100%
+	overflow-x: hidden
+	overflow-y: auto
+	max-height: 0
+	transition: max-height 0.3s ease-in-out
+	will-change: max-height
+	input[type="text"]
+		margin-top: 6px
+		width: 100%
+		border: none
+		background: none
+		border-bottom: 1px solid rgba(175, 184, 193, 0.2)
+		border-radius: 0
+		padding: 0
+		font-size: 12px
+	li[data-count="0"]
+		opacity: 0.5
+		pointer-events: none
 
 .toggle-checkbox:checked + label + .toggle-form
-  max-height: 200px // Adjust as per content height
+	max-height: 200px // Adjust as per content height
 
 .toggle-label
-  display: block // Ensures that label takes up full width
-  background-color: inherit
-  cursor: pointer
+	display: block // Ensures that label takes up full width
+	background-color: inherit
+	cursor: pointer
 
 // This rule seems incorrect as it would change the color of the label
 // when the checkbox is checked, but there is no sibling selector (+) preceding .toggle-label
 // Assuming you want to change the label color when the checkbox is checked:
 .toggle-checkbox:checked + .toggle-label
-  color: green
+	color: green
 
 @keyframes pulsate
-  0%, 100%
-    opacity: 0.55
-  50%
-    opacity: 0.25
+	0%, 100%
+		opacity: 0.55
+	50%
+		opacity: 0.25
 
 .loading
-  animation: pulsate 1s infinite ease-in-out;
+	animation: pulsate 1s infinite ease-in-out;
 
 .color-label
 	display: inline-block
@@ -432,7 +435,7 @@ label
 	z-index: 1
 	width: 50%
 	max-width: 50%
-  background: white
+	background: white
 	right: 0
 	left: 0
 	background-color: white

@@ -147,5 +147,19 @@ export default element => {
 			}
 		})
 	})
+
+	dispatcher.on(`${key}_counters_updated`, (ev, counters) => {
+		const elements = element.querySelectorAll('li')
+	  elements.forEach(el => {
+			const input = el.querySelector('input')
+			const id = input.value
+			let counter = 0
+			if (counters[id]) {
+				counter = counters[id]
+			}
+			el.setAttribute('data-count', counter)
+			el.title = `${counter} ${el.title.split(' ').slice(1).join(' ')}`;
+	  })
+	})
 	return () => {}
 }

@@ -17,6 +17,7 @@ use Github\Exception\ApiLimitExceedException;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
 use ReflectionClass;
 use Result;
+use ResultError;
 use Throwable;
 
 use function ok;
@@ -309,6 +310,7 @@ final class Search {
 	/**
 	 * Get the list of issues for requested repo
 	 * @param string $query
+	 * @param array<string,mixed> $filters
 	 * @param string $sort
 	 * @param int $offset
 	 * @return Result<array<Issue>>
@@ -410,31 +412,91 @@ final class Search {
 		return $filtered;
 	}
 
+
+	/**
+	 * Get the entityt counter map
+	 * @param string $entity One of: author, assignee, label
+	 * @param array $repo_ids
+	 * @param string $query
+	 * @param array<string,mixed> $filters
+	 * @return Result
+	 * @throws ResultError
+	 */
+	public static function getCounterMap(string $entity, array $repo_ids, string $query = '', array $filters = []): Result {
+		$entityRes = match ($entity) {
+			'author' => Manticore::getUsers($repo_ids, 'user_id', $query, $filters),
+			'assignee' => Manticore::getUsers($repo_ids, 'assignee_id', $query, $filters),
+			'label' => Manticore::getLabels($repo_ids, $query, $filters),
+		};
+		if ($entityRes->err) {
+			return $entityRes;
+		}
+		$entities = result($entityRes);
+		$map = [];
+		foreach ($entities as $entity) {
+			$map[$entity['id']] = $entity['count'];
+		}
+		return ok($map);
+	}
+
 	/**
 	 * Get authors for given repo to use filtering
 	 * @param  array<int> $repo_ids
+	 * @param string $query
+	 * @param array<string,mixed> $filters
 	 * @return Result<array<User>>
 	 */
-	public static function getAuthors(array $repo_ids): Result {
-		return Manticore::getUsers($repo_ids, 'user_id');
+	public static function getAuthors(array $repo_ids, string $query = '', array $filters = []): Result {
+		$users = result(Manticore::getUsers($repo_ids, 'user_id'));
+		$filteredUsers = result(Manticore::getUsers($repo_ids, 'user_id', $query, $filters));
+		return static::combineActiveUsers($users, $filteredUsers);
 	}
 
 	/**
 	 * Get all assignees for the repo
 	 * @param  array<int> $repo_ids
+	 * @param string $query
+	 * @param array<string,mixed> $filters
 	 * @return Result<array<User>>
 	 */
-	public static function getAssignees(array $repo_ids): Result {
-		return Manticore::getUsers($repo_ids, 'assignee_id');
+	public static function getAssignees(array $repo_ids, string $query = '', array $filters = []): Result {
+		$users = result(Manticore::getUsers($repo_ids, 'assignee_id'));
+		$filteredUsers = result(Manticore::getUsers($repo_ids, 'assignee_id', $query, $filters));
+		return static::combineActiveUsers($users, $filteredUsers);
+	}
+
+	/**
+	 * Helper to combine to different user lists into one that has proper count on search
+	 * @param array<User> $users
+	 * @param array<User> $filteredUsers
+	 * @return Result
+	 */
+	public static function combineActiveUsers(array $users, array $filteredUsers): Result {
+		$filteredMap = [];
+		foreach ($filteredUsers as &$user) {
+			$filteredMap[$user['id']] = $user;
+		}
+		unset($user, $filteredUsers);
+		foreach ($users as &$user) {
+			if (isset($filteredMap[$user['id']])) {
+				$user['count'] = $filteredMap[$user['id']]['count'];
+			} else {
+				$user['count'] = 0;
+			}
+		}
+
+		return ok($users);
 	}
 
 	/**
 	 * Get all labels for repo
 	 * @param array<int> $repo_ids
+	 * @param string $query
+	 * @param array<string,mixed> $filters
 	 * @return Result<array<Label>>
 	 */
-	public static function getLabels(array $repo_ids): Result {
-		return Manticore::getLabels($repo_ids);
+	public static function getLabels(array $repo_ids, string $query = '', array $filters = []): Result {
+		return Manticore::getLabels($repo_ids, $query, $filters);
 	}
 
 	/**
