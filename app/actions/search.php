@@ -215,10 +215,15 @@ $form_vars[] = [
 ];
 $repos = result(Search::getRepos($org));
 $repo_ids = array_map(fn($repo) => $repo->id, $repos);
-$authors = result(Search::getAuthors($repo_ids));
-$assignees = result(Search::getAssignees($repo_ids));
-$labels = result(Search::getLabels($repo_ids));
+$authors = result(Search::getAuthors($repo_ids, $query, $filters));
+$assignees = result(Search::getAssignees($repo_ids, $query, $filters));
+$labels = result(Search::getLabels($repo_ids, $query, $filters));
 $comment_ranges = result(Search::getCommentRanges($repo_ids));
+
+$author_counters = result(Search::getCounterMap('author', $repo_ids, $query, $filters));
+$assignee_counters = result(Search::getCounterMap('assignee', $repo_ids, $query, $filters));
+$label_counters = result(Search::getCounterMap('label', $repo_ids, $query, $filters));
+
 // If we requested with navigation, return results only
 if (Request::current()->getHeader('x-requested-with') === 'navigation') {
 	return View::create('base/results');

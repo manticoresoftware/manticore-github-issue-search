@@ -36,7 +36,7 @@
 			<input type="text" name="filter" placeholder="Type to filter"/>
 			<ul>
 				{authors}
-					<li title="{count} issues & PRs">
+					<li title="{count} issues & PRs" data-count="{count}">
 						<input id="author-{id}" type="checkbox" name="filters[authors][]" value="{id}"/>
 						<label for="author-{id}"><img src="{avatar_url}" alt="login"/> {login}</label>
 					</li>
@@ -51,10 +51,10 @@
 			<input type="text" name="filter" placeholder="Type to filter"/>
 			<ul>
 				{assignees}
-					<li title="{count} issues & PRs">
-						<input id="assignee-{id}" type="checkbox" name="filters[assignees][]" value="{id}"/>
-						<label for="assignee-{id}"><img src="{avatar_url}" alt="login"/> {login}</label>
-					</li>
+				<li title="{count} issues & PRs" data-count="{count}">
+					<input id="assignee-{id}" type="checkbox" name="filters[assignees][]" value="{id}"/>
+					<label for="assignee-{id}"><img src="{avatar_url}" alt="login"/> {login}</label>
+				</li>
 				{/assignees}
 			</ul>
 		</form>
@@ -66,10 +66,10 @@
 			<input type="text" name="filter" placeholder="Type to filter"/>
 			<ul>
 				{labels}
-					<li title="{count} issues & PRs">
-						<input id="label-{id}" type="checkbox" name="filters[labels][]" value="{id}"/>
-						<label for="label-{id}"><span class="color-label" style="background-color: #{color}"></span><span>{name}</span></label>
-					</li>
+				<li title="{count} issues & PRs">
+					<input id="label-{id}" type="checkbox" name="filters[labels][]" value="{id}"/>
+					<label for="label-{id}"><span class="color-label" style="background-color: #{color}"></span><span>{name}</span></label>
+				</li>
 				{/labels}
 			</ul>
 		</form>
