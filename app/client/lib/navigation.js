@@ -63,6 +63,7 @@ export default class Navigation {
         const author_counters = JSON.parse(pageEl.querySelector('form').getAttribute('data-author-counters-json'))
         const assignee_counters = JSON.parse(pageEl.querySelector('form').getAttribute('data-assignee-counters-json'))
         const label_counters = JSON.parse(pageEl.querySelector('form').getAttribute('data-label-counters-json'))
+				const comment_range_counters = JSON.parse(pageEl.querySelector('form').getAttribute('data-comment-range-counters-json'))
         const url_path = url.replace(/https?\:\/\/[^\/]+/, '')
         history.pushState(null, '', url_path)
         dispatcher.send('page_content_loaded', {ajax: true, url: url_path}, 'navigation')
@@ -70,6 +71,7 @@ export default class Navigation {
 				dispatcher.send('authors_counters_updated', author_counters, 'navigation')
 				dispatcher.send('assignees_counters_updated', assignee_counters, 'navigation')
 				dispatcher.send('labels_counters_updated', label_counters, 'navigation')
+				dispatcher.send('comment_ranges_counters_updated', comment_range_counters, 'navigation')
       })
     })
   }

@@ -223,6 +223,7 @@ $comment_ranges = result(Search::getCommentRanges($repo_ids));
 $author_counters = result(Search::getCounterMap('author', $repo_ids, $query, $filters));
 $assignee_counters = result(Search::getCounterMap('assignee', $repo_ids, $query, $filters));
 $label_counters = result(Search::getCounterMap('label', $repo_ids, $query, $filters));
+$comment_range_counters = result(Search::getCounterMap('comment_range', $repo_ids, $query, $filters));
 
 // If we requested with navigation, return results only
 if (Request::current()->getHeader('x-requested-with') === 'navigation') {
