@@ -583,12 +583,17 @@ class Manticore {
 	 * Get comment ranges for the repo with counts for each
 	 * @param  array<int>    $repo_ids
 	 * @param  array<int>  $values List of values to use for aggregation
+	 * @param  string $query
+	 * @param  array<string,mixed> $filters
 	 * @return Result<array<mixed>>
 	 */
-	public static function getCommentRanges(array $repo_ids, array $values): Result {
+	public static function getCommentRanges(array $repo_ids, array $values, string $query = '', array $filters = []): Result {
 		$client = static::client();
 		$index = $client->index('issue');
-		$search = $index->search('');
+		$search = $index->search($query);
+		if ($filters) {
+			static::applyFilters($search, $filters, 'issues');
+		}
 		$range = implode(',', $values);
 		$facets = $search
 			->limit(0)

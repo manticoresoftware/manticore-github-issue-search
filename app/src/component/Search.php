@@ -23,6 +23,7 @@ use Throwable;
 use function ok;
 
 final class Search {
+	const COMMENT_RANGES = [3, 5, 10, 15, 20, 30, 50];
 	/**
 	 * Get repos for organization
 	 * @param  Org    $org
@@ -427,6 +428,7 @@ final class Search {
 			'author' => Manticore::getUsers($repo_ids, 'user_id', $query, $filters),
 			'assignee' => Manticore::getUsers($repo_ids, 'assignee_id', $query, $filters),
 			'label' => Manticore::getLabels($repo_ids, $query, $filters),
+			'comment_range' => Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES, $query, $filters),
 		};
 		if ($entityRes->err) {
 			return $entityRes;
@@ -449,7 +451,7 @@ final class Search {
 	public static function getAuthors(array $repo_ids, string $query = '', array $filters = []): Result {
 		$users = result(Manticore::getUsers($repo_ids, 'user_id'));
 		$filteredUsers = result(Manticore::getUsers($repo_ids, 'user_id', $query, $filters));
-		return static::combineActiveUsers($users, $filteredUsers);
+		return static::combineActiveEntities($users, $filteredUsers);
 	}
 
 	/**
@@ -462,30 +464,30 @@ final class Search {
 	public static function getAssignees(array $repo_ids, string $query = '', array $filters = []): Result {
 		$users = result(Manticore::getUsers($repo_ids, 'assignee_id'));
 		$filteredUsers = result(Manticore::getUsers($repo_ids, 'assignee_id', $query, $filters));
-		return static::combineActiveUsers($users, $filteredUsers);
+		return static::combineActiveEntities($users, $filteredUsers);
 	}
 
 	/**
-	 * Helper to combine to different user lists into one that has proper count on search
-	 * @param array<User> $users
-	 * @param array<User> $filteredUsers
+	 * Helper to combine to different entity lists into one that has proper count on search
+	 * @param array<Entity> $entities
+	 * @param array<Entity> $filteredEntities
 	 * @return Result
 	 */
-	public static function combineActiveUsers(array $users, array $filteredUsers): Result {
+	public static function combineActiveEntities(array $entities, array $filteredEntities): Result {
 		$filteredMap = [];
-		foreach ($filteredUsers as &$user) {
-			$filteredMap[$user['id']] = $user;
+		foreach ($filteredEntities as &$entity) {
+			$filteredMap[$entity['id']] = $entity;
 		}
-		unset($user, $filteredUsers);
-		foreach ($users as &$user) {
-			if (isset($filteredMap[$user['id']])) {
-				$user['count'] = $filteredMap[$user['id']]['count'];
+		unset($entity, $filteredEntities);
+		foreach ($entities as &$entity) {
+			if (isset($filteredMap[$entity['id']])) {
+				$entity['count'] = $filteredMap[$entity['id']]['count'];
 			} else {
-				$user['count'] = 0;
+				$entity['count'] = 0;
 			}
 		}
 
-		return ok($users);
+		return ok($entities);
 	}
 
 	/**
@@ -496,16 +498,22 @@ final class Search {
 	 * @return Result<array<Label>>
 	 */
 	public static function getLabels(array $repo_ids, string $query = '', array $filters = []): Result {
-		return Manticore::getLabels($repo_ids, $query, $filters);
+		$labels = result(Manticore::getLabels($repo_ids));
+		$filteredLabels = result(Manticore::getLabels($repo_ids, $query, $filters));
+		return static::combineActiveEntities($labels, $filteredLabels);
 	}
 
 	/**
 	 * This method returns comment ranges used for the filter
 	 * @param  array<int> $repo_ids
+	 * @param  string $query
+	 * @param  array<string,mixed> $filters
 	 * @return Result<array<mixed>>
 	 */
-	public static function getCommentRanges(array $repo_ids): Result {
-		return Manticore::getCommentRanges($repo_ids, [3, 5, 10, 15, 20, 30, 50]);
+	public static function getCommentRanges(array $repo_ids, string $query = '', array $filters = []): Result {
+		$ranges = result(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES));
+		$filteredRanges = result(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES, $query, $filters));
+		return static::combineActiveEntities($ranges, $filteredRanges);
 	}
 
 

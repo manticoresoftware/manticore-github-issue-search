@@ -1,5 +1,5 @@
 <form class="header" action="{url}" method="get" data-counters-json='{counters:json}' data-author-counters-json='{author_counters:json}'
-	data-assignee-counters-json='{assignee_counters:json}' data-label-counters-json='{label_counters:json}'>
+	data-assignee-counters-json='{assignee_counters:json}' data-label-counters-json='{label_counters:json}' data-comment-range-counters-json='{comment_range_counters:json}'>
 <span class="info-wrapper">
 	<b>{list.count.found}{list.count.found_more}+{/list.count.found_more} results</b> <counter>{list.time} ms</counter> in {!multiple_repos}<a href="{repo_url}" target="_blank" rel="noopener noreferrer">{org.name}/{repo.name}</a>{/!multiple_repos}{multiple_repos}<a href="{org_url}" target="_blank" rel="noopener noreferrer">{org.name}</a> repos{/multiple_repos}{show_query} for <span title="Your query had a syntax error, so we corrected it to conduct the search for you.">{search_query:html}</span>{/show_query}
 </span>
