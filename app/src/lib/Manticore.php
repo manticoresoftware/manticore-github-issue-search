@@ -592,6 +592,9 @@ class Manticore {
 		$index = $client->index('issue');
 		$search = $index->search($query);
 		if ($filters) {
+			if (isset($filters['comment_ranges'])) {
+				unset($filters['comment_ranges']);
+			}
 			static::applyFilters($search, $filters, 'issues');
 		}
 		$range = implode(',', $values);
@@ -602,7 +605,7 @@ class Manticore {
 			->facet('range', 'counters', sizeof($values) + 1)
 			->get()
 			->getFacets();
-		uasort($facets['counters']['buckets'], fn ($a, $b) => $a['key'] < $b['key'] ? -1 : 1);
+		uasort($facets['counters']['buckets'], fn ($a, $b) => $a['key'] <=> $b['key']);
 		$docs = [];
 		$n = 1;
 		foreach ($facets['counters']['buckets'] as $bucket) {
@@ -725,19 +728,10 @@ class Manticore {
 			}
 
 			if (isset($filters['comment_ranges'])) {
-				$condition = Search::FILTER_AND;
-				foreach ($filters['comment_ranges'] as $range) {
-					if (isset($range['min'])) {
-						$search->filter('comments', 'gt', $range['min'], $condition);
-						$condition = Search::FILTER_OR;
-					}
-
-					if (!isset($range['max'])) {
-						continue;
-					}
-
-					$search->filter('comments', 'lte', $range['max'], $condition);
-					$condition = Search::FILTER_OR;
+				$ranges = static::mergeRanges($filters['comment_ranges']);
+				$exclusions = static::invertRanges($ranges);
+				foreach ($exclusions as $range) {
+					$search->notFilter('comments', 'range', [$range['min'], $range['max']]);
 				}
 			}
 
@@ -871,4 +865,76 @@ class Manticore {
 
 		return $Index->search($Query);
 	}
+
+	/**
+	 * Helper to merge ranges and prepare exclusion list after
+	 * @param array<array{min?:int,max?:int}> $ranges
+	 * @return array<array{min?:int,max?:int}>
+	 */
+	protected static function mergeRanges(array $ranges) {
+		// Sort the ranges by their minimum values.
+		usort(
+			$ranges, function ($a, $b) {
+				$a_min = $a['min'] ?? 0;
+				$b_min = $b['min'] ?? 0;
+				return $a_min <=> $b_min;
+			}
+		);
+
+		$merged_ranges = [];
+		$current_range = null;
+
+		foreach ($ranges as $range) {
+			if ($current_range === null) {
+				// If this is the first range, start a new merged range.
+				$current_range = $range;
+			} else {
+				// Check if the current range overlaps with the previous one.
+				if (($range['min'] ?? 0) <= $current_range['max'] + 1) {
+					// If the ranges overlap or are adjacent, merge them.
+					$current_range['max'] = max($current_range['max'], $range['max']);
+				} else {
+					// If the ranges don't overlap, add the previous merged range to the result
+					// and start a new merged range.
+					$merged_ranges[] = $current_range;
+					$current_range = $range;
+				}
+			}
+		}
+
+		// Add the last merged range to the result.
+		if ($current_range !== null) {
+			$merged_ranges[] = $current_range;
+		}
+		return $merged_ranges;
+	}
+
+	/**
+	 * Helper to invert inclusive ranges into exclusive
+	 * @param array<array{min?:int,max?:int}> $ranges
+	 * @return array<array{min?:int,max?:int}>
+	 */
+	protected static function invertRanges(array $ranges): array {
+		$invertedRanges = [];
+		$min = 0;
+		$max = PHP_INT_MAX - 1;
+
+		foreach ($ranges as $range) {
+			$rangeMin = isset($range['min']) ? $range['min'] : $min;
+			$rangeMax = isset($range['max']) ? $range['max'] : $max;
+
+			if ($rangeMin > $min) {
+				$invertedRanges[] = ['min' => $min, 'max' => $rangeMin - 1];
+			}
+
+			$min = $rangeMax + 1;
+		}
+
+		if ($min < $max) {
+			$invertedRanges[] = ['min' => $min - 1, 'max' => $max - 1];
+		}
+
+		return $invertedRanges;
+	}
+
 }
