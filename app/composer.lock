@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "ankane/onnxruntime",
-            "version": "v0.2.0",
+            "version": "v0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ankane/onnxruntime-php.git",
-                "reference": "772f8f6677868bf8a4ac5dbd4a52bc99724884c4"
+                "reference": "2476c2bb6927769ce605f58f23f965dc14a7e7b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ankane/onnxruntime-php/zipball/772f8f6677868bf8a4ac5dbd4a52bc99724884c4",
-                "reference": "772f8f6677868bf8a4ac5dbd4a52bc99724884c4",
+                "url": "https://api.github.com/repos/ankane/onnxruntime-php/zipball/2476c2bb6927769ce605f58f23f965dc14a7e7b4",
+                "reference": "2476c2bb6927769ce605f58f23f965dc14a7e7b4",
                 "shasum": ""
             },
             "require": {
@@ -48,7 +48,7 @@
                 "issues": "https://github.com/ankane/onnxruntime-php/issues",
                 "source": "https://github.com/ankane/onnxruntime-php"
             },
-            "time": "2024-02-07T19:23:25+00:00"
+            "time": "2024-05-23T00:25:32+00:00"
         },
         {
             "name": "clue/stream-filter",
@@ -906,17 +906,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/manticoresoftware/manticoresearch-php.git",
-                "reference": "98aca7d4ab9b4524b3b475cf967289444e6df806"
+                "reference": "d323be1ca3959a3047000695e50da601d442d0ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/manticoresoftware/manticoresearch-php/zipball/98aca7d4ab9b4524b3b475cf967289444e6df806",
-                "reference": "98aca7d4ab9b4524b3b475cf967289444e6df806",
+                "url": "https://api.github.com/repos/manticoresoftware/manticoresearch-php/zipball/d323be1ca3959a3047000695e50da601d442d0ea",
+                "reference": "d323be1ca3959a3047000695e50da601d442d0ea",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": "^7.1|^8.0",
+                "php": "^7.4|^8.0",
                 "php-http/discovery": "^1.14",
                 "psr/log": "^1.1 || ^2.0 || ^3.0"
             },
@@ -969,7 +969,7 @@
                 "issues": "https://github.com/manticoresoftware/manticoresearch-php/issues",
                 "source": "https://github.com/manticoresoftware/manticoresearch-php/"
             },
-            "time": "2024-05-06T14:20:27+00:00"
+            "time": "2024-05-29T06:37:55+00:00"
         },
         {
             "name": "muvon/kiss-binary-codec",
@@ -1945,20 +1945,20 @@
         },
         {
             "name": "psr/http-factory",
-            "version": "1.0.2",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/http-factory.git",
-                "reference": "e616d01114759c4c489f93b099585439f795fe35"
+                "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/http-factory/zipball/e616d01114759c4c489f93b099585439f795fe35",
-                "reference": "e616d01114759c4c489f93b099585439f795fe35",
+                "url": "https://api.github.com/repos/php-fig/http-factory/zipball/2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
+                "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.0.0",
+                "php": ">=7.1",
                 "psr/http-message": "^1.0 || ^2.0"
             },
             "type": "library",
@@ -1982,7 +1982,7 @@
                     "homepage": "https://www.php-fig.org/"
                 }
             ],
-            "description": "Common interfaces for PSR-7 HTTP message factories",
+            "description": "PSR-17: Common interfaces for PSR-7 HTTP message factories",
             "keywords": [
                 "factory",
                 "http",
@@ -1994,9 +1994,9 @@
                 "response"
             ],
             "support": {
-                "source": "https://github.com/php-fig/http-factory/tree/1.0.2"
+                "source": "https://github.com/php-fig/http-factory"
             },
-            "time": "2023-04-10T20:10:41+00:00"
+            "time": "2024-04-15T12:06:14+00:00"
         },
         {
             "name": "psr/http-message",
@@ -2740,12 +2740,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "4fd52f75c8f29114423e9a379bf86fa894750bc3"
+                "reference": "0c6c929144e77601e0c98c43571e5d45ba09a07d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/4fd52f75c8f29114423e9a379bf86fa894750bc3",
-                "reference": "4fd52f75c8f29114423e9a379bf86fa894750bc3",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/0c6c929144e77601e0c98c43571e5d45ba09a07d",
+                "reference": "0c6c929144e77601e0c98c43571e5d45ba09a07d",
                 "shasum": ""
             },
             "require": {
@@ -2813,7 +2813,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-05-06T04:13:19+00:00"
+            "time": "2024-05-23T22:20:24+00:00"
         },
         {
             "name": "vkcom/noverify",
