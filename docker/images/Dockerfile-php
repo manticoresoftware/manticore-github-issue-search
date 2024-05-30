@@ -1,7 +1,7 @@
-FROM muvon/php:8.3.4-fpm-centos
+FROM muvon/php:8.3.7-fpm-centos
 LABEL maintainer="Manticore Software Co. Ltd <contact@manticoresearch.com>"
 
-RUN dnf update -y && dnf install -y git && dnf clean all
+RUN dnf update -y && dnf install -y git unzip && dnf clean all
 COPY . /src
 RUN ln -fs /src/docker/containers/php/config/php.ini /etc/php/php.ini && \
   ln -fs /src/docker/containers/php/config/conf.d /etc/php/conf.d && \
