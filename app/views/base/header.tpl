@@ -6,17 +6,18 @@
         <span>Demo by <a href="https://manticoresearch.com" target="_blank" rel="noopener noreferrer">Manticore Search</a></span>
       </cell>
       <cell span="8">
-      	<form action="{page_url}" method="get" data-component="search-form">
+      	<form action="{page_url}" method="get" data-component="search-form" data-api-url="/api/autocomplete{page_url}">
       		<grid>
       			<row>
       				<div class="input-wrapper">
       					<span class="icon">{>icon/find}</span>
-      					<input class="unstyled" type="text" name="query" value="{query:html}" placeholder="Search issues & comments in {project}"/>
+      					<input class="unstyled" type="text" name="query" value="{query:html}" placeholder="Search issues & comments in {project}" autocomplete="off" autofill="off"/>
       					{form_vars:} <input type="hidden" name="{name}" value="{value}"/>
       					<button class="unstyled icon" type="submit">
       						{>icon/search}
       					</button>
       				</div>
+							<div id="autocomplete" class="input-autocomplete"></div>
       			</row>
       		</grid>
       	</form>

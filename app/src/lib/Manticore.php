@@ -351,6 +351,23 @@ class Manticore {
 	}
 
 	/**
+	 * @param string $org
+	 * @param string $repo
+	 * @param string $query
+	 * @return Result
+	 */
+	public static function autocomplete(string $org, string $repo, string $query): Result {
+		$client = static::client();
+		$result = $client->autocomplete([
+			'body' => [
+				'table' => 'issue',
+				'query' => $query,
+			]
+		]);
+		return ok($result[0]['data'] ?? []);
+	}
+
+	/**
 	 * Get counters for issues in given repository
 	 * @param string $query
 	 * @param array<string,mixed> $filters
@@ -757,11 +774,12 @@ class Manticore {
 	protected static function applyConfig(Search $search): void {
 		$search
 			->option('cutoff', 0)
-			->option('ranker', 'expr(\'10000 * bm25f(1.2,0.75)\')');
+			->option('ranker', 'expr(\'10000 * bm25f(1.2,0.75)\')')
+		;
 	}
 
 	/**
-	 * Helper method to get the doc map indexed by id by using provided ides
+	 * Helper method to get the doc map indexed by id by using provided ids
 	 * @param  string $table
 	 * @param  array  $ids
 	 * @return array<int,array<mixed>>
