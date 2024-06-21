@@ -210,7 +210,7 @@ final class Search {
 					$issue_count += 1;
 				}
 
-				// TODO: temporarely solution cuz manticore has bug
+				// TODO: temporarily solution cuz manticore has bug
 				if (!$issue['assignee_ids']) {
 					unset($issue['assignee_ids']);
 				}
@@ -306,6 +306,17 @@ final class Search {
 		Manticore::add([$repo]);
 		// We have deferred function that will update it all
 		return ok();
+	}
+
+	/**
+	 * Currently org and repo are not used we look across all data
+	 * @param  Org    $org
+	 * @param  Repo   $repo
+	 * @param  string $query
+	 * @return Result<array{string}>
+	 */
+	public static function autocomplete(Org $org, Repo $repo, string $query): Result {
+		return Manticore::autocomplete($org->name, $repo->name, $query);
 	}
 
 	/**

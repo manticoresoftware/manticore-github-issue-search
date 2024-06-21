@@ -16,6 +16,37 @@
 		width: 100%
 		height: 100%
 
+row
+	position: relative
+
+.input-autocomplete
+	visibility: hidden
+	display: block
+	position: absolute
+	z-index: 99999
+	width: 100%
+	margin-top: -4px
+	background-color: white
+	border: 1px solid #d0d7de
+	border-radius: 0 0 6px 6px
+
+	&.visible
+		visibility: visible
+
+	.icon
+		margin-right: 4px
+
+	ul
+		list-style: none
+		margin: 0
+		padding: 0
+
+	li
+		padding: 6px 8px
+		cursor: pointer
+		&:hover
+			background: rgba(175,184,193,.2)
+
 input.unstyled, button.unstyled
 	background: transparent
 	border: 0
