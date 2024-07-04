@@ -18,7 +18,6 @@ export default element => {
 	})
 
 	d.on('click', 'li', (ev, el) => {
-		console.log(el)
 		inputEl.value = el.textContent
 		element.submit()
 	})
@@ -108,7 +107,7 @@ export default element => {
 	})
 
 	inputEl.addEventListener('keydown', (ev) => {
-		if (ev.key === 'Escape') {
+		if (ev.key === 'Escape' || ev.key === 'Enter') {
 			autocompleteEl.classList.remove('visible')
 		}
 	})

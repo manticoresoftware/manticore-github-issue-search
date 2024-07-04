@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ae4dcf10dc5c2fc37fb8f2df24ce8ea2",
+    "content-hash": "e5b84a60ddbd6a2ff13730d2be61a09b",
     "packages": [
         {
             "name": "ankane/onnxruntime",
@@ -902,16 +902,16 @@
         },
         {
             "name": "manticoresoftware/manticoresearch-php",
-            "version": "dev-feature/autocomplete",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/manticoresoftware/manticoresearch-php.git",
-                "reference": "1ac557bb9b6ed88019f6d3e26862a985e06998ab"
+                "reference": "bc22ea5b2f18e755dd751da9a24d0c5440569f8d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/manticoresoftware/manticoresearch-php/zipball/1ac557bb9b6ed88019f6d3e26862a985e06998ab",
-                "reference": "1ac557bb9b6ed88019f6d3e26862a985e06998ab",
+                "url": "https://api.github.com/repos/manticoresoftware/manticoresearch-php/zipball/bc22ea5b2f18e755dd751da9a24d0c5440569f8d",
+                "reference": "bc22ea5b2f18e755dd751da9a24d0c5440569f8d",
                 "shasum": ""
             },
             "require": {
@@ -935,6 +935,7 @@
                 "php-http/httplug": "^1.1",
                 "php-http/message": "^1.7"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -968,7 +969,7 @@
                 "issues": "https://github.com/manticoresoftware/manticoresearch-php/issues",
                 "source": "https://github.com/manticoresoftware/manticoresearch-php/"
             },
-            "time": "2024-06-21T08:45:44+00:00"
+            "time": "2024-07-04T11:27:43+00:00"
         },
         {
             "name": "muvon/kiss-binary-codec",
@@ -2739,12 +2740,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "df258d47231f1ed86c59b4c51a95ec00b852f588"
+                "reference": "e24508814f243ebece90a193a6e77b1f86f73849"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/df258d47231f1ed86c59b4c51a95ec00b852f588",
-                "reference": "df258d47231f1ed86c59b4c51a95ec00b852f588",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/e24508814f243ebece90a193a6e77b1f86f73849",
+                "reference": "e24508814f243ebece90a193a6e77b1f86f73849",
                 "shasum": ""
             },
             "require": {
@@ -2812,7 +2813,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-06-05T17:35:20+00:00"
+            "time": "2024-07-02T07:22:32+00:00"
         },
         {
             "name": "vkcom/noverify",

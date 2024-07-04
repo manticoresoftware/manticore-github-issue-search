@@ -358,13 +358,19 @@ class Manticore {
 	 */
 	public static function autocomplete(string $org, string $repo, string $query): Result {
 		$client = static::client();
-		$result = $client->autocomplete([
+		$result = $client->autocomplete(
+			[
 			'body' => [
 				'table' => 'issue',
 				'query' => $query,
+				'options' => [
+					'layouts' => ['ru', 'us', 'ua'],
+				],
+			],
 			]
-		]);
-		return ok($result[0]['data'] ?? []);
+		);
+		$options = $result[0]['data'] ?? [];
+		return ok(array_slice($options, 0, 10));
 	}
 
 	/**
@@ -775,7 +781,8 @@ class Manticore {
 		$search
 			->option('cutoff', 0)
 			->option('ranker', 'expr(\'10000 * bm25f(1.2,0.75)\')')
-		;
+			->option('fuzzy', 1)
+			->option('layouts', ['ru', 'us', 'ua']);
 	}
 
 	/**
