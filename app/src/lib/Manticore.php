@@ -211,7 +211,8 @@ class Manticore {
 					static::HIGHLIGHT_CONFIG
 				);
 			;
-			static::applyConfig($search);
+			static::applyRanker($search);
+			static::applyFuzzy($search);
 
 			// Apply varios filters on search instance
 			static::applyFilters($search, $filters, 'issues');
@@ -252,7 +253,8 @@ class Manticore {
 					['body'],
 					static::HIGHLIGHT_CONFIG
 				);
-			static::applyConfig($search);
+			static::applyRanker($search);
+			static::applyFuzzy($search);
 			static::applyFilters($search, $filters, 'comments');
 			// We can sort comments by all but comments
 			if ($sort !== 'most-commented' && $sort !== 'least-commented') {
@@ -383,6 +385,7 @@ class Manticore {
 		$search = static::getSearch('issue', $query, $filters);
 		unset($filters['state']);
 		static::applyFilters($search, $filters, 'issues');
+		static::applyFuzzy($search);
 		$facets = $search
 			->limit(0)
 			->expression('open', 'if(closed_at=0,1,0)')
@@ -430,6 +433,7 @@ class Manticore {
 		$search = static::getSearch('issue', $query, $filters);
 		unset($filters['pull_requests'], $filters['comments'], $filters['issues']);
 		unset($filters['state']);
+		static::applyFuzzy($search);
 		static::applyFilters($search, $filters, 'issues');
 		$facets = $search
 			->limit(0)
@@ -448,6 +452,7 @@ class Manticore {
 
 		// Get comments now=
 		$search = static::getSearch('comment', $query, $filters);
+		static::applyFuzzy($search);
 		static::applyFilters($search, $filters, 'comments');
 		$facets = $search
 			->limit(0)
@@ -620,6 +625,7 @@ class Manticore {
 			}
 			static::applyFilters($search, $filters, 'issues');
 		}
+		static::applyFuzzy($search);
 		$range = implode(',', $values);
 		$facets = $search
 			->limit(0)
@@ -777,10 +783,19 @@ class Manticore {
 	 * @param  Search $search
 	 * @return void
 	 */
-	protected static function applyConfig(Search $search): void {
+	protected static function applyRanker(Search $search): void {
 		$search
 			->option('cutoff', 0)
 			->option('ranker', 'expr(\'10000 * bm25f(1.2,0.75)\')')
+		;
+	}
+
+	/**
+	 * @param Search $search
+	 * @return void
+	 */
+	protected static function applyFuzzy(Search $search): void {
+		$search
 			->option('fuzzy', 1)
 			->option('layouts', ['ru', 'us', 'ua']);
 	}
