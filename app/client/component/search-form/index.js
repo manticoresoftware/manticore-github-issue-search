@@ -9,12 +9,37 @@ export default element => {
 
 	const inputEl = element.querySelector('[name="query"]')
 	const autocompleteEl = element.querySelector('#autocomplete')
+
+	let hasActiveSuggestion = false
+	let currentActiveIndex = -1
+
 	element.addEventListener('submit', (ev) => {
 		ev.preventDefault()
 		const value = inputEl.value
 		const query = nav.removeParam(location.search, 'query')
-		nav.load(slug + '?' + query + 'query=' + value)
+		nav.load(slug + '?' + query + ';query=' + value)
 		dispatcher.send('search', {query: value})
+	})
+
+	const reset_fn = (ev) => {
+		if (hasActiveSuggestion && currentActiveIndex !== -1) {
+			suggestions[currentActiveIndex].element.classList.remove('active')
+		}
+		hasActiveSuggestion = false
+		currentActiveIndex = -1
+	}
+
+	autocompleteEl.addEventListener('mouseenter', reset_fn)
+	autocompleteEl.addEventListener('mouseleave', reset_fn)
+	autocompleteEl.addEventListener('mousemove', (ev) => {
+		reset_fn(ev)
+		const hoveredElement = ev.target
+		if (hoveredElement) {
+			hoveredElement.classList.add('active')
+			hasActiveSuggestion = true
+			const liElements = autocompleteEl.querySelectorAll('li');
+			currentActiveIndex = Array.from(liElements).findIndex(li => li === hoveredElement);
+		}
 	})
 
 	d.on('click', 'li', (ev, el) => {
@@ -32,13 +57,16 @@ export default element => {
 		}, 150)
 	})
 
+	let suggestions = []
 	const iconSVG = element.querySelector('.icon').innerHTML
 	const updateSuggestions = result => {
+		suggestions = []
 		const listEl = document.createElement('ul')
 		for (const item of result) {
 			const li = document.createElement('li')
 			li.innerHTML = `<span class="icon">${iconSVG}</span><span class="text">${item.query}</span>`
 			listEl.appendChild(li)
+			suggestions.push({query: item.query, element: li})
 		}
 
 		while (autocompleteEl.firstChild) {
@@ -85,8 +113,7 @@ export default element => {
 				console.error('Fetch error:', error)
 			}
 		} finally {
-			activeRequest = null
-		}
+			activeRequest = null }
 	}
 
 	const debouncedFetchAutocomplete = debounce((query) => {
@@ -107,8 +134,33 @@ export default element => {
 	})
 
 	inputEl.addEventListener('keydown', (ev) => {
+		autocompleteEl.classList.add('keyboard-active')
 		if (ev.key === 'Escape' || ev.key === 'Enter') {
 			autocompleteEl.classList.remove('visible')
+			hasActiveSuggestion = false
+		} else if (ev.key === 'ArrowUp' || ev.key === 'ArrowDown') {
+			ev.preventDefault()
+			const currentValue = inputEl.value
+			const currentIndex = currentActiveIndex > -1
+				? currentActiveIndex
+				: suggestions.findIndex(suggestion => suggestion.query === currentValue)
+			let newIndex
+
+			if (ev.key === 'ArrowUp') {
+				newIndex = currentIndex > 0 ? currentIndex - 1 : suggestions.length - 1
+			} else {
+				newIndex = currentIndex < suggestions.length - 1 ? currentIndex + 1 : 0
+			}
+
+			inputEl.value = suggestions[newIndex].query
+
+			if (hasActiveSuggestion && currentActiveIndex !== -1) {
+				suggestions[currentActiveIndex].element.classList.remove('active')
+			}
+
+			suggestions[newIndex].element.classList.add('active')
+			currentActiveIndex = newIndex
+			hasActiveSuggestion = true
 		}
 	})
 	return () => {}
