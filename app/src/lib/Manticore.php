@@ -355,24 +355,34 @@ class Manticore {
 	/**
 	 * @param string $org
 	 * @param string $repo
+	 * @param string $table
 	 * @param string $query
+	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_limit?:int,layouts?:array<string>} $options
 	 * @return Result
 	 */
-	public static function autocomplete(string $org, string $repo, string $query): Result {
+	public static function autocomplete(string $org, string $repo, string $table, string $query, array $options = []): Result {
 		$client = static::client();
+		$options = array_replace(
+			[
+				'fuzziness' => 1,
+				'append' => true,
+				'prepend' => false,
+				'expansion_limit' => 4,
+				'layouts' => ['ru', 'ua', 'us'],
+			],
+			$options
+		);
 		$result = $client->autocomplete(
 			[
-			'body' => [
-				'table' => 'issue',
-				'query' => $query,
-				'options' => [
-					'layouts' => ['ru', 'us', 'ua'],
+				'body' => [
+					'table' => $table,
+					'query' => $query,
+					'options' => $options,
 				],
-			],
 			]
 		);
 		$options = $result[0]['data'] ?? [];
-		return ok(array_slice($options, 0, 10));
+		return ok($options);
 	}
 
 	/**
@@ -409,7 +419,7 @@ class Manticore {
 	}
 
 	/**
-	 * Get facets counters for related search requests for all entitites
+	 * Get facets counters for related search requests for all entities
 	 * @param string $query
 	 * @param array<string,mixed> $filters
 	 * @return Result<array{open:int,closed:int}>
@@ -683,12 +693,12 @@ class Manticore {
 			$text = "{$text}…";
 		}
 
-		// TODO: temporarely solution to fix dots issue
+		// TODO: temporarily solution to fix dots issue
 		return str_replace('...…', '…', $text);
 	}
 
 	/**
-	 * Apply sorting to the active serach instance
+	 * Apply sorting to the active search instance
 	 * @param  Search $search
 	 * @param  string $sort
 	 * @return void

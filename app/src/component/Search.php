@@ -313,10 +313,40 @@ final class Search {
 	 * @param  Org    $org
 	 * @param  Repo   $repo
 	 * @param  string $query
-	 * @return Result<array{string}>
+	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_limit?:int,layouts?:array<string>} $options
+	 * @return Result<array{query:string}>
 	 */
-	public static function autocomplete(Org $org, Repo $repo, string $query): Result {
-		return Manticore::autocomplete($org->name, $repo->name, $query);
+	public static function autocomplete(Org $org, Repo $repo, string $query, array $options = []): Result {
+		$suggestions = [];
+		$max_count = 0;
+		$tables = ['issue', 'comment'];
+		foreach ($tables as $table) {
+			$list = result(Manticore::autocomplete($org->name, $repo->name, $table, $query, $options));
+			$max_count = max($max_count, sizeof($list));
+			$suggestions[$table] = $list;
+		}
+
+		for ($i = 0; $i < $max_count; $i++) {
+			if (isset($suggestions['issue'][$i])) {
+				$merged[] = $suggestions['issue'][$i];
+			}
+			if (isset($suggestions['comment'][$i])) {
+				$merged[] = $suggestions['comment'][$i];
+			}
+		}
+
+		$uniqueQueries = array_reduce($merged, function($carry, $item) {
+			if (!in_array($item['query'], $carry)) {
+				$carry[] = $item['query'];
+			}
+			return $carry;
+		}, []);
+
+		$result = array_map(function($query) {
+			return ['query' => $query];
+		}, $uniqueQueries);
+
+		return ok(array_slice($result, 0, 10));
 	}
 
 	/**
@@ -335,7 +365,6 @@ final class Search {
 	 * Prepare filters
 	 * @param array<string,mixed> $filters
 	 * @return array<string,mixed>
-
 	 */
 	public static function prepareFilters(array $filters = []): array {
 		$filtered = [];
