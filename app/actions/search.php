@@ -9,7 +9,7 @@
  * @var string $query
  * @var array $filters
  * @var string $sort
- * @var string $search keyword-search
+ * @var string $search keyword-search-fuzzy-layouts
  * @var int $offset
  */
 
@@ -86,7 +86,7 @@ $counters = [
 $search_list = [
   [
 	'value' => 'keyword-search-fuzzy-layouts',
-	'name' => 'Fuzzy Search+',
+	'name' => 'Fuzzy+Keyboard',
   ],
   [
 	'value' => 'keyword-search-fuzzy',
