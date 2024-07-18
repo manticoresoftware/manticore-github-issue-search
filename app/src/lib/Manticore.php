@@ -212,7 +212,9 @@ class Manticore {
 				);
 			;
 			static::applyRanker($search);
-			static::applyFuzzy($search);
+			if ($filters['use_fuzzy']) {
+				static::applyFuzzy($search, $filters['use_layouts']);
+			}
 
 			// Apply varios filters on search instance
 			static::applyFilters($search, $filters, 'issues');
@@ -254,7 +256,9 @@ class Manticore {
 					static::HIGHLIGHT_CONFIG
 				);
 			static::applyRanker($search);
-			static::applyFuzzy($search);
+			if ($filters['use_fuzzy']) {
+				static::applyFuzzy($search, $filters['use_layouts']);
+			}
 			static::applyFilters($search, $filters, 'comments');
 			// We can sort comments by all but comments
 			if ($sort !== 'most-commented' && $sort !== 'least-commented') {
@@ -395,7 +399,9 @@ class Manticore {
 		$search = static::getSearch('issue', $query, $filters);
 		unset($filters['state']);
 		static::applyFilters($search, $filters, 'issues');
-		static::applyFuzzy($search);
+		if ($filters['use_fuzzy']) {
+			static::applyFuzzy($search, $filters['use_layouts']);
+		}
 		$facets = $search
 			->limit(0)
 			->expression('open', 'if(closed_at=0,1,0)')
@@ -443,7 +449,9 @@ class Manticore {
 		$search = static::getSearch('issue', $query, $filters);
 		unset($filters['pull_requests'], $filters['comments'], $filters['issues']);
 		unset($filters['state']);
-		static::applyFuzzy($search);
+		if ($filters['use_fuzzy']) {
+			static::applyFuzzy($search, $filters['use_layouts']);
+		}
 		static::applyFilters($search, $filters, 'issues');
 		$facets = $search
 			->limit(0)
@@ -462,7 +470,9 @@ class Manticore {
 
 		// Get comments now=
 		$search = static::getSearch('comment', $query, $filters);
-		static::applyFuzzy($search);
+		if ($filters['use_fuzzy']) {
+			static::applyFuzzy($search, $filters['use_layouts']);
+		}
 		static::applyFilters($search, $filters, 'comments');
 		$facets = $search
 			->limit(0)
@@ -635,7 +645,9 @@ class Manticore {
 			}
 			static::applyFilters($search, $filters, 'issues');
 		}
-		static::applyFuzzy($search);
+		if ($filters['use_fuzzy']) {
+			static::applyFuzzy($search, $filters['use_layouts']);
+		}
 		$range = implode(',', $values);
 		$facets = $search
 			->limit(0)
@@ -802,12 +814,16 @@ class Manticore {
 
 	/**
 	 * @param Search $search
+	 * @param bool $enable_layouts
 	 * @return void
 	 */
-	protected static function applyFuzzy(Search $search): void {
-		$search
-			->option('fuzzy', 1)
-			->option('layouts', ['ru', 'us', 'ua']);
+	protected static function applyFuzzy(Search $search, bool $enable_layouts = false): void {
+		$search ->option('fuzzy', 1) ;
+		$layouts = [];
+		if ($enable_layouts) {
+			$layouts = ['ru', 'us', 'ua'];
+		}
+		$search->option('layouts', $layouts);
 	}
 
 	/**

@@ -19,7 +19,7 @@
 row
 	position: relative
 
-.input-autocomplete
+.input-autocomplete, .input-configure
 	visibility: hidden
 	display: block
 	position: absolute
@@ -36,6 +36,7 @@ row
 	.icon
 		margin-right: 4px
 
+.input-autocomplete
 	ul
 		list-style: none
 		margin: 0
@@ -46,6 +47,27 @@ row
 		cursor: pointer
 		&.active
 			background: rgba(175,184,193,.2)
+
+.input-configure
+	padding: 6px 8px
+	fieldset
+		display: flex
+		flex-direction: row
+		align-items: center
+		gap: 16px
+
+	legend
+		margin-right: 10px
+
+	input, select
+		flex: 1
+		min-width: 0
+
+	button
+		margin-left: auto
+
+	div
+		display: flex
 
 input.unstyled, button.unstyled
 	background: transparent
@@ -66,6 +88,10 @@ input.unstyled, button.unstyled
 
 button.icon
 	margin-top: 3px
+
+button.icon-configure
+	margin-top: 0
+	margin-right: 8px
 
 // Define variables for easier configuration
 $header-height: 60px

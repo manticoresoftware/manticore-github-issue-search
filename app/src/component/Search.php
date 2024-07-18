@@ -450,6 +450,9 @@ final class Search {
 			$filtered['common']['repo_id'] = $repos;
 		}
 
+		$filtered['use_fuzzy'] = false;
+		$filtered['use_layouts'] = false;
+
 		return $filtered;
 	}
 
@@ -551,7 +554,7 @@ final class Search {
 	 * @return Result<array<mixed>>
 	 */
 	public static function getCommentRanges(array $repo_ids, string $query = '', array $filters = []): Result {
-		$ranges = result(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES));
+		$ranges = result(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES, $query, $filters));
 		$filteredRanges = result(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES, $query, $filters));
 		return static::combineActiveEntities($ranges, $filteredRanges);
 	}

@@ -9,9 +9,87 @@ export default element => {
 
 	const inputEl = element.querySelector('[name="query"]')
 	const autocompleteEl = element.querySelector('#autocomplete')
+	const configureEl = element.querySelector('#configure')
+
+	// Define default values
+	const defaultConfig = {
+		fuzzy: true,
+		expansion_limit: '4',
+		append: true,
+		prepend: false,
+		layouts: ['ru', 'us', 'ua'],
+	};
+
+	// Function to load values from localStorage or use defaults
+	function loadConfig() {
+		const storedConfig = JSON.parse(localStorage.getItem('autocompleteConfig')) || {};
+		return { ...defaultConfig, ...storedConfig };
+	}
+
+	// Function to save config to localStorage
+	function saveConfig(config) {
+		localStorage.setItem('autocompleteConfig', JSON.stringify(config));
+	}
+
+	// Load the initial configuration
+	let currentConfig = loadConfig();
+
+	// Set up input elements
+	const configureInputEls = configureEl.querySelectorAll('input');
+	for (const configureInputEl of configureInputEls) {
+		const inputName = configureInputEl.name;
+
+		// Set initial value from loaded config
+		if (configureInputEl.type === 'checkbox') {
+			const configValue = currentConfig[inputName];
+			if (inputName.endsWith('[]')) {
+				const baseInputName = inputName.slice(0, -2);
+				if (Array.isArray(currentConfig[baseInputName])) {
+					configureInputEl.checked = currentConfig[baseInputName].includes(configureInputEl.value);
+				} else {
+					configureInputEl.checked = false;
+				}
+			} else {
+				configureInputEl.checked = configValue || false;
+			}
+		} else if (configureInputEl.type === 'radio') {
+			configureInputEl.checked = configureInputEl.value === (currentConfig[inputName] || '');
+		} else {
+			configureInputEl.value = currentConfig[inputName] || '';
+		}
+
+		// Add event listener to save changes
+		configureInputEl.addEventListener('change', (event) => {
+			if (inputName.endsWith('[]')) {
+				const cleanInputName = inputName.replace(/\[\]$/, '');
+				if (!currentConfig[cleanInputName]) {
+					currentConfig[cleanInputName] = [];
+				}
+				if (event.target.checked) {
+					if (!currentConfig[cleanInputName].includes(event.target.value)) {
+						currentConfig[cleanInputName].push(event.target.value);
+					}
+				} else {
+					currentConfig[cleanInputName] = currentConfig[cleanInputName].filter(value => value !== event.target.value);
+				}
+			} else if (event.target.type === 'radio') {
+				currentConfig[inputName] = event.target.value;
+			} else {
+				currentConfig[inputName] = event.target.checked ? true : false
+			}
+
+			saveConfig(currentConfig)
+		})
+	}
 
 	let hasActiveSuggestion = false
 	let currentActiveIndex = -1
+
+	d.on('click', '.icon-configure', (ev) => {
+		ev.preventDefault()
+		autocompleteEl.classList.remove('visible')
+		configureEl.classList.toggle('visible')
+	})
 
 	element.addEventListener('submit', (ev) => {
 		ev.preventDefault()
@@ -49,6 +127,7 @@ export default element => {
 
 	inputEl.addEventListener('focus', (ev) => {
 		autocompleteEl.classList.add('visible')
+		configureEl.classList.remove('visible')
 	})
 
 	inputEl.addEventListener('blur', (ev) => {
@@ -99,10 +178,20 @@ export default element => {
 		activeRequest = controller
 
 		try {
-			const response = await fetch(`${api_url}?query=${encodeURIComponent(query)}`, {
+			const response = await fetch(api_url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					query: query,
+
+					config: currentConfig
+				}),
 				signal: controller.signal
-			})
-			const [err, result] = await response.json()
+			});
+
+			const [err, result] = await response.json();
 
 			updateSuggestions(result)
 
