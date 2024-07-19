@@ -325,6 +325,10 @@ final class Search {
 			$max_count = max($max_count, sizeof($list));
 			$suggestions[$table] = $list;
 		}
+		// No suggestions? do early return
+		if (!$suggestions) {
+			return ok([]);
+		}
 
 		for ($i = 0; $i < $max_count; $i++) {
 			if (isset($suggestions['issue'][$i])) {
