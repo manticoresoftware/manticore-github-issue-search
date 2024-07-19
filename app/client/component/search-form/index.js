@@ -178,16 +178,29 @@ export default element => {
 		activeRequest = controller
 
 		try {
-			const response = await fetch(api_url, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					query: query,
+			function buildHttpBody(query, config) {
+				let body = new URLSearchParams();
 
-					config: currentConfig
-				}),
+				body.append('query', query);
+
+				for (const [key, value] of Object.entries(config)) {
+					if (Array.isArray(value)) {
+						value.forEach((item, index) => {
+							body.append(`config[${key}][${index}]`, item);
+						});
+					} else {
+						body.append(`config[${key}]`, value);
+					}
+				}
+
+				return body.toString();
+			}
+
+			const httpBody = buildHttpBody(query, currentConfig);
+			const response = await fetch(`${api_url}?${httpBody}`, {
+				method: 'GET',
+				headers: {},
+				priority: 'high',
 				signal: controller.signal
 			});
 
