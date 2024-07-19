@@ -209,7 +209,7 @@ export default element => {
 		if (query !== previousQuery) {
 			fetchAutocomplete(query)
 		}
-	}, 150)
+	}, 0)
 
 	inputEl.addEventListener('input', (ev) => {
 		const query = ev.target.value.trim()
