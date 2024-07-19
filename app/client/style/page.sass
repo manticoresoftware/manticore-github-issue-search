@@ -376,17 +376,18 @@ label
 .select-menu
 	display: inline-block
 	border: 1px solid #d0d7de
-	border-radius: 6px
+	border-radius: 4px
 	margin: 0
-	padding: 0 0 0 8px
+	padding: 2px 8px
 	appearance: none
+	background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="black" d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center
 	background-color: transparent
-	background-image: url("data:image/svg+xml,%3Csvg width='14' height='16' viewBox='0 0 14 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 11L1 5h12L7 11z' fill='%23$select-arrow-color'/%3E%3C/svg%3E")
 	background-repeat: no-repeat
-	background-position: right 8px center
+	background-position: right 4px center
 	font-size: 14px
 	line-height: 20px
 	color: #24292e
+	min-width: 140px
 
 	&:hover
 		border-color: $select-hover-border-color
@@ -395,6 +396,7 @@ label
 		border-color: $select-focus-border-color
 		outline: none
 		box-shadow: 0 0 0 3px rgba(3,102,214,0.3)
+
 .open
 	color: rgb(9, 105, 218)
 .closed
