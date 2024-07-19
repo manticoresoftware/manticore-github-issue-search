@@ -330,25 +330,32 @@ final class Search {
 			return ok([]);
 		}
 
+		$merged = [];
 		for ($i = 0; $i < $max_count; $i++) {
 			if (isset($suggestions['issue'][$i])) {
 				$merged[] = $suggestions['issue'][$i];
 			}
-			if (isset($suggestions['comment'][$i])) {
-				$merged[] = $suggestions['comment'][$i];
+			if (!isset($suggestions['comment'][$i])) {
+				continue;
 			}
+
+			$merged[] = $suggestions['comment'][$i];
 		}
 
-		$uniqueQueries = array_reduce($merged, function($carry, $item) {
-			if (!in_array($item['query'], $carry)) {
-				$carry[] = $item['query'];
-			}
-			return $carry;
-		}, []);
+		$uniqueQueries = array_reduce(
+			$merged, function ($carry, $item) {
+				if (!in_array($item['query'], $carry)) {
+					$carry[] = $item['query'];
+				}
+				return $carry;
+			}, []
+		);
 
-		$result = array_map(function($query) {
-			return ['query' => $query];
-		}, $uniqueQueries);
+		$result = array_map(
+			function ($query) {
+				return ['query' => $query];
+			}, $uniqueQueries
+		);
 
 		return ok(array_slice($result, 0, 10));
 	}

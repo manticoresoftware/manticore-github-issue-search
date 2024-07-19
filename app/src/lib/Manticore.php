@@ -808,8 +808,7 @@ class Manticore {
 	protected static function applyRanker(Search $search): void {
 		$search
 			->option('cutoff', 0)
-			->option('ranker', 'expr(\'10000 * bm25f(1.2,0.75)\')')
-		;
+			->option('ranker', 'expr(\'10000 * bm25f(1.2,0.75)\')');
 	}
 
 	/**
@@ -818,7 +817,7 @@ class Manticore {
 	 * @return void
 	 */
 	protected static function applyFuzzy(Search $search, bool $enable_layouts = false): void {
-		$search ->option('fuzzy', 1) ;
+		$search ->option('fuzzy', 1);
 		$layouts = [];
 		if ($enable_layouts) {
 			$layouts = ['ru', 'us', 'ua'];
