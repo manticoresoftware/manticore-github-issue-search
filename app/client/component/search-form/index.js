@@ -14,7 +14,7 @@ export default element => {
 	// Define default values
 	const defaultConfig = {
 		fuzziness: '2',
-		expansion_limit: '4',
+		expansion_limit: '6',
 		append: true,
 		prepend: false,
 		layouts: ['ru', 'us', 'ua'],
@@ -209,7 +209,7 @@ export default element => {
 		if (query !== previousQuery) {
 			fetchAutocomplete(query)
 		}
-	}, 300)
+	}, 150)
 
 	inputEl.addEventListener('input', (ev) => {
 		const query = ev.target.value.trim()
