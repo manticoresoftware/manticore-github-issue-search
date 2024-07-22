@@ -4,6 +4,7 @@ namespace App\Model;
 
 use ArrayAccess;
 use Exception;
+use ReflectionClass;
 
 abstract class Model implements ArrayAccess {
 	/**
@@ -15,6 +16,20 @@ abstract class Model implements ArrayAccess {
 			$this->$arg = $value;
 		}
 	}
+
+	/**
+	 * Dynamically get table name for this model
+	 * @return string
+	 */
+	public function getTableName(): string {
+		$reflection = new ReflectionClass(static::class);
+		return strtolower($reflection->getShortName());
+	}
+
+	/**
+	 * @return string
+	 */
+	abstract public function getCreateTableSql(): string;
 
 	/**
 	 * Create the object from the arrauy

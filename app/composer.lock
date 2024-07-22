@@ -243,16 +243,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.9.0",
+            "version": "7.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "84ac2b2afc44e40d3e8e658a45d68d6d20437612"
+                "reference": "a629e5b69db96eb4939c1b34114130077dd4c6fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/84ac2b2afc44e40d3e8e658a45d68d6d20437612",
-                "reference": "84ac2b2afc44e40d3e8e658a45d68d6d20437612",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/a629e5b69db96eb4939c1b34114130077dd4c6fc",
+                "reference": "a629e5b69db96eb4939c1b34114130077dd4c6fc",
                 "shasum": ""
             },
             "require": {
@@ -349,7 +349,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.9.0"
+                "source": "https://github.com/guzzle/guzzle/tree/7.9.1"
             },
             "funding": [
                 {
@@ -365,7 +365,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-07-18T11:52:56+00:00"
+            "time": "2024-07-19T16:19:57+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -2577,17 +2577,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Muvon/php-coding-standard.git",
-                "reference": "d163a1ee767f14c735496e75e2cddf9318e3ea1a"
+                "reference": "b79bdddacb82117102830b30737353957559b6ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Muvon/php-coding-standard/zipball/d163a1ee767f14c735496e75e2cddf9318e3ea1a",
-                "reference": "d163a1ee767f14c735496e75e2cddf9318e3ea1a",
+                "url": "https://api.github.com/repos/Muvon/php-coding-standard/zipball/b79bdddacb82117102830b30737353957559b6ff",
+                "reference": "b79bdddacb82117102830b30737353957559b6ff",
                 "shasum": ""
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
-                "php": "^8.1",
+                "php": "^8.3",
                 "squizlabs/php_codesniffer": "^3.7.1"
             },
             "default-branch": true,
@@ -2603,8 +2603,8 @@
             ],
             "authors": [
                 {
-                    "name": "Muvon Co. Ltd",
-                    "email": "contact@muvon.io"
+                    "name": "Muvon Un Limited",
+                    "email": "hello@muvon.io"
                 },
                 {
                     "name": "Don Hardman",
@@ -2620,7 +2620,7 @@
                 "issues": "https://github.com/Muvon/php-coding-standard/issues",
                 "source": "https://github.com/Muvon/php-coding-standard/tree/master"
             },
-            "time": "2023-02-18T13:57:34+00:00"
+            "time": "2024-07-21T10:05:56+00:00"
         },
         {
             "name": "phpstan/phpdoc-parser",
@@ -2740,12 +2740,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "131886e793734ab8679e7c32194803d764d0fb62"
+                "reference": "9e73d47881eac6f66b4992d9cc53a8e3396b0897"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/131886e793734ab8679e7c32194803d764d0fb62",
-                "reference": "131886e793734ab8679e7c32194803d764d0fb62",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/9e73d47881eac6f66b4992d9cc53a8e3396b0897",
+                "reference": "9e73d47881eac6f66b4992d9cc53a8e3396b0897",
                 "shasum": ""
             },
             "require": {
@@ -2813,7 +2813,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-07-15T19:05:56+00:00"
+            "time": "2024-07-21T23:52:43+00:00"
         },
         {
             "name": "vkcom/noverify",

@@ -22,6 +22,7 @@ $search_query = Search::sanitizeQuery($query);
 if ($query !== $search_query) {
 	$show_query = true;
 }
+$filters['org_id'] = $org->id;
 if (!isset($filters['repos'])) {
 	$filters['repos'] = $repo
 	? [$repo->id]

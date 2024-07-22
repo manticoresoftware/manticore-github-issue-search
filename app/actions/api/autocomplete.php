@@ -12,5 +12,5 @@
 use App\Component\Search;
 
 /** @var App\Model\Repo $repo */
-[$org, $repo] = result(Search::getOrgAndRepo($org, $name));
-return Search::autocomplete($org, $repo, $query, $config);
+$org = result(Search::getOrg($org));
+return Search::autocomplete($org, $query, $config);

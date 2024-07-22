@@ -9,6 +9,10 @@
 
 use App\Component\Search;
 
-/** @var App\Model\Repo $repo */
-[$org, $repo] = result(Search::getOrgAndRepo($org, $name));
-return ok($repo ? $repo->toArray() : []);
+if ($name) {
+	/** @var App\Model\Repo $repo */
+	[$org, $repo] = result(Search::getOrgAndRepo($org, $name));
+	return ok($repo ? $repo->toArray() : []);
+}
+
+return ok([]);

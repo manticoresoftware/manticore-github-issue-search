@@ -8,14 +8,16 @@ use App\Model\Notification;
 use App\Model\Org;
 use App\Model\Repo;
 use App\Model\User;
+use Exception;
 use Generator;
 use Manticoresearch\Client;
+use Manticoresearch\Exceptions\NoMoreNodesException;
+use Manticoresearch\Exceptions\RuntimeException;
 use Manticoresearch\Query\BoolQuery;
 use Manticoresearch\Query\KnnQuery;
 use Manticoresearch\Query\QueryString;
 use Manticoresearch\ResultHit;
 use Manticoresearch\Search;
-use ReflectionClass;
 use Result;
 use Throwable;
 
@@ -52,18 +54,45 @@ class Manticore {
 			return ok();
 		}
 
-		$table = 'doc';
 		try {
-			$reflection = new ReflectionClass($list[0]);
 			$client = static::client();
-			$table = strtolower($reflection->getShortName());
+			$table = $list[0]->getTableName();
+			// If table is missing create it
+			if (!static::isTableExists($table)) {
+				$client->sql($list[0]->getCreateTableSQL(), true);
+			}
 			$index = $client->index($table);
 			$docs = array_map(fn ($v) => (array)$v, $list);
 			$index->replaceDocuments($docs);
 			return ok();
-		} catch (Throwable) {
+		} catch (Throwable $e) {
 			return err("e_add_{$table}_failed");
 		}
+	}
+
+	/**
+	 * @param string $table
+	 * @return bool
+	 * @throws NoMoreNodesException
+	 * @throws Exception
+	 * @throws RuntimeException
+	 */
+	public static function isTableExists(string $table): bool {
+		static $exist_cache = [];
+		$has_cache = $exist_cache[$table] ?? false;
+		if ($has_cache) {
+			return true;
+		}
+
+		$client = static::client();
+		$list = $client->sql("SHOW TABLES LIKE '$table'", true);
+		$count = sizeof($list);
+		$exists = $count === 1;
+		if ($exists) {
+			$exist_cache[$table] = true;
+		}
+
+		return $exists;
 	}
 
 
@@ -141,6 +170,16 @@ class Manticore {
 		if ($result->err) {
 			return $result;
 		}
+
+		// Create empty table in case if we missing it for counters
+		$Issue = Issue::fromArray(['org_id' => $org->id]);
+		$sql = $Issue->getCreateTableSql();
+		static::client()->sql($sql, true);
+
+		$Comment = Comment::fromArray(['org_id' => $org->id]);
+		$sql = $Comment->getCreateTableSql();
+		static::client()->sql($sql, true);
+
 		return ok($org);
 	}
 
@@ -282,7 +321,8 @@ class Manticore {
 			}
 
 			// Append issues fetched in single query
-			$issue_map = static::getDocMap('issue', $issue_ids);
+			$table = 'issue_' . $filters['org_id'];
+			$issue_map = static::getDocMap($table, $issue_ids);
 			foreach ($items as &$item) {
 				if (!$item['comment'] || $item['issue']) {
 					continue;
@@ -357,14 +397,12 @@ class Manticore {
 	}
 
 	/**
-	 * @param string $org
-	 * @param string $repo
 	 * @param string $table
 	 * @param string $query
 	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_limit?:int,layouts?:array<string>} $options
 	 * @return Result
 	 */
-	public static function autocomplete(string $org, string $repo, string $table, string $query, array $options = []): Result {
+	public static function autocomplete(string $table, string $query, array $options = []): Result {
 		$client = static::client();
 		$options = array_replace(
 			[
@@ -500,7 +538,8 @@ class Manticore {
 	 */
 	public static function getUsers(array $repo_ids, string $field, string $query = '', array $filters = [], int $max = 1000): Result {
 		$client = static::client();
-		$index = $client->index('issue');
+		$table = 'issue_' . $filters['org_id'];
+		$index = $client->index($table);
 		$search = $index->search($query);
 		if ($filters) {
 			static::applyFilters($search, $filters, 'issues');
@@ -598,7 +637,8 @@ class Manticore {
 	 */
 	public static function getLabels(array $repo_ids, string $query = '', array $filters = [], int $max = 1000): Result {
 		$client = static::client();
-		$index = $client->index('issue');
+		$table = 'issue_' . $filters['org_id'];
+		$index = $client->index($table);
 		$search = $index->search($query);
 		if ($filters) {
 			static::applyFilters($search, $filters, 'issues');
@@ -637,7 +677,8 @@ class Manticore {
 	 */
 	public static function getCommentRanges(array $repo_ids, array $values, string $query = '', array $filters = []): Result {
 		$client = static::client();
-		$index = $client->index('issue');
+		$table = 'issue_' . $filters['org_id'];
+		$index = $client->index($table);
 		$search = $index->search($query);
 		if ($filters) {
 			if (isset($filters['comment_ranges'])) {
@@ -915,6 +956,7 @@ class Manticore {
 	 */
 	protected static function getSearch(string $table, string $query, array $filters): Search {
 		$client = static::client();
+		$table = $table . '_' . $filters['org_id'];
 		$Index = $client->index($table);
 		$semantic_search_only = $filters['semantic_search_only'] ?? false;
 		$query = $semantic_search_only ? '' : $query;
