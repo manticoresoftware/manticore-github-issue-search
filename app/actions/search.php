@@ -9,7 +9,7 @@
  * @var string $query
  * @var array $filters
  * @var string $sort
- * @var string $search keyword-search
+ * @var string $search keyword-search-fuzzy-layouts
  * @var int $offset
  */
 
@@ -32,10 +32,16 @@ if (!isset($filters['repos'])) {
 }
 $multiple_repos = sizeof($filters['repos']) > 1;
 $filters = Search::prepareFilters($filters);
-
 // Add vector search embeddings if we have query
 if ($search_query) {
-	if ($search !== 'keyword-search') {
+	if (str_starts_with($search, 'keyword-search')) {
+		if (str_contains($search, 'fuzzy')) {
+			$filters['use_fuzzy'] = true;
+		}
+		if (str_contains($search, 'layouts')) {
+			$filters['use_layouts'] = true;
+		}
+	} else {
 		$embeddings = result(TextEmbeddings::get($query));
 		$filters['embeddings'] = $embeddings;
 	}
@@ -43,7 +49,6 @@ if ($search_query) {
 		$filters['semantic_search_only'] = true;
 	}
 }
-
 $list = result(Search::process($search_query, $filters, $sort, $offset));
 
 $search_in = $filters['index'] ?? 'everywhere';
@@ -79,6 +84,14 @@ $counters = [
 ];
 
 $search_list = [
+  [
+	'value' => 'keyword-search-fuzzy-layouts',
+	'name' => 'Fuzzy+Keyboard',
+  ],
+  [
+	'value' => 'keyword-search-fuzzy',
+	'name' => 'Fuzzy Search',
+  ],
   [
 	'value' => 'keyword-search',
 	'name' => 'Keyword Search',
@@ -218,7 +231,7 @@ $repo_ids = array_map(fn($repo) => $repo->id, $repos);
 $authors = result(Search::getAuthors($repo_ids, $query, $filters));
 $assignees = result(Search::getAssignees($repo_ids, $query, $filters));
 $labels = result(Search::getLabels($repo_ids, $query, $filters));
-$comment_ranges = result(Search::getCommentRanges($repo_ids));
+$comment_ranges = result(Search::getCommentRanges($repo_ids, $query, $filters));
 
 $author_counters = result(Search::getCounterMap('author', $repo_ids, $query, $filters));
 $assignee_counters = result(Search::getCounterMap('assignee', $repo_ids, $query, $filters));

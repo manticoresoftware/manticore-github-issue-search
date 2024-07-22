@@ -210,7 +210,7 @@ final class Search {
 					$issue_count += 1;
 				}
 
-				// TODO: temporarely solution cuz manticore has bug
+				// TODO: temporarily solution cuz manticore has bug
 				if (!$issue['assignee_ids']) {
 					unset($issue['assignee_ids']);
 				}
@@ -309,6 +309,58 @@ final class Search {
 	}
 
 	/**
+	 * Currently org and repo are not used we look across all data
+	 * @param  Org    $org
+	 * @param  Repo   $repo
+	 * @param  string $query
+	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_limit?:int,layouts?:array<string>} $options
+	 * @return Result<array{query:string}>
+	 */
+	public static function autocomplete(Org $org, Repo $repo, string $query, array $options = []): Result {
+		$suggestions = [];
+		$max_count = 0;
+		$tables = ['issue', 'comment'];
+		foreach ($tables as $table) {
+			$list = result(Manticore::autocomplete($org->name, $repo->name, $table, $query, $options));
+			$max_count = max($max_count, sizeof($list));
+			$suggestions[$table] = $list;
+		}
+		// No suggestions? do early return
+		if (!$suggestions) {
+			return ok([]);
+		}
+
+		$merged = [];
+		for ($i = 0; $i < $max_count; $i++) {
+			if (isset($suggestions['issue'][$i])) {
+				$merged[] = $suggestions['issue'][$i];
+			}
+			if (!isset($suggestions['comment'][$i])) {
+				continue;
+			}
+
+			$merged[] = $suggestions['comment'][$i];
+		}
+
+		$uniqueQueries = array_reduce(
+			$merged, function ($carry, $item) {
+				if (!in_array($item['query'], $carry)) {
+					$carry[] = $item['query'];
+				}
+				return $carry;
+			}, []
+		);
+
+		$result = array_map(
+			function ($query) {
+				return ['query' => $query];
+			}, $uniqueQueries
+		);
+
+		return ok(array_slice($result, 0, 10));
+	}
+
+	/**
 	 * Get the list of issues for requested repo
 	 * @param string $query
 	 * @param array<string,mixed> $filters
@@ -324,7 +376,6 @@ final class Search {
 	 * Prepare filters
 	 * @param array<string,mixed> $filters
 	 * @return array<string,mixed>
-
 	 */
 	public static function prepareFilters(array $filters = []): array {
 		$filtered = [];
@@ -409,6 +460,9 @@ final class Search {
 		if ($repos) {
 			$filtered['common']['repo_id'] = $repos;
 		}
+
+		$filtered['use_fuzzy'] = false;
+		$filtered['use_layouts'] = false;
 
 		return $filtered;
 	}
@@ -511,7 +565,7 @@ final class Search {
 	 * @return Result<array<mixed>>
 	 */
 	public static function getCommentRanges(array $repo_ids, string $query = '', array $filters = []): Result {
-		$ranges = result(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES));
+		$ranges = result(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES, $query, $filters));
 		$filteredRanges = result(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES, $query, $filters));
 		return static::combineActiveEntities($ranges, $filteredRanges);
 	}

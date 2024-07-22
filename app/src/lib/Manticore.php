@@ -211,7 +211,10 @@ class Manticore {
 					static::HIGHLIGHT_CONFIG
 				);
 			;
-			static::applyConfig($search);
+			static::applyRanker($search);
+			if ($filters['use_fuzzy']) {
+				static::applyFuzzy($search, $filters['use_layouts']);
+			}
 
 			// Apply varios filters on search instance
 			static::applyFilters($search, $filters, 'issues');
@@ -252,7 +255,10 @@ class Manticore {
 					['body'],
 					static::HIGHLIGHT_CONFIG
 				);
-			static::applyConfig($search);
+			static::applyRanker($search);
+			if ($filters['use_fuzzy']) {
+				static::applyFuzzy($search, $filters['use_layouts']);
+			}
 			static::applyFilters($search, $filters, 'comments');
 			// We can sort comments by all but comments
 			if ($sort !== 'most-commented' && $sort !== 'least-commented') {
@@ -351,6 +357,39 @@ class Manticore {
 	}
 
 	/**
+	 * @param string $org
+	 * @param string $repo
+	 * @param string $table
+	 * @param string $query
+	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_limit?:int,layouts?:array<string>} $options
+	 * @return Result
+	 */
+	public static function autocomplete(string $org, string $repo, string $table, string $query, array $options = []): Result {
+		$client = static::client();
+		$options = array_replace(
+			[
+				'fuzziness' => 1,
+				'append' => true,
+				'prepend' => false,
+				'expansion_limit' => 4,
+				'layouts' => ['ru', 'ua', 'us'],
+			],
+			$options
+		);
+		$result = $client->autocomplete(
+			[
+				'body' => [
+					'table' => $table,
+					'query' => $query,
+					'options' => $options,
+				],
+			]
+		);
+		$options = $result[0]['data'] ?? [];
+		return ok($options);
+	}
+
+	/**
 	 * Get counters for issues in given repository
 	 * @param string $query
 	 * @param array<string,mixed> $filters
@@ -360,6 +399,9 @@ class Manticore {
 		$search = static::getSearch('issue', $query, $filters);
 		unset($filters['state']);
 		static::applyFilters($search, $filters, 'issues');
+		if ($filters['use_fuzzy']) {
+			static::applyFuzzy($search, $filters['use_layouts']);
+		}
 		$facets = $search
 			->limit(0)
 			->expression('open', 'if(closed_at=0,1,0)')
@@ -383,7 +425,7 @@ class Manticore {
 	}
 
 	/**
-	 * Get facets counters for related search requests for all entitites
+	 * Get facets counters for related search requests for all entities
 	 * @param string $query
 	 * @param array<string,mixed> $filters
 	 * @return Result<array{open:int,closed:int}>
@@ -407,6 +449,9 @@ class Manticore {
 		$search = static::getSearch('issue', $query, $filters);
 		unset($filters['pull_requests'], $filters['comments'], $filters['issues']);
 		unset($filters['state']);
+		if ($filters['use_fuzzy']) {
+			static::applyFuzzy($search, $filters['use_layouts']);
+		}
 		static::applyFilters($search, $filters, 'issues');
 		$facets = $search
 			->limit(0)
@@ -425,6 +470,9 @@ class Manticore {
 
 		// Get comments now=
 		$search = static::getSearch('comment', $query, $filters);
+		if ($filters['use_fuzzy']) {
+			static::applyFuzzy($search, $filters['use_layouts']);
+		}
 		static::applyFilters($search, $filters, 'comments');
 		$facets = $search
 			->limit(0)
@@ -597,6 +645,9 @@ class Manticore {
 			}
 			static::applyFilters($search, $filters, 'issues');
 		}
+		if ($filters['use_fuzzy']) {
+			static::applyFuzzy($search, $filters['use_layouts']);
+		}
 		$range = implode(',', $values);
 		$facets = $search
 			->limit(0)
@@ -654,12 +705,12 @@ class Manticore {
 			$text = "{$text}…";
 		}
 
-		// TODO: temporarely solution to fix dots issue
+		// TODO: temporarily solution to fix dots issue
 		return str_replace('...…', '…', $text);
 	}
 
 	/**
-	 * Apply sorting to the active serach instance
+	 * Apply sorting to the active search instance
 	 * @param  Search $search
 	 * @param  string $sort
 	 * @return void
@@ -754,14 +805,28 @@ class Manticore {
 	 * @param  Search $search
 	 * @return void
 	 */
-	protected static function applyConfig(Search $search): void {
+	protected static function applyRanker(Search $search): void {
 		$search
 			->option('cutoff', 0)
 			->option('ranker', 'expr(\'10000 * bm25f(1.2,0.75)\')');
 	}
 
 	/**
-	 * Helper method to get the doc map indexed by id by using provided ides
+	 * @param Search $search
+	 * @param bool $enable_layouts
+	 * @return void
+	 */
+	protected static function applyFuzzy(Search $search, bool $enable_layouts = false): void {
+		$search ->option('fuzzy', 1);
+		$layouts = [];
+		if ($enable_layouts) {
+			$layouts = ['ru', 'us', 'ua'];
+		}
+		$search->option('layouts', $layouts);
+	}
+
+	/**
+	 * Helper method to get the doc map indexed by id by using provided ids
 	 * @param  string $table
 	 * @param  array  $ids
 	 * @return array<int,array<mixed>>

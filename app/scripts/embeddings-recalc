@@ -25,7 +25,11 @@ do {
 	$count = sizeof($docs);
 	Cli::print("Documents: $count");
 
-	$chunks = array_chunk($docs, ceil($count / $num_processes));
+	$num = ceil($count / $num_processes);
+	if ($num < 1) {
+		break;
+	}
+	$chunks = array_chunk($docs, $num);
 	process_chunks($chunks, 'issue');
 
 	$id = end($docs)['_id'];
@@ -37,7 +41,7 @@ $id = 0;
 do {
 	$index = $client->index('comment');
 	Cli::print("Start id: $id");
-	$docs = query($client, 'SELECT * FROM comment where id > ' . $id . ' order by id asc limit' . $limit);
+	$docs = query($client, 'SELECT * FROM comment where id > ' . $id . ' order by id asc limit ' . $limit);
 	$docs = $docs['hits']['hits'] ?? [];
 	$count = sizeof($docs);
 	Cli::print("Documents: $count");
