@@ -51,8 +51,16 @@ foreach (['issue', 'comment'] as $table) {
 			$class = "App\\Model\\{$class_name}";
 			return $class::fromArray($row);
 		}, $list);
-		result(Manticore::add($docs));
-		unset ($docs);
+		$grouped_docs = [];
+		foreach ($docs as $doc) {
+			$grouped_docs[$doc->org_id] ??= [];
+			$grouped_docs[$doc->org_id][] = $doc;
+		}
+		unset($docs);
+		foreach ($grouped_docs as $org_id => $docs) {
+			result(Manticore::add($docs));
+		}
+		unset ($grouped_docs);
 	} while ($list);
 }
 
