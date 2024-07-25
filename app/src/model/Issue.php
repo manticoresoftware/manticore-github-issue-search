@@ -49,15 +49,15 @@ final class Issue extends Model {
 	 * Get table name for this issue
 	 * @return string
 	 */
-	public function getTableName(): string {
+	public function tableName(): string {
 		return "issue_{$this->org_id}";
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getCreateTableSql(): string {
-		$table = $this->getTableName();
+	public function createTableSql(): string {
+		$table = $this->tableName();
 		return "CREATE TABLE IF NOT EXISTS {$table} (
 			id bigint,
 			title text,

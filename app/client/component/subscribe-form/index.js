@@ -8,15 +8,22 @@ export default element => {
 		ev.preventDefault()
 		buttonEl.disabled = true
 		const email = element.querySelector('input[type="text"]').value
-	  const response = await fetch(`${api_url}?email=${encodeURIComponent(email)}`)
-	  const [err, result] = await response.json()
-	  if (err) {
-	  	alert("You entered an incorrect email. Please double-check it.")
-	  } else {
-	  	alert('We will notify you once it\'s ready. Thanks!')
-	  }
+		const response = await fetch(`${api_url}?email=${encodeURIComponent(email)}`)
 
-	  buttonEl.disabled = false
+		if (response.status !== 200) {
+			alert("An error occurred. Please try again later.")
+			buttonEl.disabled = false
+			return
+		}
+
+		const [err, result] = await response.json()
+		if (err) {
+			alert("You entered an incorrect email. Please double-check it.")
+		} else {
+			alert('We will notify you once it\'s ready. Thanks!')
+		}
+
+		buttonEl.disabled = false
 	})
 
 	return () => {}

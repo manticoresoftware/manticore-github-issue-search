@@ -24,15 +24,15 @@ final class Comment extends Model {
 	 * Get current table name for org
 	 * @return string
 	 */
-	public function getTableName(): string {
+	public function tableName(): string {
 		return "comment_{$this->org_id}";
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getCreateTableSql(): string {
-		$table = $this->getTableName();
+	public function createTableSql(): string {
+		$table = $this->tableName();
 		return "CREATE TABLE IF NOT EXISTS {$table} (
 			id bigint,
 			body text,

@@ -13,7 +13,7 @@ final class Notification extends Model {
 	/**
 	 * @return string
 	 */
-	public function getCreateTableSql(): string {
+	public function createTableSql(): string {
 		return 'CREATE TABLE IF NOT EXISTS notification (
 			id bigint,
 			repo_id bigint,

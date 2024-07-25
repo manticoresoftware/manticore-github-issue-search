@@ -14,7 +14,7 @@ final class Org extends Model {
 	/**
 	 * @return string
 	 */
-	public function getCreateTableSql(): string {
+	public function createTableSql(): string {
 		return 'CREATE TABLE IF NOT EXISTS org (
 			id bigint,
 			public_repos integer,

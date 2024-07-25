@@ -56,10 +56,10 @@ class Manticore {
 
 		try {
 			$client = static::client();
-			$table = $list[0]->getTableName();
+			$table = $list[0]->tableName();
 			// If table is missing create it
 			if (!static::isTableExists($table)) {
-				$client->sql($list[0]->getCreateTableSQL(), true);
+				$client->sql($list[0]->createTableSql(), true);
 			}
 			$index = $client->index($table);
 			$docs = array_map(fn ($v) => (array)$v, $list);
@@ -173,11 +173,11 @@ class Manticore {
 
 		// Create empty table in case if we missing it for counters
 		$Issue = Issue::fromArray(['org_id' => $org->id]);
-		$sql = $Issue->getCreateTableSql();
+		$sql = $Issue->createTableSql();
 		static::client()->sql($sql, true);
 
 		$Comment = Comment::fromArray(['org_id' => $org->id]);
-		$sql = $Comment->getCreateTableSql();
+		$sql = $Comment->createTableSql();
 		static::client()->sql($sql, true);
 
 		return ok($org);
@@ -598,7 +598,7 @@ class Manticore {
 
 	/**
 	 * @param  int $limit
-	 * @return Result<array<Repo>>
+	 * @return Result<array{org:Org,repo:Repo}>
 	 */
 	public static function getShowcaseRepos(int $limit = 1000): Result {
 		$client = static::client();
@@ -607,6 +607,10 @@ class Manticore {
 		$organizations = config('github.organizations');
 		$orgIndex = $client->index('org');
 		$results = $orgIndex->search('')->filter('name', $organizations)->get();
+		$org_map = [];
+		foreach ($results as $doc) {
+			$org_map[$doc->getId()] = $doc->getData();
+		}
 		$org_ids = array_map(fn ($doc) => (int)$doc->getId(), iterator_to_array($results));
 		$search->filter('org_id', $org_ids);
 		$docs = $search
@@ -616,12 +620,16 @@ class Manticore {
 			->get();
 		$result = [];
 		foreach ($docs as $doc) {
-			$result[] = new Repo(
-				[
-				'id' => (int)$doc->getId(),
-				...$doc->getData(),
-				]
-			);
+			$repo_data = $doc->getData();
+			$result[] = [
+				'org' => $org_map[$repo_data['org_id']],
+				'repo' => new Repo(
+					[
+					'id' => (int)$doc->getId(),
+					...$repo_data,
+					]
+				),
+			];
 		}
 
 		return ok($result);

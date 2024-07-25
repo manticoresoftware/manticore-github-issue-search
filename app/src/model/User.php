@@ -10,7 +10,7 @@ final class User extends Model {
 	/**
 	 * @return string
 	 */
-	public function getCreateTableSql(): string {
+	public function createTableSql(): string {
 		return 'CREATE TABLE IF NOT EXISTS user (
 			id bigint,
 			login string attribute,

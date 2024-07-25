@@ -26,7 +26,7 @@ final class Repo extends Model {
 	/**
 	 * @return string
 	 */
-	public function getCreateTableSql(): string {
+	public function createTableSql(): string {
 		return 'CREATE TABLE IF NOT EXISTS repo (
 			id bigint,
 			org_id integer,

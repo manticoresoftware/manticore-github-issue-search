@@ -21,7 +21,7 @@ abstract class Model implements ArrayAccess {
 	 * Dynamically get table name for this model
 	 * @return string
 	 */
-	public function getTableName(): string {
+	public function tableName(): string {
 		$reflection = new ReflectionClass(static::class);
 		return strtolower($reflection->getShortName());
 	}
@@ -29,7 +29,7 @@ abstract class Model implements ArrayAccess {
 	/**
 	 * @return string
 	 */
-	abstract public function getCreateTableSql(): string;
+	abstract public function createTableSql(): string;
 
 	/**
 	 * Create the object from the arrauy
