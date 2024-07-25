@@ -399,7 +399,7 @@ class Manticore {
 	/**
 	 * @param string $table
 	 * @param string $query
-	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_limit?:int,layouts?:array<string>} $options
+	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_len?:int,layouts?:array<string>} $options
 	 * @return Result
 	 */
 	public static function autocomplete(string $table, string $query, array $options = []): Result {
@@ -409,7 +409,7 @@ class Manticore {
 				'fuzziness' => 1,
 				'append' => true,
 				'prepend' => false,
-				'expansion_limit' => 4,
+				'expansion_len' => 4,
 				'layouts' => ['ru', 'ua', 'us'],
 			],
 			$options

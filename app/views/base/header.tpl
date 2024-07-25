@@ -49,26 +49,26 @@
 									</fieldset>
 									<fieldset>
 										<legend>Last word completion</legend>
-										<label for="expansion_limit" title="Set the maximum number of characters to expand for the last word in the query">Expansion Limit</label>
+										<label for="expansion_len" title="Set the maximum number of characters to expand for the last word in the query">Expansion Limit</label>
 										<div>
-											<input type="radio" id="expansion_limit_2" name="expansion_limit" value="2">
-											<label for="expansion_limit_2" title="Expand up to 2 characters">2</label>
+											<input type="radio" id="expansion_len_2" name="expansion_len" value="2">
+											<label for="expansion_len_2" title="Expand up to 2 characters">2</label>
 										</div>
 										<div>
-											<input type="radio" id="expansion_limit_6" name="expansion_limit" value="6">
-											<label for="expansion_limit_6" title="Expand up to 6 characters">6</label>
+											<input type="radio" id="expansion_len_6" name="expansion_len" value="6">
+											<label for="expansion_len_6" title="Expand up to 6 characters">6</label>
 										</div>
 										<div>
-											<input type="radio" id="expansion_limit_12" name="expansion_limit" value="12">
-											<label for="expansion_limit_12" title="Expand up to 12 characters">12</label>
+											<input type="radio" id="expansion_len_12" name="expansion_len" value="12">
+											<label for="expansion_len_12" title="Expand up to 12 characters">12</label>
 										</div>
 										<div>
-											<input type="radio" id="expansion_limit_16" name="expansion_limit" value="16">
-											<label for="expansion_limit_16" title="Expand up to 16 characters">16</label>
+											<input type="radio" id="expansion_len_16" name="expansion_len" value="16">
+											<label for="expansion_len_16" title="Expand up to 16 characters">16</label>
 										</div>
 										<div>
-											<input type="radio" id="expansion_limit_20" name="expansion_limit" value="20">
-											<label for="expansion_limit_20" title="Expand up to 20 characters">20</label>
+											<input type="radio" id="expansion_len_20" name="expansion_len" value="20">
+											<label for="expansion_len_20" title="Expand up to 20 characters">20</label>
 										</div>
 									</fieldset>
 									<fieldset>

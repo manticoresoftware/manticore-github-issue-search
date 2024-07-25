@@ -315,7 +315,7 @@ final class Search {
 	 * Currently org and repo are not used we look across all data
 	 * @param  Org    $org
 	 * @param  string $query
-	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_limit?:int,layouts?:array<string>} $options
+	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_len?:int,layouts?:array<string>} $options
 	 * @return Result<array{query:string}>
 	 */
 	public static function autocomplete(Org $org, string $query, array $options = []): Result {

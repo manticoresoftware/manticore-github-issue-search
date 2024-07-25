@@ -14,7 +14,7 @@ export default element => {
 	// Define default values
 	const defaultConfig = {
 		fuzziness: '2',
-		expansion_limit: '6',
+		expansion_len: '6',
 		append: true,
 		prepend: false,
 		layouts: ['ru', 'us', 'ua'],
