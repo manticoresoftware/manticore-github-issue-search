@@ -2,7 +2,6 @@ extends:
   service: php
 labels:
   - role=queue
-cpuset: "0-3"
 entrypoint: /src/bin/cron
 command:
   - app/scripts/github-issue-fetch

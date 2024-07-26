@@ -1,7 +1,6 @@
 image: manticoresearch/manticore:dev-6.3.3-b7596d7
 labels:
   - role=manticore
-cpuset: "6-7"
 restart: "always"
 environment:
   - EXTRA=1
