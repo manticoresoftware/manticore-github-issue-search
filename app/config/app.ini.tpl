@@ -29,7 +29,7 @@ cli_level = 2
 domain = 'test.github.manticoresearch.com'
 
 [common:production]
-domain = 'github.manticoresearch.com'
+domain = 'github2.manticoresearch.com'
 
 [default]
 action = 'home'
@@ -81,9 +81,15 @@ credentials = 'true'
 host = 'queue'
 port = 4444
 
+[queue:production]
+host = '10.0.0.2'
+
 [manticore]
 host = 'manticore'
 port = 9308
+
+[manticore:production]
+host = '10.0.0.2'
 
 [github]
 organizations[] = 'manticoresoftware'
