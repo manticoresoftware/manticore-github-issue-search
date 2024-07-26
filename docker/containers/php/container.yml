@@ -1,7 +1,7 @@
 image: php
 labels:
   - role=php
-cpuset: "4-7"
+cpuset: "4-5"
 working_dir: /src
 cap_drop:
   - ALL

@@ -1,6 +1,7 @@
 image: nginx
 labels:
   - role=nginx
+cpuset: "4-5"
 working_dir: /src
 ports:
   - '80:80'

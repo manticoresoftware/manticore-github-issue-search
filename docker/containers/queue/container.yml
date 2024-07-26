@@ -1,6 +1,7 @@
 image: queue
 labels:
   - role=queue
+cpuset: "6-7"
 restart: unless-stopped
 entrypoint: ["beanstalkd"]
 ports:
