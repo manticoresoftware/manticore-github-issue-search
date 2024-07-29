@@ -89,7 +89,7 @@ host = 'manticore'
 port = 9308
 
 [manticore:production]
-host = '10.0.0.3'
+host = '10.0.0.4'
 
 [github]
 organizations[] = 'manticoresoftware'
