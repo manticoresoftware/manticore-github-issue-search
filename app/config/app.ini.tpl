@@ -29,7 +29,7 @@ cli_level = 2
 domain = 'test.github.manticoresearch.com'
 
 [common:production]
-domain = 'github2.manticoresearch.com'
+domain = 'github.manticoresearch.com'
 
 [default]
 action = 'home'
@@ -82,7 +82,7 @@ host = 'queue'
 port = 4444
 
 [queue:production]
-host = '10.0.0.2'
+host = '10.0.0.4'
 
 [manticore]
 host = 'manticore'
