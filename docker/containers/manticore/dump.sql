@@ -1,48 +1,8 @@
-CREATE TABLE issue (
+CREATE TABLE label (
 id bigint,
-title text,
-body text,
-number integer,
-comments integer,
-repo_id bigint,
-user_id bigint,
-assignee_id bigint,
-created_at timestamp,
-updated_at timestamp,
-closed_at timestamp,
-is_pull_request bool,
-reactions json,
-label_ids multi64,
-assignee_ids multi64
-) html_strip='1' index_field_lengths='1' morphology='lemmatizer_en' min_infix_len='2' expand_keywords='1';
-
-CREATE TABLE comment (
-id bigint,
-body text,
-repo_id bigint,
-issue_id bigint,
-user_id bigint,
-created_at timestamp,
-updated_at timestamp,
-reactions json
-) html_strip='1' index_field_lengths='1' morphology='lemmatizer_en' min_infix_len='2' expand_keywords='1';
-
-CREATE TABLE user (
-id bigint,
-login string attribute,
-avatar_url string attribute
-);
-
-CREATE TABLE repo (
-id bigint,
-issues integer,
-pull_requests integer,
-expected_issues integer,
-comments integer,
-updated_at timestamp,
-is_indexing bool,
-org string attribute,
-name string attribute
+description text,
+name string attribute,
+color string attribute
 );
 CREATE TABLE notification (
 id bigint,
@@ -52,9 +12,28 @@ updated_at timestamp,
 is_sent bool,
 email string attribute
 );
- CREATE TABLE label (
+CREATE TABLE org (
 id bigint,
 description text,
-name string attribute,
-color string attribute
+public_repos integer,
+followers integer,
+following integer,
+updated_at timestamp,
+name string attribute
+);
+CREATE TABLE repo (
+id bigint,
+org_id integer,
+issues integer,
+pull_requests integer,
+expected_issues integer,
+comments integer,
+is_indexing bool,
+updated_at timestamp,
+name string attribute
+) index_field_lengths='1';
+CREATE TABLE user (
+id bigint,
+login string attribute,
+avatar_url string attribute
 );
