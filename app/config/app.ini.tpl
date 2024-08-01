@@ -81,9 +81,15 @@ credentials = 'true'
 host = 'queue'
 port = 4444
 
+[queue:production]
+host = '10.0.0.4'
+
 [manticore]
 host = 'manticore'
 port = 9308
+
+[manticore:production]
+host = '10.0.0.4'
 
 [github]
 organizations[] = 'manticoresoftware'

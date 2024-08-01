@@ -3,7 +3,7 @@
 	<p>👀 While it's loading, feel free to check out the other repositories:</p>
 	<ul>
 		{showcase}
-			<li><a href="{page_url}">{project}</a></li>
+		<li><a href="/{org.name}/{repo.name}/">{org.name}/{repo.name}</a></li>
 		{/showcase}
 	</ul>
 	<p>🔔 To get a notification when it's ready, leave your email here:</p>

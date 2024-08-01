@@ -5,8 +5,7 @@ x-dev-networks: &default_dev_networks
     - default
 
 x-production-networks: &default_production_networks
-  networks:
-    - default
+  network_mode: host
 
 x-dev-restart: &default_dev_restart
   restart: 'no'
@@ -22,4 +21,3 @@ volumes:
   env-storage:
   manticore-storage:
   huggingface-storage:
-

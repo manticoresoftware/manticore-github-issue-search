@@ -2,7 +2,7 @@
 <!-- Customizable PHP Codesniffer sniffs: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Customisable-Sniff-Properties -->
 <!-- Slevomat standard sniffs: https://github.com/slevomat/coding-standard#sniffs-included-in-this-standard -->
 <ruleset name="muvon-codestyle">
-	<description>A custom coding standard used by Muvon Co. Ltd projects</description>
+	<description>A custom coding standard used by Manticore Software Co. Ltd projects</description>
 	<include-pattern>*\.php$</include-pattern>
 	<exclude-pattern>vendor/*</exclude-pattern>
 	<exclude-pattern>app/core.php</exclude-pattern>

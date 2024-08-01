@@ -13,6 +13,7 @@ use App\Model\Org;
 use App\Model\Repo;
 use App\Model\User;
 use Cli;
+use Error;
 use Github\Exception\ApiLimitExceedException;
 use League\CommonMark\GithubFlavoredMarkdownConverter;
 use ReflectionClass;
@@ -46,7 +47,7 @@ final class Search {
 	/**
 	 * Wrapper to get the organization inf
 	 * @param  string $name
-	 * @return Result<Repo>
+	 * @return Result<Org>
 	 */
 	public static function getOrg(string $name): Result {
 		return Manticore::findOrg($name);
@@ -228,12 +229,14 @@ final class Search {
 
 				$labels = array_merge($labels, $issue['labels']);
 				// Add common parameters
+				$issue['org_id'] = $org->id;
 				$issue['repo_id'] = $repo->id;
 				$issue['user_id'] = $issue['user']['id'];
 				Cli::print("Comments: {$issue['comments']}");
 				if ($issue['comments'] > 0) {
 					$issueComments = Github::getIssueComments($org->name, $repo->name, $issue['number']);
 					foreach ($issueComments as &$comment) {
+						$comment['org_id'] = $org->id;
 						$comment['repo_id'] = $repo->id;
 						$comment['issue_id'] = $issue['id'];
 						$comment['user_id'] = $comment['user']['id'];
@@ -311,52 +314,56 @@ final class Search {
 	/**
 	 * Currently org and repo are not used we look across all data
 	 * @param  Org    $org
-	 * @param  Repo   $repo
 	 * @param  string $query
-	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_limit?:int,layouts?:array<string>} $options
+	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_len?:int,layouts?:array<string>} $options
 	 * @return Result<array{query:string}>
 	 */
-	public static function autocomplete(Org $org, Repo $repo, string $query, array $options = []): Result {
+	public static function autocomplete(Org $org, string $query, array $options = []): Result {
 		$suggestions = [];
 		$max_count = 0;
-		$tables = ['issue', 'comment'];
+		$tables = ["issue_{$org->id}", "comment_{$org->id}"];
+		$suggestions = [];
+		$max_count = 0;
+
 		foreach ($tables as $table) {
-			$list = result(Manticore::autocomplete($org->name, $repo->name, $table, $query, $options));
-			$max_count = max($max_count, sizeof($list));
-			$suggestions[$table] = $list;
+			$list = result(Manticore::autocomplete($table, $query, $options));
+			$count = sizeof($list);
+			$max_count = max($max_count, $count);
+			$suggestions[strtok($table, '_')] = $list;
 		}
+
 		// No suggestions? do early return
 		if (!$suggestions) {
 			return ok([]);
 		}
 
 		$merged = [];
+		$uniqueQueries = [];
+
+		// Combine the loop and uniqueness check
 		for ($i = 0; $i < $max_count; $i++) {
 			if (isset($suggestions['issue'][$i])) {
-				$merged[] = $suggestions['issue'][$i];
+				$query = $suggestions['issue'][$i]['query'];
+				if (!isset($uniqueQueries[$query])) {
+					$uniqueQueries[$query] = true;
+					$merged[] = ['query' => $query];
+				}
 			}
+
 			if (!isset($suggestions['comment'][$i])) {
 				continue;
 			}
 
-			$merged[] = $suggestions['comment'][$i];
+			$query = $suggestions['comment'][$i]['query'];
+			if (isset($uniqueQueries[$query])) {
+				continue;
+			}
+
+			$uniqueQueries[$query] = true;
+			$merged[] = ['query' => $query];
 		}
 
-		$uniqueQueries = array_reduce(
-			$merged, function ($carry, $item) {
-				if (!in_array($item['query'], $carry)) {
-					$carry[] = $item['query'];
-				}
-				return $carry;
-			}, []
-		);
-
-		$result = array_map(
-			function ($query) {
-				return ['query' => $query];
-			}, $uniqueQueries
-		);
-
+		$result = $merged;
 		return ok(array_slice($result, 0, 10));
 	}
 
@@ -401,6 +408,12 @@ final class Search {
 		if (isset($filters['state'])) {
 			$filtered['state'] = $filters['state'];
 		}
+
+		// This is programmatic error, so we throw it
+		if (!isset($filters['org_id'])) {
+			throw new Error('Org id is required');
+		}
+		$filtered['org_id'] = (int)$filters['org_id'];
 
 		$repos = [];
 		if (isset($filters['repos'])) {
@@ -503,7 +516,7 @@ final class Search {
 	 * @return Result<array<User>>
 	 */
 	public static function getAuthors(array $repo_ids, string $query = '', array $filters = []): Result {
-		$users = result(Manticore::getUsers($repo_ids, 'user_id'));
+		$users = result(Manticore::getUsers($repo_ids, 'user_id', filters: ['org_id' => $filters['org_id']]));
 		$filteredUsers = result(Manticore::getUsers($repo_ids, 'user_id', $query, $filters));
 		return static::combineActiveEntities($users, $filteredUsers);
 	}
@@ -516,7 +529,7 @@ final class Search {
 	 * @return Result<array<User>>
 	 */
 	public static function getAssignees(array $repo_ids, string $query = '', array $filters = []): Result {
-		$users = result(Manticore::getUsers($repo_ids, 'assignee_id'));
+		$users = result(Manticore::getUsers($repo_ids, 'assignee_id', filters: ['org_id' => $filters['org_id']]));
 		$filteredUsers = result(Manticore::getUsers($repo_ids, 'assignee_id', $query, $filters));
 		return static::combineActiveEntities($users, $filteredUsers);
 	}
@@ -552,7 +565,7 @@ final class Search {
 	 * @return Result<array<Label>>
 	 */
 	public static function getLabels(array $repo_ids, string $query = '', array $filters = []): Result {
-		$labels = result(Manticore::getLabels($repo_ids));
+		$labels = result(Manticore::getLabels($repo_ids, filters: ['org_id' => $filters['org_id']]));
 		$filteredLabels = result(Manticore::getLabels($repo_ids, $query, $filters));
 		return static::combineActiveEntities($labels, $filteredLabels);
 	}

@@ -14,7 +14,7 @@ export default element => {
 	// Define default values
 	const defaultConfig = {
 		fuzziness: '2',
-		expansion_limit: '6',
+		expansion_len: '6',
 		append: true,
 		prepend: false,
 		layouts: ['ru', 'us', 'ua'],
@@ -186,10 +186,10 @@ export default element => {
 				for (const [key, value] of Object.entries(config)) {
 					if (Array.isArray(value)) {
 						value.forEach((item, index) => {
-							body.append(`config[${key}][${index}]`, item);
+							body.append(`${key}[${index}]`, item);
 						});
 					} else {
-						body.append(`config[${key}]`, value);
+						body.append(key, value);
 					}
 				}
 

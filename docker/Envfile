@@ -1,3 +1,5 @@
 dev: nginx php bundle manticore queue cron.github-issue-fetch cron.notification-send
-production: nginx php bundle manticore queue cron.github-issue-fetch=10 cron.notification-send
-box@deploy.github.manticoresearch.com: production
+production.frontend: nginx php bundle queue cron.notification-send manticore
+production.indexer: php cron.github-issue-fetch=10
+box@frontend.github.manticoresearch.com: production.frontend
+box@indexer.github.manticoresearch.com: production.indexer

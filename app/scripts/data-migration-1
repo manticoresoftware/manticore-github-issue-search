@@ -1,0 +1,51 @@
+#!/usr/bin/env /src/bin/php-exec-one
+<?php
+use Manticoresearch\Client;
+
+ini_set('memory_limit', '512M');
+define('MANTICORE_CONFIG', array_merge(config('manticore'), [
+	'retries' => 3,
+	'timeout' => 86400,
+	'connection_timeout' => 3,
+]));
+
+$limit = 1000;
+$client = new Client(MANTICORE_CONFIG);
+$result = $client->sql('SELECT id, org_id FROM repo LIMIT 1000');
+$list = $result['hits']['hits'] ?? [];
+$org_map = [];
+foreach ($list as $item) {
+	$id = $item['_id'];
+	$org_id = $item['_source']['org_id'];
+	$org_map[$org_id] ??= [];
+	$org_map[$org_id][] = $id;
+}
+
+foreach ($org_map as $org_id => $repo_ids) {
+	Cli::print("Org id: $org_id");
+	$repos = implode(',', $repo_ids);
+	Cli::print("Repos: $repos");
+
+	Cli::print('Migrating issues');
+	/* $client->sql('DROP TABLE IF EXISTS issue_' . $org_id, true); */
+	$client->sql('CREATE TABLE IF NOT EXISTS issue_' . $org_id . ' LIKE issue WITH DATA', true);
+	$client->sql('DELETE FROM issue_' . $org_id . ' WHERE repo_id NOT IN (' . $repos . ')', true);
+	$client->sql('ALTER TABLE issue_' . $org_id . ' ADD COLUMN org_id bigint', true);
+	$client->sql('UPDATE issue_' . $org_id . ' SET org_id = ' . $org_id . ' WHERE repo_id IN (' . $repos . ')', true);
+	$client->sql('OPTIMIZE TABLE issue_' . $org_id . ' OPTION cutoff=1, sync=1', true);
+	[$count] = $client->sql('SELECT COUNT(*) FROM issue_' . $org_id, true);
+	Cli::print(" Count: $count");
+
+	Cli::print('Migrating comments');
+	/* $client->sql('DROP TABLE IF EXISTS comment_' . $org_id, true); */
+	$client->sql('CREATE TABLE IF NOT EXISTS comment_' . $org_id . ' LIKE `comment` WITH DATA', true);
+	$client->sql('DELETE FROM comment_' . $org_id . ' WHERE repo_id NOT IN (' . $repos . ')', true);
+	$client->sql('ALTER TABLE comment_' . $org_id . ' ADD COLUMN org_id bigint', true);
+	$client->sql('UPDATE comment_' . $org_id . ' SET org_id = ' . $org_id . ' WHERE repo_id IN (' . $repos . ')', true);
+	$client->sql('OPTIMIZE TABLE comment_' . $org_id . ' OPTION cutoff=1, sync=1', true);
+	[$count] = $client->sql('SELECT COUNT(*) FROM comment_' . $org_id, true);
+	Cli::print(" Count: $count");
+
+}
+
+Cli::print('Done');

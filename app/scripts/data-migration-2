@@ -1,0 +1,67 @@
+#!/usr/bin/env /src/bin/php-exec-one
+<?php
+
+use App\Lib\Manticore;
+use Manticoresearch\Client;
+
+ini_set('memory_limit', '512M');
+define('MANTICORE_CONFIG', array_merge(config('manticore'), [
+	'retries' => 3,
+	'timeout' => 30,
+	'connection_timeout' => 3,
+]));
+
+$limit = 1000;
+$client = new Client(MANTICORE_CONFIG);
+
+$result = $client->sql('SELECT id, org_id FROM repo LIMIT 1000');
+$list = $result['hits']['hits'] ?? [];
+$repo_map = [];
+foreach ($list as $item) {
+	$id = $item['_id'];
+	$org_id = $item['_source']['org_id'];
+	$repo_map[$id] = $org_id;
+}
+
+foreach (['issue', 'comment'] as $table) {
+	$processed = 0;
+	$last_id = 0;
+	Cli::print('Migrating ' . $table);
+	do {
+		$list = $client->sql('SELECT * FROM ' . $table . ' WHERE id > ' . $last_id . ' ORDER BY id ASC LIMIT 1000');
+		$list = $list['hits']['hits'] ?? [];
+		$processed += sizeof($list);
+		Cli::print(" Processed: $processed");
+		$class_name = ucfirst($table);
+		$docs = array_map(function ($row) use ($class_name, $repo_map, &$last_id) {
+			$row = array_replace(
+				$row['_source'],
+				['id' => $row['_id']]
+			);
+			$last_id = $row['id'];
+			$row['org_id'] = $repo_map[$row['repo_id']];
+			/* if ($class_name === 'Issue') { */
+			/* 	$row['is_pull_request'] = (bool)$row['is_pull_request']; */
+			/* 	$row['label_ids'] = explode(',', $row['label_ids']); */
+			/* 	$row['assignee_ids'] = explode(',', $row['assignee_ids']); */
+			/* } */
+
+			/* $row['embeddings'] = explode(',', $row['embeddings']); */
+			/* $row['reactions'] = json_decode($row['reactions'], true); */
+			$class = "App\\Model\\{$class_name}";
+			return $class::fromArray($row);
+		}, $list);
+		$grouped_docs = [];
+		foreach ($docs as $doc) {
+			$grouped_docs[$doc->org_id] ??= [];
+			$grouped_docs[$doc->org_id][] = $doc;
+		}
+		unset($docs);
+		foreach ($grouped_docs as $org_id => $docs) {
+			result(Manticore::add($docs));
+		}
+		unset ($grouped_docs);
+	} while ($list);
+}
+
+Cli::print('Done');

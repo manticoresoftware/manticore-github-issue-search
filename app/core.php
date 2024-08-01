@@ -2249,6 +2249,8 @@ final class View {
 				// If this is an object and array convertion exists
 				if (is_object($value) && method_exists($value, 'toArray')) {
 					$value = $value->toArray();
+
+				var_dump($value);
 				} elseif (!is_array($value)) {
 					$value = ['parent' => $item, 'this' => $value];
 				}
