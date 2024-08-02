@@ -31,6 +31,7 @@ final class Notification {
 	 * @return Result<bool>
 	 */
 	public static function notify(Org $org, Repo $repo): Result {
+		$gmail_name = getenv('GMAIL_NAME') ?: 'Manticore Team';
 		$gmail_account = getenv('GMAIL_ACCOUNT');
 		$gmail_password = getenv('GMAIL_PASSWORD');
 		$emails = Manticore::getRepoSubscribers($repo->id);
@@ -40,6 +41,7 @@ final class Notification {
 			$Mailer = new PHPMailer;
 			$Mailer->isSMTP();
 			$Mailer->Host = 'smtp.gmail.com';
+			$Mailer->SMTPDebug = 0;
 			$Mailer->SMTPAuth = true;
 			$Mailer->Username = $gmail_account;
 			$Mailer->Password = $gmail_password;
@@ -74,9 +76,10 @@ The code is open for you to explore and contribute. Find it here https://github.
 
 Best wishes,
 Manticore team";
-			$Mailer->setFrom($gmail_account);
+			$Mailer->setFrom($gmail_account, $gmail_name);
 			$Mailer->addAddress($email);
-			$Mailer->send();
+			$sent = $Mailer->send();
+			Cli::print($sent ? ' sent' : ' failed');
 		}
 		return ok(true);
 	}

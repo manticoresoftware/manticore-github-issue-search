@@ -8,7 +8,6 @@ use App\Model\Repo;
 
 $ns = 'notification-send';
 Cli::print("Queue NS: $ns");
-
 Queue::process($ns, function (array $job) {
 	/** @var Org $org */
 	/** @var Repo $repo */
