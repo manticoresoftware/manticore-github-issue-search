@@ -316,12 +316,13 @@ final class Search {
 	 * @param  Org    $org
 	 * @param  string $query
 	 * @param array{fuzziness?:int,append?:bool,prepend?:bool,expansion_len?:int,layouts?:array<string>} $options
+	 * @param array<string> $entities
 	 * @return Result<array{query:string}>
 	 */
-	public static function autocomplete(Org $org, string $query, array $options = []): Result {
+	public static function autocomplete(Org $org, string $query, array $options = [], array $entities = ['issue', 'comment']): Result {
 		$suggestions = [];
 		$max_count = 0;
-		$tables = ["issue_{$org->id}", "comment_{$org->id}"];
+		$tables = array_map(fn($entity) => "{$entity}_{$org->id}", $entities);
 		$suggestions = [];
 		$max_count = 0;
 

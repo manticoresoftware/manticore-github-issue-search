@@ -11,6 +11,7 @@
  * @var bool $append
  * @var bool $prepend
  * @var array $layouts
+ * @var array $entities
  */
 
 use App\Component\Search;
@@ -18,4 +19,7 @@ use App\Component\Search;
 /** @var App\Model\Repo $repo */
 $org = result(Search::getOrg($org));
 $config = compact('fuzziness', 'expansion_len', 'append', 'prepend', 'layouts');
-return Search::autocomplete($org, $query, $config);
+if (!$entities) {
+	$entities = ['issue', 'comment'];
+}
+return Search::autocomplete($org, $query, $config, $entities);
