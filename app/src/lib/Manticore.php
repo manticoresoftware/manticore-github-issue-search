@@ -16,6 +16,7 @@ use Manticoresearch\Exceptions\RuntimeException;
 use Manticoresearch\Query;
 use Manticoresearch\Query\BoolQuery;
 use Manticoresearch\Query\KnnQuery;
+use Manticoresearch\Query\MatchQuery;
 use Manticoresearch\Query\QueryString;
 use Manticoresearch\ResultHit;
 use Manticoresearch\Search;
@@ -477,8 +478,6 @@ class Manticore {
 	 * @return Result<array{open:int,closed:int}>
 	 */
 	public static function getDocCount(string $query = '', array $filters = []): Result {
-		$client = static::client();
-
 		// Initialize default counters keys
 		$counters = [
 			'total' => 0,
@@ -514,7 +513,7 @@ class Manticore {
 			$counters['total'] += $bucket['doc_count'];
 		}
 
-		// Get comments now=
+		// Get comments now
 		$search = static::getSearch('comment', $query, $filters);
 		if ($filters['use_fuzzy']) {
 			static::applyFuzzy($search, $filters['use_layouts']);
@@ -982,9 +981,11 @@ class Manticore {
 		}
 
 		if ($query) {
-			$fields = $filters['fields'] ?? ['title', 'body'];
-			$QueryString = new QueryString('@(' . implode(',', $fields) . ') ' . $query);
-			$Query->must($QueryString);
+			$fields = (str_starts_with($table, 'issue') ? ($filters['fields'] ?? ['title', 'body']) : ['body']);
+			foreach ($fields as $field) {
+				$FieldQuery = new MatchQuery(['query' => $query], $field);
+				$Query->must($FieldQuery);
+			}
 		}
 
 		return $Index->search($Query);
