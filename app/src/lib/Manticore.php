@@ -271,9 +271,14 @@ class Manticore {
 				$issue_count = $docs->getTotal();
 			}
 
+			$highlight_body = in_array('body', $fields);
 			foreach ($docs as $n => $doc) {
 				$row = ['id' => (int)$doc->getId(), ...$doc->getData()];
-				$row['highlight'] = static::highlight($doc, isset($row['body']) ? strip_tags($row['body']) : '');
+				if ($highlight_body) {
+					$row['highlight'] = static::highlight($doc, strip_tags($row['body']));
+				} else {
+					$row['highlight'] = $doc->getHighlight()['title'][0] ?? $row['title'];
+				}
 				$repo_ids[] = $row['repo_id'];
 				$user_ids[] = $row['user_id'];
 				if ($row['label_ids']) {
@@ -741,7 +746,7 @@ class Manticore {
 	 * @return string
 	 */
 	protected static function highlight(ResultHit $doc, string $body): string {
-		$highlights = array_filter(array_map(trim(...), $doc->getHighlight()['body'] ?? ''));
+		$highlights = array_filter(array_map(trim(...), $doc->getHighlight()['body']));
 		$body = trim($body);
 		if (!$highlights) {
 			$highlights = [$body];
