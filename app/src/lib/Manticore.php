@@ -228,6 +228,7 @@ class Manticore {
 	 * @return Result<array{time:int,list:array<Issue>}>
 	 */
 	public static function search(string $query = '', array $filters = [], string $sort = 'best-match', int $offset = 0): Result {
+		$fields = $filters['fields'] ?? ['title', 'body'];
 		$search_issues = $filters['issues'] ?? true;
 		$search_pull_requests = $filters['pull_requests'] ?? true;
 		$search_comments = $filters['comments'] ?? true;
@@ -246,7 +247,7 @@ class Manticore {
 			$search = static::getSearch('issue', $query, $filters)
 				->offset($offset)
 				->highlight(
-					['title', 'body'],
+					$fields,
 					static::HIGHLIGHT_CONFIG
 				);
 			;

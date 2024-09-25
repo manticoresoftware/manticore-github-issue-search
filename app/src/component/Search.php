@@ -410,6 +410,10 @@ final class Search {
 			$filtered['state'] = $filters['state'];
 		}
 
+		if (isset($filters['fields'])) {
+			$filtered['fields'] = array_filter($filters['fields'], fn($field) => $field !== 'body' || $field !== 'title');
+		}
+
 		// This is programmatic error, so we throw it
 		if (!isset($filters['org_id'])) {
 			throw new Error('Org id is required');
