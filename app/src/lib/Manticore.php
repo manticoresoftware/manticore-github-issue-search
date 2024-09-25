@@ -13,6 +13,7 @@ use Generator;
 use Manticoresearch\Client;
 use Manticoresearch\Exceptions\NoMoreNodesException;
 use Manticoresearch\Exceptions\RuntimeException;
+use Manticoresearch\Query;
 use Manticoresearch\Query\BoolQuery;
 use Manticoresearch\Query\KnnQuery;
 use Manticoresearch\Query\QueryString;
@@ -21,6 +22,7 @@ use Manticoresearch\Search;
 use Result;
 use Throwable;
 
+/** @package App\Lib */
 class Manticore {
 	const PERSISTENCE_FACTOR = 0.8;
 
@@ -980,7 +982,8 @@ class Manticore {
 		}
 
 		if ($query) {
-			$QueryString = new QueryString($query);
+			$fields = $filters['fields'] ?? ['title', 'body'];
+			$QueryString = new QueryString('@(' . implode(',', $fields) . ') ' . $query);
 			$Query->must($QueryString);
 		}
 
