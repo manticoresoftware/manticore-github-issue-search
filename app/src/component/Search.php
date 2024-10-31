@@ -149,7 +149,9 @@ final class Search {
 		}
 
 		// Index only we have something to index in gap of 1 min
-		if (!$repo->is_indexing && (time() - $repo->updated_at) >= 60) {
+		$not_indexing = !$repo->is_indexing && (time() - $repo->updated_at) >= 60;
+		$indexing_crashed = $repo->is_indexing && (time() - $repo->updated_at) >= 300;
+		if ($not_indexing || $indexing_crashed) {
 			$repo->is_indexing = true;
 			Manticore::add([$repo]);
 			Queue::add('github-issue-fetch', [$org, $repo]);
