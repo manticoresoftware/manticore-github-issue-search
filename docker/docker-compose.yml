@@ -155,7 +155,7 @@ services:
 
   manticore:
     container_name: manticore-github-issue-search.manticore
-    image: manticoresearch/manticore:dev-6.3.3-ec3d012
+    image: manticoresearch/manticore:dev-6.3.7-88a99d4
     labels:
       - role=manticore
     environment:
