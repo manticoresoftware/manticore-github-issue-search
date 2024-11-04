@@ -26,6 +26,7 @@ static::setExceptionHandler(
 			'e_repo_no_issues' => [403, "You are trying to add a repository that doesn't have issues"],
 			'e_repo_not_found' => [404, "We can't find the GitHub repository you're looking for."],
 			'e_github_token_limit_exceed' => [500, 'Your GitHub token limit has been exceeded. Please update it or wait.'],
+			'e_repo_too_heavy' => [500, 'Repository size exceeds allowed limit. This demo runs on a small VPS and can\'t handle large repositories.<br/>To process a larger repository, please <a href="https://github.com/manticoresoftware/manticore-github-issue-search#just-run-the-demo-locally">run the project locally</a>.'],
 			default => [500, 'Something went wrong'],
 		};
 

@@ -115,6 +115,10 @@ final class Search {
 				}
 
 				$issue_count = Github::getIssueCount($org, $repo);
+				// Protect from adding too heavy repositories
+				if ($issue_count > 50000) {
+					return err('e_repo_too_heavy');
+				}
 			} catch (ApiLimitExceedException) {
 				return err('e_github_token_limit_exceed');
 			} catch (Throwable) {
