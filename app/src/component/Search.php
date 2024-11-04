@@ -152,6 +152,10 @@ final class Search {
 		$not_indexing = !$repo->is_indexing && (time() - $repo->updated_at) >= 60;
 		$indexing_crashed = $repo->is_indexing && (time() - $repo->updated_at) >= 300;
 		if ($not_indexing || $indexing_crashed) {
+			// IF we have repo but need to update expected issues only
+			if (!$issue_count) {
+				$repo->expected_issues = Github::getIssueCount($org->name, $repo->name);
+			}
 			$repo->is_indexing = true;
 			Manticore::add([$repo]);
 			Queue::add('github-issue-fetch', [$org, $repo]);
