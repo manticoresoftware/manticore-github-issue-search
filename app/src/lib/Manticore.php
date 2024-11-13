@@ -620,7 +620,6 @@ class Manticore {
 		$search->filter('org_id', $org_ids);
 		$docs = $search
 			->limit($limit)
-			->filter('is_indexing', false)
 			->sort('issues', 'desc')
 			->get();
 		$result = [];
