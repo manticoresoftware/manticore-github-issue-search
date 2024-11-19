@@ -4,6 +4,8 @@
 
 Blogpost about this project - https://manticoresearch.com/blog/manticoresearch-github-issue-search-demo/
 
+Blogpost about how we added autocomplete - https://manticoresearch.com/blog/github-demo-how-we-added-autocomplete/
+
 ## Just run the demo locally
 
 To run the project on your local machine, you need to have Docker installed with the compose plugin. Follow these commands to start:
