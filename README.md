@@ -1,10 +1,10 @@
 # Demo: GitHub search with Manticore Search
 
-**Publicly available demo - https://github.manticoresearch.com/**
+**Publicly available demo - [github.manticoresearch.com](https://github.manticoresearch.com/)**
 
-Blogpost about this project - https://manticoresearch.com/blog/manticoresearch-github-issue-search-demo/
+[Blogpost about this project](https://manticoresearch.com/blog/manticoresearch-github-issue-search-demo/)
 
-Blogpost about how we added autocomplete - https://manticoresearch.com/blog/github-demo-how-we-added-autocomplete/
+[Blogpost about how we added autocomplete](https://manticoresearch.com/blog/github-demo-how-we-added-autocomplete/)
 
 ## Just run the demo locally
 
