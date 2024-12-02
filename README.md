@@ -4,6 +4,8 @@
 
 [Blogpost about this project](https://manticoresearch.com/blog/manticoresearch-github-issue-search-demo/)
 
+[Blogpost about semantic search with Manticore Search](https://manticoresearch.com/blog/github-semantic-search/)
+
 [Blogpost about how we added autocomplete](https://manticoresearch.com/blog/github-demo-how-we-added-autocomplete/)
 
 ## Just run the demo locally
