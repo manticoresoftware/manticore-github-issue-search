@@ -55,9 +55,9 @@ class Manticore {
 			return ok();
 		}
 
+		$table = $list[0]->tableName();
 		try {
 			$client = static::client();
-			$table = $list[0]->tableName();
 			// If table is missing create it
 			if (!static::isTableExists($table)) {
 				$client->sql($list[0]->createTableSql(), true);
@@ -66,7 +66,7 @@ class Manticore {
 			$docs = array_map(fn ($v) => (array)$v, $list);
 			$index->replaceDocuments($docs);
 			return ok();
-		} catch (Throwable $e) {
+		} catch (Throwable) {
 			return err("e_add_{$table}_failed");
 		}
 	}
@@ -1057,6 +1057,18 @@ class Manticore {
 		}
 
 		return $invertedRanges;
+	}
+
+	/**
+	 * Get server time
+	 * @return int
+	 */
+	public static function getServerTime(): int {
+		$t = time();
+		$client = static::client();
+		$result = $client->sql('show status like \'uptime\'', true);
+		$uptime = (int)($result[0]['data'][0]['Value']);
+		return $t - $uptime;
 	}
 
 }
