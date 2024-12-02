@@ -16,7 +16,14 @@
 				</div>
 			</cell>
 			<cell class="center" span="6" start="4">
-				<p>Demo of Manticore Search GitHub issues</p>
+				<p>Try your own GitHub repo or check Manticore Search's:</p>
+			</cell>
+			<cell class="center showcase" span="6" start="4">
+				<ul>
+					{showcase}
+					<li><a href="/{org.name}/{repo.name}/">{repo.name}</a></li>
+					{/showcase}
+				</ul>
 			</cell>
 			<cell class="center" span="6" start="4">
 				<a href="https://manticoresearch.com" target="_blank" rel="noopener noreferrer">{>logo/manticore}</a>

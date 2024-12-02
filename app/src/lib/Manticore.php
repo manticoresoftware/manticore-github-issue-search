@@ -1067,7 +1067,7 @@ class Manticore {
 		$t = time();
 		$client = static::client();
 		$result = $client->sql('show status like \'uptime\'', true);
-		$uptime = (int)($result[0]['data'][0]['Value']);
+		$uptime = (int)($result[0]['Value']);
 		return $t - $uptime;
 	}
 
