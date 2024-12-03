@@ -18,3 +18,5 @@ if ($url) {
 	$suffix = $repo ? "{$repo->name}/" : '';
 	return Response::redirect("/{$org->name}/$suffix");
 }
+
+$showcase = result(Search::getShowcaseRepos(6));

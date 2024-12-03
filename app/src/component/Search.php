@@ -153,8 +153,10 @@ final class Search {
 		}
 
 		// Index only we have something to index in gap of 1 min
-		$not_indexing = !$repo->is_indexing && (time() - $repo->updated_at) >= 60;
-		$indexing_crashed = $repo->is_indexing && (time() - $repo->updated_at) >= 3600;
+		$server_time = Manticore::getServerTime();
+		$t = time();
+		$not_indexing = !$repo->is_indexing && ($t - $repo->updated_at) >= 60;
+		$indexing_crashed = $repo->is_indexing && $repo->updated_at < $server_time;
 		if ($not_indexing || $indexing_crashed) {
 			$repo->is_indexing = true;
 			Manticore::add([$repo]);
