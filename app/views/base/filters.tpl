@@ -38,7 +38,7 @@
 				{authors}
 					<li title="{count} issues & PRs" data-count="{count}">
 						<input id="author-{id}" type="checkbox" name="filters[authors][]" value="{id}"/>
-						<label for="author-{id}"><img src="{avatar_url}" alt="login"/> {login}</label>
+						<label for="author-{id}"><img src="{avatar_url}" alt="login" loading="lazy"/> {login}</label>
 					</li>
 				{/authors}
 			</ul>
@@ -53,7 +53,7 @@
 				{assignees}
 				<li title="{count} issues & PRs" data-count="{count}">
 					<input id="assignee-{id}" type="checkbox" name="filters[assignees][]" value="{id}"/>
-					<label for="assignee-{id}"><img src="{avatar_url}" alt="login"/> {login}</label>
+					<label for="assignee-{id}"><img src="{avatar_url}" alt="login" loading="lazy"/> {login}</label>
 				</li>
 				{/assignees}
 			</ul>

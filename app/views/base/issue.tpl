@@ -17,7 +17,7 @@
 	<p class="highlight">{highlight:highlight}</p>
 	<!-- <p>{body:md_preview}</p> -->
 	<p class="info">
-		<img src="{user.avatar_url}" alt="{user.login}"/>
+		<img src="{user.avatar_url}" alt="{user.login}" loading="lazy"/>
 		<span>
 			<a href="https://github.com/{user.login}" target="_blank" rel="noopener noreferrer">{user.login}</a> · {updated_at:date} · {>icon/comment} {comments} · #{number}
 		</span>
