@@ -640,7 +640,7 @@ final class Search {
 	public static function sanitizeManticoreError(string $error): string {
 		$ex = explode(':', $error);
 		$error = $ex[3] ?? $error;
-		$at_pos = strpos($error, 'at') ?: -1;
+		$at_pos = strpos($error, ' at ') ?: -1;
 		return substr($error, 0, $at_pos);
 	}
 }
