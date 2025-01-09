@@ -385,7 +385,11 @@ final class Search {
 	 * @return Result<array<Issue>>
 	 */
 	public static function process(string $query = '', array $filters = [], string $sort = 'best-match', int $offset = 0): Result {
-		return Manticore::search($query, $filters, $sort, $offset);
+		try {
+			return Manticore::search($query, $filters, $sort, $offset);
+		} catch (Throwable $e) {
+			return err('e_manticore_search_failed', $e->getMessage());
+		}
 	}
 
 	/**
@@ -437,7 +441,7 @@ final class Search {
 		if (isset($filters['comment_ranges'])) {
 			$filtered['comment_ranges'] = [];
 			$range_ids = array_map('intval', $filters['comment_ranges']);
-			$ranges = result(static::getCommentRanges($repos));
+			$ranges = result_or(static::getCommentRanges($repos), []);
 			foreach ($ranges as $range) {
 				if (!in_array($range['id'], $range_ids)) {
 					continue;
@@ -530,8 +534,8 @@ final class Search {
 	 * @return Result<array<User>>
 	 */
 	public static function getAuthors(array $repo_ids, string $query = '', array $filters = []): Result {
-		$users = result(Manticore::getUsers($repo_ids, 'user_id', filters: ['org_id' => $filters['org_id']]));
-		$filteredUsers = result(Manticore::getUsers($repo_ids, 'user_id', $query, $filters));
+		$users = result_or(Manticore::getUsers($repo_ids, 'user_id', filters: ['org_id' => $filters['org_id']]), []);
+		$filteredUsers = result_or(Manticore::getUsers($repo_ids, 'user_id', $query, $filters), []);
 		return static::combineActiveEntities($users, $filteredUsers);
 	}
 
@@ -543,8 +547,8 @@ final class Search {
 	 * @return Result<array<User>>
 	 */
 	public static function getAssignees(array $repo_ids, string $query = '', array $filters = []): Result {
-		$users = result(Manticore::getUsers($repo_ids, 'assignee_id', filters: ['org_id' => $filters['org_id']]));
-		$filteredUsers = result(Manticore::getUsers($repo_ids, 'assignee_id', $query, $filters));
+		$users = result_or(Manticore::getUsers($repo_ids, 'assignee_id', filters: ['org_id' => $filters['org_id']]), []);
+		$filteredUsers = result_or(Manticore::getUsers($repo_ids, 'assignee_id', $query, $filters), []);
 		return static::combineActiveEntities($users, $filteredUsers);
 	}
 
@@ -579,8 +583,8 @@ final class Search {
 	 * @return Result<array<Label>>
 	 */
 	public static function getLabels(array $repo_ids, string $query = '', array $filters = []): Result {
-		$labels = result(Manticore::getLabels($repo_ids, filters: ['org_id' => $filters['org_id']]));
-		$filteredLabels = result(Manticore::getLabels($repo_ids, $query, $filters));
+		$labels = result_or(Manticore::getLabels($repo_ids, filters: ['org_id' => $filters['org_id']]), []);
+		$filteredLabels = result_or(Manticore::getLabels($repo_ids, $query, $filters), []);
 		return static::combineActiveEntities($labels, $filteredLabels);
 	}
 
@@ -592,8 +596,8 @@ final class Search {
 	 * @return Result<array<mixed>>
 	 */
 	public static function getCommentRanges(array $repo_ids, string $query = '', array $filters = []): Result {
-		$ranges = result(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES, $query, $filters));
-		$filteredRanges = result(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES, $query, $filters));
+		$ranges = result_or(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES, $query, $filters), []);
+		$filteredRanges = result_or(Manticore::getCommentRanges($repo_ids, static::COMMENT_RANGES, $query, $filters), []);
 		return static::combineActiveEntities($ranges, $filteredRanges);
 	}
 
@@ -605,6 +609,8 @@ final class Search {
 	 * @return string
 	 */
 	public static function sanitizeQuery(string $query): string {
+		// We do not sanitize the query for now
+		return $query;
 		$quote_count = substr_count($query, '"');
 		if ($quote_count >= 2) {
 			$query = preg_replace(['/"+/', '/\-+/', '/\/+/', '/@+/'], ['"', '-', '', ''], $query);
@@ -624,5 +630,17 @@ final class Search {
 		}
 
 		return $query;
+	}
+
+	/**
+	 * Sanitizes a Manticore error message and extract only required part
+	 * @param string $error
+	 * @return string
+	 */
+	public static function sanitizeManticoreError(string $error): string {
+		$ex = explode(':', $error);
+		$error = $ex[3] ?? $error;
+		$at_pos = strpos($error, 'at') ?: -1;
+		return substr($error, 0, $at_pos);
 	}
 }
