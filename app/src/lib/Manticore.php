@@ -16,6 +16,7 @@ use Manticoresearch\Exceptions\RuntimeException;
 use Manticoresearch\Query\BoolQuery;
 use Manticoresearch\Query\KnnQuery;
 use Manticoresearch\Query\MatchQuery;
+use Manticoresearch\Query\QueryString;
 use Manticoresearch\ResultHit;
 use Manticoresearch\Search;
 use Result;
@@ -549,12 +550,16 @@ class Manticore {
 		if ($filters) {
 			static::applyFilters($search, $filters, 'issues');
 		}
-		$facets = $search
-			->limit(0)
-			->filter('repo_id', 'in', $repo_ids)
-			->facet($field, 'users', $max, 'COUNT(*)')
-			->get()
-			->getFacets();
+		try {
+			$facets = $search
+				->limit(0)
+				->filter('repo_id', 'in', $repo_ids)
+				->facet($field, 'users', $max, 'COUNT(*)')
+				->get()
+				->getFacets();
+		} catch (Throwable $e) {
+			return err('e_manticore_search_failed', $e->getMessage());
+		}
 
 		$user_ids = array_filter(array_column($facets['users']['buckets'], 'key'));
 		$user_counts = array_filter(array_column($facets['users']['buckets'], 'doc_count'));
@@ -655,12 +660,16 @@ class Manticore {
 		if ($filters) {
 			static::applyFilters($search, $filters, 'issues');
 		}
-		$facets = $search
-			->limit(0)
-			->filter('repo_id', 'in', $repo_ids)
-			->facet('label_ids', 'labels', $max, 'COUNT(*)')
-			->get()
-			->getFacets();
+		try {
+			$facets = $search
+				->limit(0)
+				->filter('repo_id', 'in', $repo_ids)
+				->facet('label_ids', 'labels', $max, 'COUNT(*)')
+				->get()
+				->getFacets();
+		} catch (Throwable $e) {
+			return err('e_manticore_search_failed', $e->getMessage());
+		}
 		$label_ids = array_filter(array_column($facets['labels']['buckets'], 'key'));
 		$label_counts = array_filter(array_column($facets['labels']['buckets'], 'doc_count'));
 		$sorting = array_flip($label_ids);
@@ -702,13 +711,17 @@ class Manticore {
 			static::applyFuzzy($search, $filters['use_layouts']);
 		}
 		$range = implode(',', $values);
-		$facets = $search
-			->limit(0)
-			->filter('repo_id', 'in', $repo_ids)
-			->expression('range', "INTERVAL(comments, $range)")
-			->facet('range', 'counters', sizeof($values) + 1)
-			->get()
-			->getFacets();
+		try {
+			$facets = $search
+				->limit(0)
+				->filter('repo_id', 'in', $repo_ids)
+				->expression('range', "INTERVAL(comments, $range)")
+				->facet('range', 'counters', sizeof($values) + 1)
+				->get()
+				->getFacets();
+		} catch (Throwable $e) {
+			return err('e_manticore_search_failed', $e->getMessage());
+		}
 		uasort($facets['counters']['buckets'], fn ($a, $b) => $a['key'] <=> $b['key']);
 		$docs = [];
 		$n = 1;
@@ -978,10 +991,18 @@ class Manticore {
 		}
 
 		if ($query) {
+			$keyword_search_only = $filters['keyword_search_only'] ?? false;
 			$fields = (str_starts_with($table, 'issue') ? ($filters['fields'] ?? ['title', 'body']) : ['body']);
-			foreach ($fields as $field) {
-				$FieldQuery = new MatchQuery(['query' => $query], $field);
-				$Query->must($FieldQuery);
+			if ($keyword_search_only) {
+				$fields = implode(',', $fields);
+				$query_string = "@($fields) $query";
+				$MatchQuery = new QueryString($query_string);
+				$Query->must($MatchQuery);
+			} else {
+				foreach ($fields as $field) {
+					$FieldQuery = new MatchQuery(['query' => $query], $field);
+					$Query->must($FieldQuery);
+				}
 			}
 		}
 

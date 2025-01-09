@@ -29,4 +29,5 @@
 		</card>
 	{/items}
 {/list}
+{error:}<p class="error">Error: {error}</p>
 {!list.items:}<p>No results found. Please try a different query or apply alternative filters.</p>

@@ -2881,6 +2881,10 @@ function result(Result $Result): mixed {
 	return $Result->res;
 }
 
+function result_or(Result $Result, mixed $default = null): mixed {
+	return $Result->err ? $default : result($Result);
+}
+
 /**
  * Shortcut for Result::ok()
  *

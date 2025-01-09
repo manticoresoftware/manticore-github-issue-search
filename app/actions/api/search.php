@@ -43,6 +43,11 @@ if ($search_query) {
 		$embeddings = result(TextEmbeddings::get($query));
 		$filters['embeddings'] = $embeddings;
 	}
+
+	if ($search === 'keyword-search') {
+		$filters['keyword_search_only'] = true;
+	}
+
 	if ($search === 'semantic-search') {
 		$filters['semantic_search_only'] = true;
 	}

@@ -46,11 +46,23 @@ if ($search_query) {
 		$embeddings = result(TextEmbeddings::get($query));
 		$filters['embeddings'] = $embeddings;
 	}
+
+	if ($search === 'keyword-search') {
+		$filters['keyword_search_only'] = true;
+	}
+
 	if ($search === 'semantic-search') {
 		$filters['semantic_search_only'] = true;
 	}
 }
-$list = result(Search::process($search_query, $filters, $sort, $offset));
+
+$list = [];
+$searchRes = Search::process($search_query, $filters, $sort, $offset);
+if ($searchRes->err) {
+	$error = Search::sanitizeManticoreError($searchRes->res);
+} else {
+	$list = result($searchRes);
+}
 
 $search_in = $filters['index'] ?? 'everywhere';
 [
@@ -74,15 +86,27 @@ if ($is_everywhere_active) {
 $is_open_active = ($filters['state'] ?? '') === 'open';
 $is_closed_active = ($filters['state'] ?? '') === 'closed';
 $is_any_active = !$is_open_active && !$is_closed_active;
-$counters = [
-	'total' => $list['count']['total'] . ($list['count']['total_more'] ? '+' : ''),
-	'issues' => $list['count']['issue'] . ($list['count']['issue_more'] ? '+' : ''),
-	'pull_requests' => $list['count']['pull_request'] . ($list['count']['pull_request_more'] ? '+' : ''),
-	'comments' => $list['count']['comment'] . ($list['count']['comment_more'] ? '+' : ''),
-	'open_issues' => $list['count']['open'],
-	'closed_issues' => $list['count']['closed'],
-	'any_issues' => $list['count']['any'],
-];
+if ($list) {
+	$counters = [
+		'total' => $list['count']['total'] . ($list['count']['total_more'] ? '+' : ''),
+		'issues' => $list['count']['issue'] . ($list['count']['issue_more'] ? '+' : ''),
+		'pull_requests' => $list['count']['pull_request'] . ($list['count']['pull_request_more'] ? '+' : ''),
+		'comments' => $list['count']['comment'] . ($list['count']['comment_more'] ? '+' : ''),
+		'open_issues' => $list['count']['open'],
+		'closed_issues' => $list['count']['closed'],
+		'any_issues' => $list['count']['any'],
+	];
+} else {
+	$counters = [
+		'total' => 0,
+		'issues' => 0,
+		'pull_requests' => 0,
+		'comments' => 0,
+		'open_issues' => 0,
+		'closed_issues' => 0,
+		'any_issues' => 0,
+	];
+}
 
 $search_list = [
   [
@@ -229,15 +253,15 @@ $form_vars[] = [
 ];
 $repos = result(Search::getRepos($org));
 $repo_ids = array_map(fn($repo) => $repo->id, $repos);
-$authors = result(Search::getAuthors($repo_ids, $query, $filters));
-$assignees = result(Search::getAssignees($repo_ids, $query, $filters));
-$labels = result(Search::getLabels($repo_ids, $query, $filters));
-$comment_ranges = result(Search::getCommentRanges($repo_ids, $query, $filters));
+$authors = result_or(Search::getAuthors($repo_ids, $query, $filters), []);
+$assignees = result_or(Search::getAssignees($repo_ids, $query, $filters), []);
+$labels = result_or(Search::getLabels($repo_ids, $query, $filters), []);
+$comment_ranges = result_or(Search::getCommentRanges($repo_ids, $query, $filters), []);
 
-$author_counters = result(Search::getCounterMap('author', $repo_ids, $query, $filters));
-$assignee_counters = result(Search::getCounterMap('assignee', $repo_ids, $query, $filters));
-$label_counters = result(Search::getCounterMap('label', $repo_ids, $query, $filters));
-$comment_range_counters = result(Search::getCounterMap('comment_range', $repo_ids, $query, $filters));
+$author_counters = result_or(Search::getCounterMap('author', $repo_ids, $query, $filters), []);
+$assignee_counters = result_or(Search::getCounterMap('assignee', $repo_ids, $query, $filters), []);
+$label_counters = result_or(Search::getCounterMap('label', $repo_ids, $query, $filters), []);
+$comment_range_counters = result_or(Search::getCounterMap('comment_range', $repo_ids, $query, $filters), []);
 
 // If we requested with navigation, return results only
 if (Request::current()->getHeader('x-requested-with') === 'navigation') {
