@@ -1,16 +1,30 @@
-FROM muvon/php:8.3.9-fpm-centos
+FROM rockylinux:9
 LABEL maintainer="Manticore Software Co. Ltd <contact@manticoresearch.com>"
 
-RUN dnf update -y && dnf install -y git unzip && dnf clean all
+# The prebuilt php-ext-model binary requires RHEL9-compatible glibc.
+RUN dnf install -y epel-release && \
+  dnf install -y https://rpms.remirepo.net/enterprise/remi-release-9.rpm && \
+  dnf module reset -y php && dnf module enable -y php:remi-8.3 && \
+  dnf install -y git unzip which findutils util-linux openssl glibc-langpack-en \
+    php-cli php-fpm php-devel php-opcache php-mbstring php-xml php-mysqlnd \
+    php-process php-gd php-ffi php-pecl-zip php-pecl-msgpack php-pecl-yaml && \
+  dnf clean all && \
+  php -r 'exit(PHP_VERSION_ID >= 80336 && PHP_VERSION_ID < 80400 ? 0 : 1);'
+
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 COPY . /src
-RUN ln -fs /src/docker/containers/php/config/php.ini /etc/php/php.ini && \
-  ln -fs /src/docker/containers/php/config/conf.d /etc/php/conf.d && \
-	cd /src/app && \
-	composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-simplexml \
-		--ignore-platform-req=ext-zip && \
-	suffix=$(uname -m | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/') && \
-	curl -sSL https://github.com/manticoresoftware/php-ext-model/releases/download/0.2.0/rhel9-libphp-ext-model-v0.2.0-${suffix}.so \
-	> $(php-config --extension-dir)/rhel9-libphp-ext-model-v0.2.0.so
+RUN ln -fs /src/docker/containers/php/config/php.ini /etc/php.ini && \
+  rm -f /etc/php.d/10-opcache.ini && \
+  for ini in /src/docker/containers/php/config/conf.d/*.ini; do \
+    ln -fs "$ini" "/etc/php.d/$(basename "$ini")"; \
+  done && \
+  suffix=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/') && \
+  curl -fsSL "https://github.com/manticoresoftware/php-ext-model/releases/download/0.2.0/rhel9-libphp-ext-model-v0.2.0-${suffix}.so" \
+    -o "$(php-config --extension-dir)/rhel9-libphp-ext-model-v0.2.0.so" && \
+  php -r 'exit(class_exists("Manticore\\Ext\\Model") ? 0 : 1);' && \
+  cd /src/app && \
+  composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-simplexml \
+    --ignore-platform-req=ext-zip
 WORKDIR /src
 
 ENTRYPOINT ["/src/docker/containers/php/entrypoint"]
