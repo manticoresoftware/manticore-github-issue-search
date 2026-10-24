@@ -1,4 +1,4 @@
-FROM muvon/php:8.3.9-fpm-centos
+FROM manticoresearch/php-fpm:8.3.36-rhel
 LABEL maintainer="Manticore Software Co. Ltd <contact@manticoresearch.com>"
 
 RUN dnf update -y && dnf install -y git unzip && dnf clean all
